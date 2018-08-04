@@ -1,6 +1,8 @@
 package com.frostphyr.notiphy;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 public class AddTwitterActivity extends AddActivity {
 
