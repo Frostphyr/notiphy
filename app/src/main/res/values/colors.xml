@@ -4,4 +4,6 @@
 
     <color name="colorActionBarBackground">#000000</color>
     <color name="colorActionBarTextColor">#FFFFFF</color>
+
+    <color name="colorDivider">#808080</color>
 </resources>
