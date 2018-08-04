@@ -1,25 +1,25 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="NotiphyTheme" parent="Theme.AppCompat.Light">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowBackground">@color/colorBackground</item>
-        <item name="popupMenuStyle">@style/AppTheme.ActionBar.PopupMenu</item>
-        <item name="android:itemTextAppearance">@style/AppTheme.ActionBar.PopupMenu</item>
+        <item name="popupMenuStyle">@style/NotiphyTheme.ActionBar.PopupMenu</item>
+        <item name="android:itemTextAppearance">@style/NotiphyTheme.ActionBar.PopupMenu</item>
     </style>
 
-    <style name="AppTheme.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="NotiphyTheme.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorActionBarBackground</item>
         <item name="titleTextColor">@color/colorActionBarTextColor</item>
-        <item name="popupTheme">@style/AppTheme.ActionBar.PopupMenu</item>
+        <item name="popupTheme">@style/NotiphyTheme.ActionBar.PopupMenu</item>
     </style>
 
-    <style name="AppTheme.ActionBar.PopupMenu" parent="Theme.AppCompat.Light">
+    <style name="NotiphyTheme.ActionBar.PopupMenu" parent="Theme.AppCompat.Light">
         <item name="android:popupBackground">@color/colorActionBarBackground</item>
         <item name="android:textColor">@color/colorActionBarTextColor</item>
     </style>
 
-    <style name="AppTheme.Divider">
+    <style name="NotiphyTheme.Divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">@color/colorDivider</item>

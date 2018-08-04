@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <View style="@style/AppTheme.Divider"/>
+    <View style="@style/NotiphyTheme.Divider"/>
 
     <TextView
         android:id="@+id/titled_spinner_title"
@@ -19,6 +19,6 @@
         android:spinnerMode="dialog"
         android:prompt="@string/media_spinner_title"/>
 
-    <View style="@style/AppTheme.Divider"/>
+    <View style="@style/NotiphyTheme.Divider"/>
 
 </merge>

@@ -11,8 +11,8 @@
         android:id="@+id/add_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:theme="@style/AppTheme.ActionBar"
-        app:popupTheme="@style/AppTheme.ActionBar.PopupMenu"
+        android:theme="@style/NotiphyTheme.ActionBar"
+        app:popupTheme="@style/NotiphyTheme.ActionBar.PopupMenu"
         android:elevation="4dp"/>
 
 </LinearLayout>
