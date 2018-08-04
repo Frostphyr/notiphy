@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Notiphy</string>
+
+    <string name="add_title">Add</string>
+    <string name="add_twitter_title">Twitter</string>
+    <string name="settings_title">Settings</string>
+</resources>
