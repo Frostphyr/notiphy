@@ -15,9 +15,15 @@
         app:popupTheme="@style/NotiphyTheme.ActionBar.PopupMenu"
         android:elevation="4dp"/>
 
-    <ListView
-        android:id="@+id/entry_list"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@+id/entry_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </ScrollView>
 
 </LinearLayout>
