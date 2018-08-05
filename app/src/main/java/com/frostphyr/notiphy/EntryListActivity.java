@@ -29,6 +29,8 @@ public class EntryListActivity extends AppCompatActivity {
             new TwitterEntryIO()
     };
 
+    private MenuPopupHelper addMenuHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +56,17 @@ public class EntryListActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (addMenuHelper != null && addMenuHelper.isShowing()) {
+            addMenuHelper.dismiss();
+            addMenuHelper = null;
         }
     }
 
@@ -97,9 +110,9 @@ public class EntryListActivity extends AppCompatActivity {
             }
         });
         new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_menu, menuBuilder);
-        MenuPopupHelper menuHelper = new MenuPopupHelper(this, menuBuilder, findViewById(item.getItemId()));
-        menuHelper.setForceShowIcon(true);
-        menuHelper.show();
+        addMenuHelper = new MenuPopupHelper(this, menuBuilder, findViewById(item.getItemId()));
+        addMenuHelper.setForceShowIcon(true);
+        addMenuHelper.show();
     }
 
     private static class EntryRowAdapter extends ArrayAdapter<Entry> {
