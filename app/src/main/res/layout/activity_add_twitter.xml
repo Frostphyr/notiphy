@@ -1,42 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     tools:context=".AddTwitterActivity">
 
-    <include layout="@layout/activity_add"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
-
     <LinearLayout
+        android:id="@+id/add_entry_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="\@"/>
+        <include layout="@layout/layout_add_entry_toolbar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
 
-        <EditText
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/username"
-            android:hint="Username"
-            android:layout_weight="1"
-            android:inputType="text"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="\@"/>
+
+            <EditText
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Username"
+                android:layout_weight="1"
+                android:inputType="text"/>
+
+        </LinearLayout>
+
+        <include layout="@layout/layout_add_entry_media"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+        <include layout="@layout/layout_add_entry_phrases"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
-    
-    <com.frostphyr.notiphy.TitledSpinner
-        android:id="@+id/media_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:entries="@array/media_spinner_array"
-        app:title="Media" />
 
-</LinearLayout>
+</ScrollView>

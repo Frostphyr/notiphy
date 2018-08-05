@@ -14,7 +14,7 @@
         <item name="popupTheme">@style/NotiphyTheme.ActionBar.PopupMenu</item>
     </style>
 
-    <style name="NotiphyTheme.ActionBar.PopupMenu" parent="Theme.AppCompat.Light">
+    <style name="NotiphyTheme.ActionBar.PopupMenu" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:popupBackground">@color/colorActionBarBackground</item>
         <item name="android:textColor">@color/colorActionBarTextColor</item>
     </style>

@@ -8,8 +8,10 @@ public class AddTwitterActivity extends AddEntryActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_add_twitter);
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_twitter);
+
+        init();
     }
 
 }

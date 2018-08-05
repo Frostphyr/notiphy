@@ -56,7 +56,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/content/ic_clear_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/content/ic_add_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -66,8 +66,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="ff0000" />
-                            <entry key="outputName" value="ic_clear" />
+                            <entry key="outputName" value="ic_add_black" />
                             <entry key="sourceFile" value="C:\Users\Jon\Downloads\Twitter Logos\Twitter Logos\Twitter Logos\Twitter_Logo_WhiteOnImage\Twitter_Logo_WhiteOnImage.svg" />
                           </map>
                         </option>
