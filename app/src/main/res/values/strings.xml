@@ -7,13 +7,4 @@
     <string name="settings_title">Settings</string>
     <string name="media_spinner_title">Media</string>
     <string name="phrase_hint">Phrase</string>
-
-    <string-array name="media_spinner_array">
-        <item>Optional</item>
-        <item>None</item>
-        <item>Any</item>
-        <item>Picture</item>
-        <item>Video</item>
-    </string-array>
-    
 </resources>

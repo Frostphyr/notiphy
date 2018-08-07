@@ -18,17 +18,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.io.DataInputStream;
+import com.frostphyr.notiphy.io.EntryIO;
+
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EntryListActivity extends AppCompatActivity {
 
-    private static EntryIO[] entryIOs = {
-            new TwitterEntryIO()
-    };
-
+    private List<Entry> entries;
     private MenuPopupHelper addMenuHelper;
 
     @Override
@@ -38,7 +38,13 @@ public class EntryListActivity extends AppCompatActivity {
         setSupportActionBar((Toolbar) findViewById(R.id.entry_list_toolbar));
 
         ListView entryList = findViewById(R.id.entry_list);
-        entryList.setAdapter(new EntryRowAdapter(this, 0, readEntries()));
+        try {
+            entries = EntryIO.read(this);
+        } catch (IOException | JSONException e) {
+            entries = new ArrayList<Entry>();
+            e.printStackTrace();
+        }
+        entryList.setAdapter(new EntryRowAdapter(this, 0, entries));
     }
 
     @Override
@@ -70,23 +76,19 @@ public class EntryListActivity extends AppCompatActivity {
         }
     }
 
-    private List<Entry> readEntries() {
-        List<Entry> entries = new ArrayList<Entry>();
-        try {
-            DataInputStream in = new DataInputStream(openFileInput("entries.txt"));
-            while (in.available() > 0) {
-                byte id = in.readByte();
-                if (id >= 0 && id < entryIOs.length) {
-                    Entry entry = entryIOs[id].read(in);
-                    if (entry != null) {
-                        entries.add(entry);
-                    }
-                }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AddEntryActivity.REQUEST_CODE && resultCode == RESULT_OK) {
+            Entry entry = data.getParcelableExtra("entry");
+            entries.add(entry);
+            ListView entryList = findViewById(R.id.entry_list);
+            ((ArrayAdapter<Entry>) entryList.getAdapter()).notifyDataSetChanged();
+            try {
+                EntryIO.write(this, entries);
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-
         }
-        return entries;
     }
 
     @SuppressLint("RestrictedApi")
@@ -98,7 +100,7 @@ public class EntryListActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.action_add_twitter:
                         Intent intent = new Intent(EntryListActivity.this, AddTwitterActivity.class);
-                        startActivity(intent);
+                        startActivityForResult(intent, AddEntryActivity.REQUEST_CODE);
                         break;
                 }
                 return false;

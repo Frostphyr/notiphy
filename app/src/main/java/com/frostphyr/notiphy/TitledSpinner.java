@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 public class TitledSpinner extends LinearLayout {
+
+    private Spinner spinner;
 
     public TitledSpinner(Context context) {
         super(context);
@@ -29,26 +33,24 @@ public class TitledSpinner extends LinearLayout {
         init(attrs);
     }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+    public void setAdapter(SpinnerAdapter adapter) {
+        spinner.setAdapter(adapter);
+    }
 
-
+    public String getSelectedItem() {
+        return spinner.getSelectedItem().toString();
     }
 
     private void init(AttributeSet attrs) {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.layout_titled_spinner, this);
+        spinner = findViewById(R.id.titled_spinner_spinner);
 
         if (attrs != null) {
             TypedArray arr = getContext().obtainStyledAttributes(attrs, R.styleable.TitledSpinner);
 
             TextView titleView = findViewById(R.id.titled_spinner_title);
             titleView.setText(arr.getString(R.styleable.TitledSpinner_title));
-
-            Spinner spinnerView = findViewById(R.id.titled_spinner_spinner);
-            CharSequence[] entries = arr.getTextArray(R.styleable.TitledSpinner_android_entries);
-            spinnerView.setAdapter(new ArrayAdapter<CharSequence>(getContext(), android.R.layout.simple_spinner_dropdown_item, entries));
         }
     }
 
