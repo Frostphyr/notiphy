@@ -41,8 +41,7 @@ public class EntryIO {
     }
 
     public static void write(Context context, List<Entry> entries) throws IOException, JSONException {
-        File file = new File(getEntriesFile(context), ENTRIES_FILE_NAME);
-        FileOutputStream out = new FileOutputStream(file);
+        FileOutputStream out = new FileOutputStream(getEntriesFile(context));
         JSONArray arr = new JSONArray();
         for (Entry e : entries) {
             arr.put(e.getType().getJSONSerializer().serialize(e));
