@@ -17,14 +17,16 @@ public class AddTwitterActivity extends AddEntryActivity {
     protected Entry createEntry() {
         EditText usernameView = findViewById(R.id.username);
         String username = usernameView.getText().toString().trim();
-        if (username.length() <= 0) {
-            usernameView.setError("Username required");
-        } else if (username.length() > 15) {
-            usernameView.setError("Username cannot be longer than 15 characters");
-        } else if (!username.matches("^[a-zA-Z0-9_]*$")) {
-            usernameView.setError("Username can only contain alphanumeric characters and underscores");
+        MediaType mediaType = getMediaType();
+        String[] phrases = getPhrases();
+        String usernameError = TwitterEntry.validateUsername(username);
+        if (usernameError != null) {
+            usernameView.setError(usernameError);
+        } else if (TwitterEntry.validateMediaType(mediaType) != null
+                || TwitterEntry.validatePhrases(phrases) != null) {
+            //Shouldn't happen
         } else {
-            return new TwitterEntry(username, getMediaType(), getPhrases());
+            return new TwitterEntry(username, mediaType, phrases);
         }
         return null;
     }

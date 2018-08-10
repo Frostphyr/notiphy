@@ -11,6 +11,33 @@ public class TwitterEntry implements Entry {
     private MediaType mediaType;
     private String[] phrases;
 
+    public static String validateUsername(String username) {
+        if (username.length() <= 0) {
+            return "Username required";
+        } else if (username.length() > 15) {
+            return "Username cannot be longer than 15 characters";
+        } else if (!username.matches("^[a-zA-Z0-9_]*$")) {
+            return "Username can only contain alphanumeric characters and underscores";
+        }
+        return null;
+    }
+
+    public static String validateMediaType(MediaType mediaType) {
+        if (mediaType == null) {
+            return "Media Type cannot be null";
+        }
+        return null;
+    }
+
+    public static String validatePhrases(String[] phrases) {
+        if (phrases == null) {
+            return "Phrases cannot be null";
+        } else if (phrases.length > AddEntryActivity.MAX_PHRASES) {
+            return "Max number of phrases is " + AddEntryActivity.MAX_PHRASES;
+        }
+        return null;
+    }
+
     public TwitterEntry(String username, MediaType mediaType, String[] phrases) {
         this.username = username;
         this.mediaType = mediaType;

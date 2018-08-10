@@ -28,12 +28,24 @@ public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
     @Override
     public Entry deserialize(JSONObject obj) throws JSONException {
         String username = obj.getString("username");
+        if (TwitterEntry.validateUsername(username) != null) {
+            return null;
+        }
+
         MediaType mediaType = MediaType.valueOf(obj.getString("mediaType"));
+        if (TwitterEntry.validateMediaType(mediaType) != null) {
+            return null;
+        }
+
         JSONArray phraseArray = obj.getJSONArray("phrases");
+        if (phraseArray == null) {
+            return null;
+        }
         String[] phrases = new String[phraseArray.length()];
         for (int i = 0; i < phrases.length; i++) {
             phrases[i] = phraseArray.getString(i);
         }
+
         return new TwitterEntry(username, mediaType, phrases);
     }
 
