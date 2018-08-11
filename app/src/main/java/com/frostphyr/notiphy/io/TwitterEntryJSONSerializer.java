@@ -15,6 +15,7 @@ public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
         TwitterEntry twitterEntry = (TwitterEntry) entry;
         JSONObject obj = new JSONObject();
         obj.put("type", twitterEntry.getType().toString());
+        obj.put("active", twitterEntry.isActive());
         obj.put("username", twitterEntry.getUsername());
         obj.put("mediaType", twitterEntry.getMediaType().toString());
         JSONArray phrases = new JSONArray();
@@ -27,6 +28,8 @@ public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
 
     @Override
     public Entry deserialize(JSONObject obj) throws JSONException {
+        boolean active = obj.getBoolean("active");
+
         String username = obj.getString("username");
         if (TwitterEntry.validateUsername(username) != null) {
             return null;
@@ -46,7 +49,7 @@ public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
             phrases[i] = phraseArray.getString(i);
         }
 
-        return new TwitterEntry(username, mediaType, phrases);
+        return new TwitterEntry(username, mediaType, phrases, active);
     }
 
 }

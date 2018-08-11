@@ -2,6 +2,7 @@ package com.frostphyr.notiphy;
 
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.Switch;
 
 public class AddTwitterActivity extends AddEntryActivity {
 
@@ -26,7 +27,7 @@ public class AddTwitterActivity extends AddEntryActivity {
                 || TwitterEntry.validatePhrases(phrases) != null) {
             //Shouldn't happen
         } else {
-            return new TwitterEntry(username, mediaType, phrases);
+            return new TwitterEntry(username, mediaType, phrases, true);
         }
         return null;
     }

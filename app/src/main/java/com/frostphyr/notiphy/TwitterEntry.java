@@ -13,6 +13,7 @@ public class TwitterEntry implements Entry {
     private String username;
     private MediaType mediaType;
     private String[] phrases;
+    private boolean active;
 
     public static String validateUsername(String username) {
         if (username.length() <= 0) {
@@ -41,10 +42,11 @@ public class TwitterEntry implements Entry {
         return null;
     }
 
-    public TwitterEntry(String username, MediaType mediaType, String[] phrases) {
+    public TwitterEntry(String username, MediaType mediaType, String[] phrases, boolean active) {
         this.username = username;
         this.mediaType = mediaType;
         this.phrases = phrases;
+        this.active = active;
     }
 
     public String getUsername() {
@@ -57,6 +59,11 @@ public class TwitterEntry implements Entry {
 
     public String[] getPhrases() {
         return phrases;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
     }
 
     @Override
@@ -86,6 +93,7 @@ public class TwitterEntry implements Entry {
             }
         }
         holder.phrases.setText(builder.toString());
+        holder.active.setChecked(active);
         return view;
     }
 
@@ -100,6 +108,7 @@ public class TwitterEntry implements Entry {
         dest.writeInt(mediaType.ordinal());
         dest.writeInt(phrases.length);
         dest.writeStringArray(phrases);
+        dest.writeInt(active ? 1 : 0);
     }
 
     public static final Parcelable.Creator<TwitterEntry> CREATOR = new Parcelable.Creator<TwitterEntry>() {
@@ -110,7 +119,8 @@ public class TwitterEntry implements Entry {
             MediaType mediaType = MediaType.values()[in.readInt()];
             String[] phrases = new String[in.readInt()];
             in.readStringArray(phrases);
-            return new TwitterEntry(username, mediaType, phrases);
+            boolean active = in.readInt() != 0;
+            return new TwitterEntry(username, mediaType, phrases, active);
         }
 
         @Override

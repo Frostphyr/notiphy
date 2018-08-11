@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 
 public interface Entry extends Parcelable {
 
+    boolean isActive();
+
     EntryType getType();
 
     View createView(LayoutInflater inflater, View view, ViewGroup parent);
