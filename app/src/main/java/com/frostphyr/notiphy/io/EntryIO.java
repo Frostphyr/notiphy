@@ -1,7 +1,6 @@
 package com.frostphyr.notiphy.io;
 
 import android.content.Context;
-import android.os.Environment;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
@@ -10,9 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +18,10 @@ public class EntryIO {
     public static final String ENTRIES_FILE_NAME = "entries.json";
 
     public static List<Entry> read(Context context) throws IOException, JSONException {
-        File file = getEntriesFile(context);
-        if (file.exists()) {
-            FileInputStream in = new FileInputStream(file);
-            byte[] buffer = new byte[in.available()];
-            in.read(buffer);
-            in.close();
-
+        byte[] data = FileIO.read(context, ENTRIES_FILE_NAME);
+        if (data != null) {
             List<Entry> entries = new ArrayList<Entry>();
-            JSONArray arr = new JSONArray(new String(buffer));
+            JSONArray arr = new JSONArray(new String(data));
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 entries.add(EntryType.valueOf(obj.getString("type")).getJSONSerializer().deserialize(obj));
@@ -41,24 +32,12 @@ public class EntryIO {
     }
 
     public static void write(Context context, List<Entry> entries) throws IOException, JSONException {
-        FileOutputStream out = new FileOutputStream(getEntriesFile(context));
         JSONArray arr = new JSONArray();
         for (Entry e : entries) {
             arr.put(e.getType().getJSONSerializer().serialize(e));
         }
-
-        out.write(arr.toString(2).getBytes());
-        out.close();
-    }
-
-    private static File getEntriesFile(Context context) {
-        File dir;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            dir = context.getExternalFilesDir(null);
-        } else {
-            dir =  context.getFilesDir();
-        }
-        return new File(dir, ENTRIES_FILE_NAME);
+        byte[] data = arr.toString(2).getBytes();
+        FileIO.write(context, ENTRIES_FILE_NAME, data);
     }
 
 }
