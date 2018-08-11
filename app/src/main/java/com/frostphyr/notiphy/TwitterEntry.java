@@ -4,6 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Switch;
+import android.widget.TextView;
 
 public class TwitterEntry implements Entry {
 
@@ -62,8 +65,28 @@ public class TwitterEntry implements Entry {
     }
 
     @Override
-    public View createView(LayoutInflater inflater) {
-        return null;
+    public View createView(LayoutInflater inflater, View view, ViewGroup parent) {
+        ViewHolder holder;
+        if (view == null) {
+            view = inflater.inflate(R.layout.layout_entry_row_twitter, parent, false);
+            holder = new ViewHolder();
+            holder.username = view.findViewById(R.id.username);
+            holder.phrases = view.findViewById(R.id.phrases);
+            holder.active = view.findViewById(R.id.active_switch);
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
+        }
+        holder.username.setText(username);
+        StringBuilder builder = new StringBuilder(Math.max(phrases.length * 2 - 1, 0));
+        for (int i = 0; i < phrases.length; i++) {
+            builder.append(phrases[i]);
+            if (i != phrases.length - 1) {
+                builder.append(", ");
+            }
+        }
+        holder.phrases.setText(builder.toString());
+        return view;
     }
 
     @Override
@@ -96,5 +119,13 @@ public class TwitterEntry implements Entry {
         }
 
     };
+
+    static class ViewHolder {
+
+        TextView username;
+        TextView phrases;
+        Switch active;
+
+    }
 
 }

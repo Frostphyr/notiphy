@@ -40,11 +40,12 @@ public class EntryListActivity extends AppCompatActivity {
         ListView entryList = findViewById(R.id.entry_list);
         try {
             entries = EntryIO.read(this);
+
         } catch (IOException | JSONException e) {
             entries = new ArrayList<Entry>();
             e.printStackTrace();
         }
-        entryList.setAdapter(new EntryRowAdapter(this, 0, entries));
+        entryList.setAdapter(new EntryRowAdapter(this, entries));
     }
 
     @Override
@@ -82,7 +83,7 @@ public class EntryListActivity extends AppCompatActivity {
             Entry entry = data.getParcelableExtra("entry");
             entries.add(entry);
             ListView entryList = findViewById(R.id.entry_list);
-            ((ArrayAdapter<Entry>) entryList.getAdapter()).notifyDataSetChanged();
+            ((ArrayAdapter<?>) entryList.getAdapter()).notifyDataSetChanged();
             try {
                 EntryIO.write(this, entries);
             } catch (IOException | JSONException e) {
@@ -121,15 +122,25 @@ public class EntryListActivity extends AppCompatActivity {
 
         private LayoutInflater inflater;
 
-        public EntryRowAdapter(@NonNull Context context, int resource, @NonNull List<Entry> objects) {
-            super(context, resource, objects);
+        public EntryRowAdapter(@NonNull Context context, @NonNull List<Entry> objects) {
+            super(context, -1, objects);
 
             inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
-        public View getView(int position, View view, ViewGroup parent) {
-            return getItem(position).createView(inflater);
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return getItem(position).createView(inflater, convertView, parent);
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return EntryType.values().length;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return getItem(position).getType().ordinal();
         }
 
     }

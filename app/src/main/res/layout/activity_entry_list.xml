@@ -10,20 +10,14 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/entry_list_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="?android:attr/actionBarSize"
         android:theme="@style/NotiphyTheme.ActionBar"
         app:popupTheme="@style/NotiphyTheme.ActionBar.PopupMenu"
         android:elevation="4dp"/>
 
-    <ScrollView
+    <ListView
+        android:id="@+id/entry_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ListView
-            android:id="@+id/entry_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </ScrollView>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>
