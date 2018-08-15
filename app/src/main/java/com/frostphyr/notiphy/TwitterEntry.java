@@ -2,6 +2,7 @@ package com.frostphyr.notiphy;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,10 +112,10 @@ public class TwitterEntry implements Entry {
         dest.writeInt(active ? 1 : 0);
     }
 
-    public static final Parcelable.Creator<TwitterEntry> CREATOR = new Parcelable.Creator<TwitterEntry>() {
+    public static final Parcelable.Creator<Entry> CREATOR = new Parcelable.Creator<Entry>() {
 
         @Override
-        public TwitterEntry createFromParcel(Parcel in) {
+        public Entry createFromParcel(Parcel in) {
             String username = in.readString();
             MediaType mediaType = MediaType.values()[in.readInt()];
             String[] phrases = new String[in.readInt()];
@@ -124,8 +125,8 @@ public class TwitterEntry implements Entry {
         }
 
         @Override
-        public TwitterEntry[] newArray(int size) {
-            return new TwitterEntry[size];
+        public Entry[] newArray(int size) {
+            return new Entry[size];
         }
 
     };

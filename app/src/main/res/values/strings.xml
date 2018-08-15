@@ -7,4 +7,9 @@
     <string name="settings_title">Settings</string>
     <string name="media_spinner_title">Media</string>
     <string name="phrase_hint">Phrase</string>
+    <string name="report_error">Report error</string>
+    <string name="close">Close</string>
+
+    <string name="error_message_read_entries">Error reading saved entries</string>
+    <string name="error_message_write_entries">Error writing entries to storage</string>
 </resources>

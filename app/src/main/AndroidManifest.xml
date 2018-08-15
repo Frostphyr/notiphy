@@ -3,6 +3,7 @@
     package="com.frostphyr.notiphy">
 
     <application
+        android:name=".NotiphyApplication"
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -15,6 +16,8 @@
         </activity>
         <activity android:name=".AddTwitterActivity"
             android:label="@string/add_twitter_title"/>
+
+        <service android:name=".io.EntryIO"/>
     </application>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"

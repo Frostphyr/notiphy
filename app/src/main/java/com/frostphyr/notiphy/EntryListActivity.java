@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,15 +21,11 @@ import android.widget.ListView;
 
 import com.frostphyr.notiphy.io.EntryIO;
 
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class EntryListActivity extends AppCompatActivity {
 
-    private List<Entry> entries;
+    private NotiphyApplication application;
     private MenuPopupHelper addMenuHelper;
 
     @Override
@@ -37,15 +34,21 @@ public class EntryListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_entry_list);
         setSupportActionBar((Toolbar) findViewById(R.id.entry_list_toolbar));
 
-        ListView entryList = findViewById(R.id.entry_list);
-        try {
-            entries = EntryIO.read(this);
+        application = (NotiphyApplication) getApplication();
 
-        } catch (IOException | JSONException e) {
-            entries = new ArrayList<Entry>();
-            e.printStackTrace();
+        ListView entryList = findViewById(R.id.entry_list);
+        entryList.setAdapter(new EntryRowAdapter(this, application.getEntries()));
+
+        if (!application.finishedReadingEntries()) {
+            application.setReadListener(new Runnable() {
+
+                @Override
+                public void run() {
+                    updateEntryList();
+                }
+
+            });
         }
-        entryList.setAdapter(new EntryRowAdapter(this, entries));
     }
 
     @Override
@@ -80,16 +83,23 @@ public class EntryListActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AddEntryActivity.REQUEST_CODE && resultCode == RESULT_OK) {
-            Entry entry = data.getParcelableExtra("entry");
-            entries.add(entry);
-            ListView entryList = findViewById(R.id.entry_list);
-            ((ArrayAdapter<?>) entryList.getAdapter()).notifyDataSetChanged();
-            try {
-                EntryIO.write(this, entries);
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
+            Entry entry = data.getParcelableExtra(AddEntryActivity.EXTRA_ENTRY);
+            ((NotiphyApplication) getApplication()).getEntries().add(entry);
+            saveEntries();
+            updateEntryList();
         }
+    }
+
+    private void updateEntryList() {
+        ListView entryList = findViewById(R.id.entry_list);
+        ((ArrayAdapter<?>) entryList.getAdapter()).notifyDataSetChanged();
+    }
+
+    private void saveEntries() {
+        Intent intent = new Intent(this, EntryIO.class);
+        intent.setAction(EntryIO.ACTION_WRITE);
+        intent.putExtra(EntryIO.EXTRA_ENTRIES, application.getEntryArray());
+        startService(intent);
     }
 
     @SuppressLint("RestrictedApi")

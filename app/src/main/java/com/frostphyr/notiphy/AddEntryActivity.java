@@ -23,6 +23,8 @@ public abstract class AddEntryActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 77;
     public static final int MAX_PHRASES = 10;
 
+    public static final String EXTRA_ENTRY = "entry";
+
     private Set<TextView> phraseViews = new LinkedHashSet<TextView>();
 
     protected abstract Entry createEntry();
@@ -73,7 +75,7 @@ public abstract class AddEntryActivity extends AppCompatActivity {
                 Entry entry = createEntry();
                 if (entry != null) {
                     Intent data = new Intent();
-                    data.putExtra("entry", entry);
+                    data.putExtra(EXTRA_ENTRY, entry);
                     setResult(RESULT_OK, data);
                     finish();
                 }
