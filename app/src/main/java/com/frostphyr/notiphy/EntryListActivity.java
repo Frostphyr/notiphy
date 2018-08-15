@@ -3,13 +3,11 @@ package com.frostphyr.notiphy;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,8 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.frostphyr.notiphy.io.EntryIO;
 
 import java.util.List;
 
@@ -85,7 +81,7 @@ public class EntryListActivity extends AppCompatActivity {
         if (requestCode == AddEntryActivity.REQUEST_CODE && resultCode == RESULT_OK) {
             Entry entry = data.getParcelableExtra(AddEntryActivity.EXTRA_ENTRY);
             ((NotiphyApplication) getApplication()).getEntries().add(entry);
-            saveEntries();
+            application.saveEntries();
             updateEntryList();
         }
     }
@@ -93,13 +89,6 @@ public class EntryListActivity extends AppCompatActivity {
     private void updateEntryList() {
         ListView entryList = findViewById(R.id.entry_list);
         ((ArrayAdapter<?>) entryList.getAdapter()).notifyDataSetChanged();
-    }
-
-    private void saveEntries() {
-        Intent intent = new Intent(this, EntryIO.class);
-        intent.setAction(EntryIO.ACTION_WRITE);
-        intent.putExtra(EntryIO.EXTRA_ENTRIES, application.getEntryArray());
-        startService(intent);
     }
 
     @SuppressLint("RestrictedApi")
@@ -132,7 +121,7 @@ public class EntryListActivity extends AppCompatActivity {
 
         private LayoutInflater inflater;
 
-        public EntryRowAdapter(@NonNull Context context, @NonNull List<Entry> objects) {
+        public EntryRowAdapter(Context context, List<Entry> objects) {
             super(context, -1, objects);
 
             inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);

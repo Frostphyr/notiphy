@@ -2,10 +2,10 @@ package com.frostphyr.notiphy;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -14,7 +14,7 @@ public class TwitterEntry implements Entry {
     private String username;
     private MediaType mediaType;
     private String[] phrases;
-    private boolean active;
+    private volatile boolean active;
 
     public static String validateUsername(String username) {
         if (username.length() <= 0) {
@@ -68,12 +68,17 @@ public class TwitterEntry implements Entry {
     }
 
     @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    @Override
     public EntryType getType() {
         return EntryType.TWITTER;
     }
 
     @Override
-    public View createView(LayoutInflater inflater, View view, ViewGroup parent) {
+    public View createView(LayoutInflater inflater, View view, final ViewGroup parent) {
         ViewHolder holder;
         if (view == null) {
             view = inflater.inflate(R.layout.layout_entry_row_twitter, parent, false);
@@ -95,6 +100,15 @@ public class TwitterEntry implements Entry {
         }
         holder.phrases.setText(builder.toString());
         holder.active.setChecked(active);
+        holder.active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setActive(isChecked);
+                ((NotiphyApplication) parent.getContext().getApplicationContext()).saveEntries();
+            }
+
+        });
         return view;
     }
 

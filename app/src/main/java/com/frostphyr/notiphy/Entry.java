@@ -9,6 +9,8 @@ public interface Entry extends Parcelable {
 
     boolean isActive();
 
+    void setActive(boolean active);
+
     EntryType getType();
 
     View createView(LayoutInflater inflater, View view, ViewGroup parent);

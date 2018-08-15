@@ -35,12 +35,15 @@ public class NotiphyApplication extends Application {
         startService(intent);
     }
 
-    public List<Entry> getEntries() {
-        return entries;
+    public void saveEntries() {
+        Intent intent = new Intent(this, EntryIO.class);
+        intent.setAction(EntryIO.ACTION_WRITE);
+        intent.putExtra(EntryIO.EXTRA_ENTRIES, entries.toArray(new Entry[entries.size()]));
+        startService(intent);
     }
 
-    public Entry[] getEntryArray() {
-        return entries.toArray(new Entry[entries.size()]);
+    public List<Entry> getEntries() {
+        return entries;
     }
 
     public void setReadListener(Runnable readListener) {
