@@ -64,7 +64,7 @@ public abstract class EntryActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.add_entry_toolbar_menu, menu);
+        inflater.inflate(R.menu.entry_toolbar_menu, menu);
         return true;
     }
 
@@ -110,7 +110,7 @@ public abstract class EntryActivity extends AppCompatActivity {
 
     protected void addNewPhrase(String text) {
         final ViewGroup layout = findViewById(R.id.add_entry_layout);
-        final ViewGroup newLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.layout_add_entry_phrase, null, false);
+        final ViewGroup newLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.layout_entry_phrase, null, false);
 
         if (text != null) {
             EditText phraseView = newLayout.findViewById(R.id.phrase);

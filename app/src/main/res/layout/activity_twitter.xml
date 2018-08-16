@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".AddTwitterActivity">
+    tools:context=".TwitterActivity">
 
-    <include layout="@layout/layout_add_entry_toolbar"
+    <include layout="@layout/layout_entry_toolbar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"/>
 
@@ -15,7 +15,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/add_entry_layout"
+            android:id="@+id/entry_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -40,11 +40,11 @@
 
             </LinearLayout>
 
-            <include layout="@layout/layout_add_entry_media"
+            <include layout="@layout/layout_entry_media"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
 
-            <include layout="@layout/layout_add_entry_phrases"
+            <include layout="@layout/layout_entry_phrases"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"/>
 
