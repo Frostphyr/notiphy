@@ -88,6 +88,7 @@ public class TwitterEntry implements Entry {
             view = inflater.inflate(R.layout.layout_entry_row_twitter, parent, false);
             holder = new ViewHolder();
             holder.username = view.findViewById(R.id.username);
+            holder.mediaType = view.findViewById(R.id.media_type);
             holder.phrases = view.findViewById(R.id.phrases);
             holder.active = view.findViewById(R.id.active_switch);
             view.setTag(holder);
@@ -96,6 +97,7 @@ public class TwitterEntry implements Entry {
         }
 
         holder.username.setText(username);
+        holder.mediaType.setText("Media: " + mediaType);
         StringBuilder builder = new StringBuilder(Math.max(phrases.length * 2 - 1, 0));
         for (int i = 0; i < phrases.length; i++) {
             builder.append(phrases[i]);
@@ -175,6 +177,7 @@ public class TwitterEntry implements Entry {
     static class ViewHolder {
 
         TextView username;
+        TextView mediaType;
         TextView phrases;
         Switch active;
 
