@@ -68,7 +68,7 @@ public abstract class EntryActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.entry_toolbar_menu, menu);
         if (oldEntry == null) {
-            menu.removeItem(R.id.action_remove);
+            menu.removeItem(R.id.action_delete);
         }
         return true;
     }
