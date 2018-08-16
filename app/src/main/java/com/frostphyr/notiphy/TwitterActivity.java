@@ -2,9 +2,8 @@ package com.frostphyr.notiphy;
 
 import android.os.Bundle;
 import android.widget.EditText;
-import android.widget.Switch;
 
-public class AddTwitterActivity extends AddEntryActivity {
+public class TwitterActivity extends EntryActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -12,6 +11,15 @@ public class AddTwitterActivity extends AddEntryActivity {
         setContentView(R.layout.activity_add_twitter);
 
         init();
+
+        TwitterEntry oldEntry = (TwitterEntry) super.oldEntry;
+        if (oldEntry != null) {
+            EditText usernameView = findViewById(R.id.username);
+            usernameView.setText(oldEntry.getUsername());
+
+            setMediaType(oldEntry.getMediaType());
+            setPhrases(oldEntry.getPhrases());
+        }
     }
 
     @Override
@@ -27,7 +35,7 @@ public class AddTwitterActivity extends AddEntryActivity {
                 || TwitterEntry.validatePhrases(phrases) != null) {
             //Shouldn't happen
         } else {
-            return new TwitterEntry(username, mediaType, phrases, true);
+            return new TwitterEntry(username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true);
         }
         return null;
     }

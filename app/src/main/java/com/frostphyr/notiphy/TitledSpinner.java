@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -39,6 +37,10 @@ public class TitledSpinner extends LinearLayout {
 
     public String getSelectedItem() {
         return spinner.getSelectedItem().toString();
+    }
+
+    public void setSelectedItem(int position) {
+        spinner.setSelection(position);
     }
 
     private void init(AttributeSet attrs) {

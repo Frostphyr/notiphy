@@ -33,7 +33,7 @@ public class EntryListActivity extends AppCompatActivity {
         application = (NotiphyApplication) getApplication();
 
         ListView entryList = findViewById(R.id.entry_list);
-        entryList.setAdapter(new EntryRowAdapter(this, application.getEntries()));
+        entryList.setAdapter(new EntryRowAdapter(application.getEntries()));
 
         if (!application.finishedReadingEntries()) {
             application.setReadListener(new Runnable() {
@@ -78,9 +78,7 @@ public class EntryListActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == AddEntryActivity.REQUEST_CODE && resultCode == RESULT_OK) {
-            Entry entry = data.getParcelableExtra(AddEntryActivity.EXTRA_ENTRY);
-            ((NotiphyApplication) getApplication()).getEntries().add(entry);
+        if (requestCode == EntryActivity.REQUEST_CODE && resultCode == RESULT_OK) {
             application.saveEntries();
             updateEntryList();
         }
@@ -99,8 +97,8 @@ public class EntryListActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_add_twitter:
-                        Intent intent = new Intent(EntryListActivity.this, AddTwitterActivity.class);
-                        startActivityForResult(intent, AddEntryActivity.REQUEST_CODE);
+                        Intent intent = new Intent(EntryListActivity.this, TwitterActivity.class);
+                        startActivityForResult(intent, EntryActivity.REQUEST_CODE);
                         break;
                 }
                 return false;
@@ -117,19 +115,19 @@ public class EntryListActivity extends AppCompatActivity {
         addMenuHelper.show();
     }
 
-    private static class EntryRowAdapter extends ArrayAdapter<Entry> {
+    private class EntryRowAdapter extends ArrayAdapter<Entry> {
 
         private LayoutInflater inflater;
 
-        public EntryRowAdapter(Context context, List<Entry> objects) {
-            super(context, -1, objects);
+        public EntryRowAdapter(List<Entry> objects) {
+            super(EntryListActivity.this, -1, objects);
 
             inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return getItem(position).createView(inflater, convertView, parent);
+            return getItem(position).createView(inflater, convertView, parent, EntryListActivity.this);
         }
 
         @Override

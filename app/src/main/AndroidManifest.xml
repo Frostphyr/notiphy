@@ -14,8 +14,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".AddTwitterActivity"
-            android:label="@string/add_twitter_title"/>
+        <activity android:name=".TwitterActivity"
+            android:label="@string/twitter_title"/>
 
         <service android:name=".io.EntryIO"/>
     </application>

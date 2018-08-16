@@ -46,6 +46,13 @@ public class NotiphyApplication extends Application {
         return entries;
     }
 
+    public void replaceEntry(Entry oldEntry, Entry newEntry) {
+        int index = entries.indexOf(oldEntry);
+        if (index != -1) {
+            entries.set(index, newEntry);
+        }
+    }
+
     public void setReadListener(Runnable readListener) {
         this.readListener = readListener;
     }

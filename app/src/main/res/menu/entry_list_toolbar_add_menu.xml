@@ -5,7 +5,7 @@
     <item
         android:id="@+id/action_add_twitter"
         android:icon="@drawable/ic_twitter_logo"
-        android:title="@string/add_twitter_title"
+        android:title="@string/twitter_title"
         app:showAsAction="ifRoom"/>
 
 </menu>

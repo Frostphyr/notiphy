@@ -1,5 +1,7 @@
 package com.frostphyr.notiphy;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -8,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import java.util.Arrays;
 
 public class TwitterEntry implements Entry {
 
@@ -37,8 +41,8 @@ public class TwitterEntry implements Entry {
     public static String validatePhrases(String[] phrases) {
         if (phrases == null) {
             return "Phrases cannot be null";
-        } else if (phrases.length > AddEntryActivity.MAX_PHRASES) {
-            return "Max number of phrases is " + AddEntryActivity.MAX_PHRASES;
+        } else if (phrases.length > EntryActivity.MAX_PHRASES) {
+            return "Max number of phrases is " + EntryActivity.MAX_PHRASES;
         }
         return null;
     }
@@ -78,7 +82,7 @@ public class TwitterEntry implements Entry {
     }
 
     @Override
-    public View createView(LayoutInflater inflater, View view, final ViewGroup parent) {
+    public View createView(LayoutInflater inflater, View view, ViewGroup parent, final Activity activity) {
         ViewHolder holder;
         if (view == null) {
             view = inflater.inflate(R.layout.layout_entry_row_twitter, parent, false);
@@ -90,6 +94,7 @@ public class TwitterEntry implements Entry {
         } else {
             holder = (ViewHolder) view.getTag();
         }
+
         holder.username.setText(username);
         StringBuilder builder = new StringBuilder(Math.max(phrases.length * 2 - 1, 0));
         for (int i = 0; i < phrases.length; i++) {
@@ -105,7 +110,17 @@ public class TwitterEntry implements Entry {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setActive(isChecked);
-                ((NotiphyApplication) parent.getContext().getApplicationContext()).saveEntries();
+                ((NotiphyApplication) activity.getApplicationContext()).saveEntries();
+            }
+
+        });
+        view.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(activity, TwitterActivity.class);
+                intent.putExtra(EntryActivity.EXTRA_ENTRY, TwitterEntry.this);
+                activity.startActivityForResult(intent, EntryActivity.REQUEST_CODE);
             }
 
         });
@@ -124,6 +139,18 @@ public class TwitterEntry implements Entry {
         dest.writeInt(phrases.length);
         dest.writeStringArray(phrases);
         dest.writeInt(active ? 1 : 0);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof TwitterEntry) {
+            TwitterEntry e = (TwitterEntry) o;
+            return e.username.equals(username)
+                    && e.mediaType.equals(mediaType)
+                    && Arrays.equals(e.phrases, phrases)
+                    && active == active;
+        }
+        return false;
     }
 
     public static final Parcelable.Creator<Entry> CREATOR = new Parcelable.Creator<Entry>() {

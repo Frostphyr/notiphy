@@ -3,7 +3,7 @@
 
     <string name="add_title">Add</string>
     <string name="save_title">Save</string>
-    <string name="add_twitter_title">Twitter</string>
+    <string name="twitter_title">Twitter</string>
     <string name="settings_title">Settings</string>
     <string name="media_spinner_title">Media</string>
     <string name="phrase_hint">Phrase</string>

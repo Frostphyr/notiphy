@@ -1,6 +1,5 @@
 package com.frostphyr.notiphy;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,18 +18,21 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AddEntryActivity extends AppCompatActivity {
+public abstract class EntryActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE = 77;
     public static final int MAX_PHRASES = 10;
 
     public static final String EXTRA_ENTRY = "entry";
 
+    protected Entry oldEntry;
     private Set<TextView> phraseViews = new LinkedHashSet<TextView>();
 
     protected abstract Entry createEntry();
 
     protected void init() {
+        oldEntry = getIntent().getParcelableExtra(EXTRA_ENTRY);
+
         setSupportActionBar((Toolbar) findViewById(R.id.add_toolbar));
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back);
@@ -51,7 +54,7 @@ public abstract class AddEntryActivity extends AppCompatActivity {
 
                 @Override
                 public void onClick(View view) {
-                    addNewPhrase(view);
+                    addNewPhrase(null);
                 }
             });
 
@@ -69,14 +72,19 @@ public abstract class AddEntryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                setResult(RESULT_CANCELED);
                 finish();
                 return true;
             case R.id.action_save:
                 Entry entry = createEntry();
                 if (entry != null) {
-                    Intent data = new Intent();
-                    data.putExtra(EXTRA_ENTRY, entry);
-                    setResult(RESULT_OK, data);
+                    NotiphyApplication app = (NotiphyApplication) getApplication();
+                    if (oldEntry != null) {
+                        app.replaceEntry(oldEntry, entry);
+                    } else {
+                        app.getEntries().add(entry);
+                    }
+                    setResult(RESULT_OK);
                     finish();
                 }
                 return true;
@@ -100,9 +108,15 @@ public abstract class AddEntryActivity extends AppCompatActivity {
         return phrases.toArray(new String[phrases.size()]);
     }
 
-    private void addNewPhrase(View v) {
+    protected void addNewPhrase(String text) {
         final ViewGroup layout = findViewById(R.id.add_entry_layout);
         final ViewGroup newLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.layout_add_entry_phrase, null, false);
+
+        if (text != null) {
+            EditText phraseView = newLayout.findViewById(R.id.phrase);
+            phraseView.setText(text);
+        }
+
         final View addNewPhraseButton = layout.findViewById(R.id.add_new_phrase);
         ImageButton removeButton = (ImageButton) newLayout.getChildAt(newLayout.indexOfChild(newLayout.findViewById(R.id.remove_phrase)));
         removeButton.setOnClickListener(new View.OnClickListener() {
@@ -123,6 +137,22 @@ public abstract class AddEntryActivity extends AppCompatActivity {
         phraseViews.add((TextView) newLayout.findViewById(R.id.phrase));
         if (phraseViews.size() >= MAX_PHRASES) {
             addNewPhraseButton.setVisibility(View.GONE);
+        }
+    }
+
+    protected void setMediaType(MediaType mediaType) {
+        TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
+        mediaSpinner.setSelectedItem(mediaType.ordinal());
+    }
+
+    protected void setPhrases(String[] phrases) {
+        if (phrases.length >= 1) {
+            EditText phrase1View = findViewById(R.id.phrase_1);
+            phrase1View.setText(phrases[0]);
+
+            for (int i = 1; i < phrases.length; i++) {
+                addNewPhrase(phrases[i]);
+            }
         }
     }
 
