@@ -1,5 +1,7 @@
 package com.frostphyr.notiphy;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -65,6 +67,9 @@ public abstract class EntryActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.entry_toolbar_menu, menu);
+        if (oldEntry == null) {
+            menu.removeItem(R.id.action_remove);
+        }
         return true;
     }
 
@@ -88,6 +93,29 @@ public abstract class EntryActivity extends AppCompatActivity {
                     finish();
                 }
                 return true;
+            case R.id.action_delete:
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.delete_entry_conformation)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                ((NotiphyApplication) getApplication()).getEntries().remove(oldEntry);
+                                setResult(RESULT_OK);
+                                finish();
+                            }
+
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+
+                        })
+                        .show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -109,7 +137,7 @@ public abstract class EntryActivity extends AppCompatActivity {
     }
 
     protected void addNewPhrase(String text) {
-        final ViewGroup layout = findViewById(R.id.add_entry_layout);
+        final ViewGroup layout = findViewById(R.id.entry_layout);
         final ViewGroup newLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.layout_entry_phrase, null, false);
 
         if (text != null) {
