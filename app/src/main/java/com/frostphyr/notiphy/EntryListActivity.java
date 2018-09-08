@@ -129,7 +129,7 @@ public class EntryListActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return getItem(position).createView(inflater, convertView, parent, EntryListActivity.this);
+            return createView(getItem(position), convertView, parent);
         }
 
         @Override
@@ -140,6 +140,11 @@ public class EntryListActivity extends AppCompatActivity {
         @Override
         public int getItemViewType(int position) {
             return getItem(position).getType().ordinal();
+        }
+
+        @SuppressWarnings("unchecked")
+        private <T extends Entry> View createView(T entry, View convertView, ViewGroup parent) {
+            return ((EntryViewFactory<T>) entry.getType().getViewFactory()).createView(entry, inflater, convertView, parent, EntryListActivity.this);
         }
 
     }
