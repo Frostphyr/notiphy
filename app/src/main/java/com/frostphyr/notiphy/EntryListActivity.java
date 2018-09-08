@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.frostphyr.notiphy.twitter.TwitterActivity;
+
 import java.util.List;
 
 public class EntryListActivity extends AppCompatActivity {

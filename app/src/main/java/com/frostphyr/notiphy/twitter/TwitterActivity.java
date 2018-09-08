@@ -1,7 +1,12 @@
-package com.frostphyr.notiphy;
+package com.frostphyr.notiphy.twitter;
 
 import android.os.Bundle;
 import android.widget.EditText;
+
+import com.frostphyr.notiphy.Entry;
+import com.frostphyr.notiphy.EntryActivity;
+import com.frostphyr.notiphy.MediaType;
+import com.frostphyr.notiphy.R;
 
 public class TwitterActivity extends EntryActivity {
 

@@ -1,8 +1,8 @@
-package com.frostphyr.notiphy.io;
+package com.frostphyr.notiphy.twitter;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.MediaType;
-import com.frostphyr.notiphy.TwitterEntry;
+import com.frostphyr.notiphy.io.EntryJSONSerializer;
 
 import org.json.JSONArray;
 import org.json.JSONException;

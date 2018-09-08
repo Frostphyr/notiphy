@@ -1,7 +1,7 @@
 package com.frostphyr.notiphy;
 
 import com.frostphyr.notiphy.io.EntryJSONSerializer;
-import com.frostphyr.notiphy.io.TwitterEntryJSONSerializer;
+import com.frostphyr.notiphy.twitter.TwitterEntryJSONSerializer;
 
 public enum EntryType {
 

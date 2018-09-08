@@ -1,4 +1,4 @@
-package com.frostphyr.notiphy;
+package com.frostphyr.notiphy.twitter;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,6 +10,13 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.frostphyr.notiphy.Entry;
+import com.frostphyr.notiphy.EntryActivity;
+import com.frostphyr.notiphy.EntryType;
+import com.frostphyr.notiphy.MediaType;
+import com.frostphyr.notiphy.NotiphyApplication;
+import com.frostphyr.notiphy.R;
 
 import java.util.Arrays;
 
