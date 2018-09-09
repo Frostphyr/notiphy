@@ -1,8 +1,10 @@
 package com.frostphyr.notiphy.twitter;
 
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.widget.EditText;
 
+import com.frostphyr.notiphy.CharRangeInputFilter;
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryActivity;
 import com.frostphyr.notiphy.MediaType;
@@ -17,11 +19,12 @@ public class TwitterActivity extends EntryActivity {
 
         init();
 
+        EditText usernameView = findViewById(R.id.username);
+        usernameView.setFilters(new InputFilter[]{new CharRangeInputFilter(TwitterEntry.USERNAME_CHAR_RANGES)});
+
         TwitterEntry oldEntry = (TwitterEntry) super.oldEntry;
         if (oldEntry != null) {
-            EditText usernameView = findViewById(R.id.username);
             usernameView.setText(oldEntry.getUsername());
-
             setMediaType(oldEntry.getMediaType());
             setPhrases(oldEntry.getPhrases());
         }
@@ -33,16 +36,7 @@ public class TwitterActivity extends EntryActivity {
         String username = usernameView.getText().toString().trim();
         MediaType mediaType = getMediaType();
         String[] phrases = getPhrases();
-        String usernameError = TwitterEntry.validateUsername(username);
-        if (usernameError != null) {
-            usernameView.setError(usernameError);
-        } else if (TwitterEntry.validateMediaType(mediaType) != null
-                || TwitterEntry.validatePhrases(phrases) != null) {
-            //Shouldn't happen
-        } else {
-            return new TwitterEntry(username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true);
-        }
-        return null;
+        return new TwitterEntry(username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true);
     }
 
 }

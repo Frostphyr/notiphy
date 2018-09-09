@@ -3,6 +3,7 @@ package com.frostphyr.notiphy.twitter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.frostphyr.notiphy.CharUtils;
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryActivity;
 import com.frostphyr.notiphy.EntryType;
@@ -12,42 +13,21 @@ import java.util.Arrays;
 
 public class TwitterEntry implements Entry {
 
+    public static final char[][] USERNAME_CHAR_RANGES = {
+            {'a', 'z'},
+            {'A', 'Z'},
+            {'_'}
+    };
+
     private String username;
     private MediaType mediaType;
     private String[] phrases;
     private volatile boolean active;
 
-    public static String validateUsername(String username) {
-        if (username.length() <= 0) {
-            return "Username required";
-        } else if (username.length() > 15) {
-            return "Username cannot be longer than 15 characters";
-        } else if (!username.matches("^[a-zA-Z0-9_]*$")) {
-            return "Username can only contain alphanumeric characters and underscores";
-        }
-        return null;
-    }
-
-    public static String validateMediaType(MediaType mediaType) {
-        if (mediaType == null) {
-            return "Media Type cannot be null";
-        }
-        return null;
-    }
-
-    public static String validatePhrases(String[] phrases) {
-        if (phrases == null) {
-            return "Phrases cannot be null";
-        } else if (phrases.length > EntryActivity.MAX_PHRASES) {
-            return "Max number of phrases is " + EntryActivity.MAX_PHRASES;
-        }
-        return null;
-    }
-
     public TwitterEntry(String username, MediaType mediaType, String[] phrases, boolean active) {
-        this.username = username;
-        this.mediaType = mediaType;
-        this.phrases = phrases;
+        this.username = validateUsername(username);
+        this.mediaType = validateMediaType(mediaType);
+        this.phrases = validatePhrases(phrases);
         this.active = active;
     }
 
@@ -102,6 +82,27 @@ public class TwitterEntry implements Entry {
                     && active == active;
         }
         return false;
+    }
+
+    private static String validateUsername(String username) {
+        if (username.length() <= 0 || username.length() > 15 || !CharUtils.inRanges(USERNAME_CHAR_RANGES, username)) {
+            throw new IllegalArgumentException();
+        }
+        return username;
+    }
+
+    private static MediaType validateMediaType(MediaType mediaType) {
+        if (mediaType == null) {
+            throw new IllegalArgumentException();
+        }
+        return mediaType;
+    }
+
+    private static String[] validatePhrases(String[] phrases) {
+        if (phrases == null || phrases.length > EntryActivity.MAX_PHRASES) {
+            throw new IllegalArgumentException();
+        }
+        return phrases;
     }
 
     public static final Parcelable.Creator<Entry> CREATOR = new Parcelable.Creator<Entry>() {

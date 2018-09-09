@@ -6,7 +6,8 @@
         android:id="@+id/phrase_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/phrase_hint"/>
+        android:hint="@string/phrase_hint"
+        android:maxLength="50"/>
 
     <ImageButton
         android:id="@+id/add_new_phrase"

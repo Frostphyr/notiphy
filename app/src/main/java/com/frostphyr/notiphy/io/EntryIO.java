@@ -53,7 +53,10 @@ public class EntryIO extends IOService {
             JSONArray arr = new JSONArray(new String(data));
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                entries.add(EntryType.valueOf(obj.getString("type")).getJSONSerializer().deserialize(obj));
+                Entry e = EntryType.valueOf(obj.getString("type")).getJSONSerializer().deserialize(obj);
+                if (e != null) {
+                    entries.add(e);
+                }
             }
 
             Intent intent = new Intent();
