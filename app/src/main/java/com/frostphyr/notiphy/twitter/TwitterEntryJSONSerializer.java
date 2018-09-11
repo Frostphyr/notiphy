@@ -16,6 +16,7 @@ public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
         JSONObject obj = new JSONObject();
         obj.put("type", twitterEntry.getType().toString());
         obj.put("active", twitterEntry.isActive());
+        obj.put("id", twitterEntry.getId());
         obj.put("username", twitterEntry.getUsername());
         obj.put("mediaType", twitterEntry.getMediaType().toString());
         JSONArray phrases = new JSONArray();
@@ -30,6 +31,7 @@ public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
     public Entry deserialize(JSONObject obj) throws JSONException {
         try {
             boolean active = obj.getBoolean("active");
+            long id = obj.getLong("id");
             String username = obj.getString("username");
             MediaType mediaType = MediaType.valueOf(obj.getString("mediaType"));
 
@@ -42,7 +44,7 @@ public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
                 phrases[i] = phraseArray.getString(i);
             }
 
-            return new TwitterEntry(username, mediaType, phrases, active);
+            return new TwitterEntry(id, username, mediaType, phrases, active);
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }

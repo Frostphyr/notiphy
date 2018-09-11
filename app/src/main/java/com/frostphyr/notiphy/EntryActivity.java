@@ -30,7 +30,7 @@ public abstract class EntryActivity extends AppCompatActivity {
     protected Entry oldEntry;
     private Set<TextView> phraseViews = new LinkedHashSet<TextView>();
 
-    protected abstract Entry createEntry();
+    protected abstract void createEntry();
 
     protected void init() {
         oldEntry = getIntent().getParcelableExtra(EXTRA_ENTRY);
@@ -81,17 +81,7 @@ public abstract class EntryActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.action_save:
-                Entry entry = createEntry();
-                if (entry != null) {
-                    NotiphyApplication app = (NotiphyApplication) getApplication();
-                    if (oldEntry != null) {
-                        app.replaceEntry(oldEntry, entry);
-                    } else {
-                        app.getEntries().add(entry);
-                    }
-                    setResult(RESULT_OK);
-                    finish();
-                }
+                createEntry();
                 return true;
             case R.id.action_delete:
                 new AlertDialog.Builder(this)
@@ -118,6 +108,17 @@ public abstract class EntryActivity extends AppCompatActivity {
                         .show();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void finish(Entry entry) {
+        NotiphyApplication app = (NotiphyApplication) getApplication();
+        if (oldEntry != null) {
+            app.replaceEntry(oldEntry, entry);
+        } else {
+            app.getEntries().add(entry);
+        }
+        setResult(RESULT_OK);
+        finish();
     }
 
     protected MediaType getMediaType() {

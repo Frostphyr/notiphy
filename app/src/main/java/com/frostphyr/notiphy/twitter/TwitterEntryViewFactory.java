@@ -34,14 +34,18 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         holder.username.setText(entry.getUsername());
         holder.mediaType.setText("Media: " + entry.getMediaType());
         String[] phrases = entry.getPhrases();
-        StringBuilder builder = new StringBuilder(Math.max(phrases.length * 2 - 1, 0));
-        for (int i = 0; i < phrases.length; i++) {
-            builder.append(phrases[i]);
-            if (i != phrases.length - 1) {
-                builder.append(", ");
+        if (phrases.length > 0) {
+            StringBuilder builder = new StringBuilder(Math.max(phrases.length * 2 - 1, 0));
+            for (int i = 0; i < phrases.length; i++) {
+                builder.append(phrases[i]);
+                if (i != phrases.length - 1) {
+                    builder.append(", ");
+                }
             }
+            holder.phrases.setText(builder.toString());
+        } else {
+            holder.phrases.setVisibility(View.GONE);
         }
-        holder.phrases.setText(builder.toString());
         holder.active.setChecked(entry.isActive());
         holder.active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 

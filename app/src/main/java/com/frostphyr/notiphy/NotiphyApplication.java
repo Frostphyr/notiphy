@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.frostphyr.notiphy.io.EntryIO;
 
 import java.util.ArrayList;
@@ -15,12 +17,15 @@ import java.util.List;
 public class NotiphyApplication extends Application {
 
     private List<Entry> entries = new ArrayList<Entry>();
+    private RequestQueue requestQueue;
     private Runnable readListener;
     private boolean finishedReadingEntries;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        requestQueue = Volley.newRequestQueue(this);
 
         IntentFilter readFilter = new IntentFilter(EntryIO.ACTION_READ_RESPONSE);
         readFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -42,15 +47,19 @@ public class NotiphyApplication extends Application {
         startService(intent);
     }
 
-    public List<Entry> getEntries() {
-        return entries;
-    }
-
     public void replaceEntry(Entry oldEntry, Entry newEntry) {
         int index = entries.indexOf(oldEntry);
         if (index != -1) {
             entries.set(index, newEntry);
         }
+    }
+
+    public List<Entry> getEntries() {
+        return entries;
+    }
+
+    public RequestQueue getRequestQueue() {
+        return requestQueue;
     }
 
     public void setReadListener(Runnable readListener) {

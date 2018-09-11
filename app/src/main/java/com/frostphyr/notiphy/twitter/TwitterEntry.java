@@ -16,19 +16,26 @@ public class TwitterEntry implements Entry {
     public static final char[][] USERNAME_CHAR_RANGES = {
             {'a', 'z'},
             {'A', 'Z'},
+            {'0', '9'},
             {'_'}
     };
 
+    private long id;
     private String username;
     private MediaType mediaType;
     private String[] phrases;
     private volatile boolean active;
 
-    public TwitterEntry(String username, MediaType mediaType, String[] phrases, boolean active) {
+    public TwitterEntry(long id, String username, MediaType mediaType, String[] phrases, boolean active) {
+        this.id = id;
         this.username = validateUsername(username);
         this.mediaType = validateMediaType(mediaType);
         this.phrases = validatePhrases(phrases);
         this.active = active;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getUsername() {
@@ -65,6 +72,7 @@ public class TwitterEntry implements Entry {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
         dest.writeString(username);
         dest.writeInt(mediaType.ordinal());
         dest.writeInt(phrases.length);
@@ -76,7 +84,8 @@ public class TwitterEntry implements Entry {
     public boolean equals(Object o) {
         if (o instanceof TwitterEntry) {
             TwitterEntry e = (TwitterEntry) o;
-            return e.username.equals(username)
+            return e.id == id
+                    && e.username.equals(username)
                     && e.mediaType.equals(mediaType)
                     && Arrays.equals(e.phrases, phrases)
                     && active == active;
@@ -109,12 +118,13 @@ public class TwitterEntry implements Entry {
 
         @Override
         public Entry createFromParcel(Parcel in) {
+            long id = in.readLong();
             String username = in.readString();
             MediaType mediaType = MediaType.values()[in.readInt()];
             String[] phrases = new String[in.readInt()];
             in.readStringArray(phrases);
             boolean active = in.readInt() != 0;
-            return new TwitterEntry(username, mediaType, phrases, active);
+            return new TwitterEntry(id, username, mediaType, phrases, active);
         }
 
         @Override
