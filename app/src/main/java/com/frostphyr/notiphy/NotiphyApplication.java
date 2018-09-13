@@ -7,25 +7,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.frostphyr.notiphy.io.EntryIO;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+
 public class NotiphyApplication extends Application {
 
     private List<Entry> entries = new ArrayList<Entry>();
-    private RequestQueue requestQueue;
+    private OkHttpClient httpClient = new OkHttpClient();
     private Runnable readListener;
     private boolean finishedReadingEntries;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-        requestQueue = Volley.newRequestQueue(this);
 
         IntentFilter readFilter = new IntentFilter(EntryIO.ACTION_READ_RESPONSE);
         readFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -58,8 +56,8 @@ public class NotiphyApplication extends Application {
         return entries;
     }
 
-    public RequestQueue getRequestQueue() {
-        return requestQueue;
+    public OkHttpClient getHttpClient() {
+        return httpClient;
     }
 
     public void setReadListener(Runnable readListener) {

@@ -6,10 +6,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.frostphyr.notiphy.CharRangeInputFilter;
 import com.frostphyr.notiphy.EntryActivity;
 import com.frostphyr.notiphy.MediaType;
@@ -19,9 +15,17 @@ import com.frostphyr.notiphy.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class TwitterActivity extends EntryActivity {
 
-    private static final String FETCH_ID_REQUEST_TAG = "FetchId";
+    private Call userIdCall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,9 @@ public class TwitterActivity extends EntryActivity {
     protected void onStop() {
         super.onStop();
 
-        ((NotiphyApplication) getApplication()).getRequestQueue().cancelAll(FETCH_ID_REQUEST_TAG);
+        if (userIdCall != null) {
+            userIdCall.cancel();
+        }
     }
 
     @Override
@@ -60,38 +66,64 @@ public class TwitterActivity extends EntryActivity {
         final MediaType mediaType = getMediaType();
         final String[] phrases = getPhrases();
 
-        final View loadingView = findViewById(R.id.loading);
-        loadingView.setVisibility(View.VISIBLE);
+        findViewById(R.id.loading).setVisibility(View.VISIBLE);
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://frostphyr.com/notiphy/lookup_twitter_user_id.php?username=" + username, null,
-                new Response.Listener<JSONObject>() {
+        HttpUrl url = HttpUrl.parse("http://frostphyr.com/notiphy/lookup_twitter_user_id.php").newBuilder()
+                .addQueryParameter("username", username)
+                .build();
 
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        loadingView.setVisibility(View.GONE);
-                        try {
-                            if (response.has("error")) {
-                                usernameView.setError(response.getString("error"));
-                            } else {
-                                finish(new TwitterEntry(response.getLong("id"), username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true));
-                            }
-                        } catch (JSONException e) {
-                            Toast.makeText(TwitterActivity.this, "Error communicating with Notiphy server", Toast.LENGTH_LONG);
-                        }
-                    }
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
 
-                },
-                new Response.ErrorListener() {
+        userIdCall = ((NotiphyApplication) getApplication()).getHttpClient().newCall(request);
+        userIdCall.enqueue(new Callback() {
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                runOnUiThread(new Runnable() {
 
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        loadingView.setVisibility(View.GONE);
-                        Toast.makeText(TwitterActivity.this, "Error connecting to Notiphy server", Toast.LENGTH_LONG);
+                    public void run() {
+                        onUserIdResponse(response, username, mediaType, phrases);
                     }
 
                 });
-        request.setTag(FETCH_ID_REQUEST_TAG);
-        ((NotiphyApplication) getApplication()).getRequestQueue().add(request);
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        onUserIdError();
+                    }
+
+                });
+            }
+
+        });
+    }
+
+    private void onUserIdResponse(Response response, String username, MediaType mediaType, String[] phrases) {
+        findViewById(R.id.loading).setVisibility(View.GONE);
+        try {
+            JSONObject obj = new JSONObject(response.body().string());
+            if (obj.has("error")) {
+                EditText usernameView = findViewById(R.id.username);
+                usernameView.setError(obj.getString("error"));
+            } else {
+                finish(new TwitterEntry(obj.getLong("id"), username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true));
+            }
+        } catch (JSONException | IOException e) {
+            Toast.makeText(TwitterActivity.this, "Error communicating with Notiphy server", Toast.LENGTH_LONG);
+        }
+    }
+
+    private void onUserIdError() {
+        findViewById(R.id.loading).setVisibility(View.GONE);
+        Toast.makeText(TwitterActivity.this, "Error connecting to Notiphy server", Toast.LENGTH_LONG);
     }
 
 }
