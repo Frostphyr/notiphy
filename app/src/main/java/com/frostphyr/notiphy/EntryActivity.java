@@ -22,7 +22,6 @@ import java.util.Set;
 
 public abstract class EntryActivity extends AppCompatActivity {
 
-    public static final int REQUEST_CODE = 77;
     public static final int MAX_PHRASES = 10;
 
     public static final String EXTRA_ENTRY = "entry";
@@ -91,7 +90,7 @@ public abstract class EntryActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                ((NotiphyApplication) getApplication()).getEntries().remove(oldEntry);
+                                ((NotiphyApplication) getApplication()).removeEntry(oldEntry);
                                 setResult(RESULT_OK);
                                 finish();
                             }
@@ -115,7 +114,7 @@ public abstract class EntryActivity extends AppCompatActivity {
         if (oldEntry != null) {
             app.replaceEntry(oldEntry, entry);
         } else {
-            app.getEntries().add(entry);
+            app.addEntry(entry);
         }
         setResult(RESULT_OK);
         finish();

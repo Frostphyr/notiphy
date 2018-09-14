@@ -9,17 +9,17 @@ import android.widget.Toast;
 
 import com.frostphyr.notiphy.io.EntryIO;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.OkHttpClient;
 
 public class NotiphyApplication extends Application {
 
-    private List<Entry> entries = new ArrayList<Entry>();
+    private Set<Entry> entries = new LinkedHashSet<Entry>();
     private OkHttpClient httpClient = new OkHttpClient();
-    private Runnable readListener;
-    private boolean finishedReadingEntries;
+    private EntryListener entryListener;
 
     @Override
     public void onCreate() {
@@ -45,27 +45,48 @@ public class NotiphyApplication extends Application {
         startService(intent);
     }
 
-    public void replaceEntry(Entry oldEntry, Entry newEntry) {
-        int index = entries.indexOf(oldEntry);
-        if (index != -1) {
-            entries.set(index, newEntry);
+    public void addEntry(Entry entry) {
+        if (entries.add(entry)) {
+            if (entryListener != null) {
+                entryListener.entryAdded(entry);
+                saveEntries();
+            }
         }
     }
 
-    public List<Entry> getEntries() {
-        return entries;
+    public void removeEntry(Entry entry) {
+        if (entries.remove(entry)) {
+            if (entryListener != null) {
+                entryListener.entryRemoved(entry);
+                saveEntries();
+            }
+        }
+    }
+
+    public void replaceEntry(Entry oldEntry, Entry newEntry) {
+        boolean modified = false;
+        if (entries.remove(oldEntry)) {
+            modified = true;
+        }
+        if (entries.add(newEntry)) {
+            modified = true;
+        }
+
+        if (modified) {
+            saveEntries();
+        }
     }
 
     public OkHttpClient getHttpClient() {
         return httpClient;
     }
 
-    public void setReadListener(Runnable readListener) {
-        this.readListener = readListener;
-    }
+    public void setEntryListener(EntryListener entryListener) {
+        this.entryListener = entryListener;
 
-    public boolean finishedReadingEntries() {
-        return finishedReadingEntries;
+        if (entries.size() > 0) {
+            entryListener.entriesAdded(entries);
+        }
     }
 
     private class ReadResponseReceiver extends BroadcastReceiver {
@@ -74,10 +95,8 @@ public class NotiphyApplication extends Application {
         public void onReceive(Context context, Intent intent) {
             List<Entry> readEntries = intent.getParcelableArrayListExtra(EntryIO.EXTRA_ENTRIES);
             entries.addAll(readEntries);
-            finishedReadingEntries = true;
-            if (readListener != null) {
-                readListener.run();
-                readListener = null;
+            if (entryListener != null) {
+                entryListener.entriesAdded(readEntries);
             }
         }
 

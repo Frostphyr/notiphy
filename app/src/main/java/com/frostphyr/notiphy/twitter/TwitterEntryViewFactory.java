@@ -62,7 +62,7 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
             public void onClick(View view) {
                 Intent intent = new Intent(activity, TwitterActivity.class);
                 intent.putExtra(EntryActivity.EXTRA_ENTRY, entry);
-                activity.startActivityForResult(intent, EntryActivity.REQUEST_CODE);
+                activity.startActivity(intent);
             }
 
         });

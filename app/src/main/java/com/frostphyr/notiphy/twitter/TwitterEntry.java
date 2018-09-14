@@ -93,6 +93,11 @@ public class TwitterEntry implements Entry {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new Object[] {id, username, mediaType, active, Arrays.hashCode(phrases)});
+    }
+
     private static String validateUsername(String username) {
         if (username.length() <= 0 || username.length() > 15 || !CharUtils.inRanges(USERNAME_CHAR_RANGES, username)) {
             throw new IllegalArgumentException();
