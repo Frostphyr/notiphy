@@ -3,6 +3,7 @@ package com.frostphyr.notiphy.io;
 import android.content.Intent;
 import android.os.Parcelable;
 
+import com.frostphyr.notiphy.Encoder;
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.R;
@@ -53,7 +54,7 @@ public class EntryIO extends IOService {
             JSONArray arr = new JSONArray(new String(data));
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                Entry e = EntryType.valueOf(obj.getString("type")).getJSONSerializer().deserialize(obj);
+                Entry e = EntryType.valueOf(obj.getString("type")).getEntryDecoder().decode(obj);
                 if (e != null) {
                     entries.add(e);
                 }
@@ -71,7 +72,7 @@ public class EntryIO extends IOService {
         JSONArray arr = new JSONArray();
         for (Parcelable p : entries) {
             Entry e = (Entry) p;
-            arr.put(e.getType().getJSONSerializer().serialize(e));
+            arr.put(encodeEntry(e.getType().getEntryEncoder(), e));
         }
         byte[] data = arr.toString(2).getBytes();
         FileIO.write(this, ENTRIES_FILE_NAME, data);
@@ -80,6 +81,10 @@ public class EntryIO extends IOService {
         intent.setAction(ACTION_WRITE_RESPONSE);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         sendBroadcast(intent);
+    }
+
+    private <T extends Entry> JSONObject encodeEntry(Encoder<T> encoder, Entry entry) throws JSONException {
+        return encoder.encode((T) entry);
     }
 
 }

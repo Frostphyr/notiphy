@@ -1,34 +1,16 @@
 package com.frostphyr.notiphy.twitter;
 
-import com.frostphyr.notiphy.Entry;
+import com.frostphyr.notiphy.Decoder;
 import com.frostphyr.notiphy.MediaType;
-import com.frostphyr.notiphy.io.EntryJSONSerializer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TwitterEntryJSONSerializer implements EntryJSONSerializer {
+public class TwitterEntryDecoder implements Decoder<TwitterEntry> {
 
     @Override
-    public JSONObject serialize(Entry entry) throws JSONException {
-        TwitterEntry twitterEntry = (TwitterEntry) entry;
-        JSONObject obj = new JSONObject();
-        obj.put("type", twitterEntry.getType().toString());
-        obj.put("active", twitterEntry.isActive());
-        obj.put("id", twitterEntry.getId());
-        obj.put("username", twitterEntry.getUsername());
-        obj.put("mediaType", twitterEntry.getMediaType().toString());
-        JSONArray phrases = new JSONArray();
-        for (String s : twitterEntry.getPhrases()) {
-            phrases.put(s);
-        }
-        obj.put("phrases", phrases);
-        return obj;
-    }
-
-    @Override
-    public Entry deserialize(JSONObject obj) throws JSONException {
+    public TwitterEntry decode(JSONObject obj) throws JSONException {
         try {
             boolean active = obj.getBoolean("active");
             long id = obj.getLong("id");
