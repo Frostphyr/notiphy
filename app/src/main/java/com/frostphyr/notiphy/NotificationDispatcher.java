@@ -20,7 +20,6 @@ import android.widget.RemoteViews;
 import com.frostphyr.notiphy.io.ImageDownloader;
 
 import java.text.DateFormat;
-import java.util.Date;
 
 public class NotificationDispatcher {
 
@@ -64,17 +63,6 @@ public class NotificationDispatcher {
         context.registerReceiver(new NavigateMediaBroadcastReceiver(), new IntentFilter(ACTION_PREVIOUS_MEDIA));
         context.registerReceiver(new NavigateMediaBroadcastReceiver(), new IntentFilter(ACTION_NEXT_MEDIA));
         context.registerReceiver(new OpenMediaBroadcastReceiver(), new IntentFilter(ACTION_OPEN_MEDIA));
-
-        Media[] media = new Media[] {
-                new Media(MediaType.VIDEO, "https://pbs.twimg.com/media/DpvvPmHXgAEC1nK.jpg"),
-                new Media(MediaType.VIDEO, "https://pbs.twimg.com/media/DpvvPmIXoAAjxZL111.jpg"),
-                new Media(MediaType.IMAGE, "https://pbs.twimg.com/media/DpvvPmIW0AAXlCX.jpg")
-        };
-        StringBuilder b = new StringBuilder();
-        for (int i = 0; i < 20; i++) {
-            b.append("This is an example tweet. ");
-        }
-        dispatch(new Message(EntryType.TWITTER, new Date(), "apptest777", null, b.toString(), media));
     }
 
     private Intent createMediaIntent(String action, int id, String channelId, int iconResId, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
