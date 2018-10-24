@@ -5,7 +5,7 @@ public enum MediaType {
     OPTIONAL,
     ANY,
     NONE,
-    PICTURE,
+    IMAGE,
     VIDEO
 
 }
