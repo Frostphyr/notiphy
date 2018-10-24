@@ -1,9 +1,9 @@
-package com.frostphyr.notiphy;
+package com.frostphyr.notiphy.io;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public interface Decoder<T> {
+public interface JSONDecoder<T> {
 
     T decode(JSONObject obj) throws JSONException;
 

@@ -3,7 +3,6 @@ package com.frostphyr.notiphy.io;
 import android.content.Intent;
 import android.os.Parcelable;
 
-import com.frostphyr.notiphy.Encoder;
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.R;
@@ -83,7 +82,7 @@ public class EntryIO extends IOService {
         sendBroadcast(intent);
     }
 
-    private <T extends Entry> JSONObject encodeEntry(Encoder<T> encoder, Entry entry) throws JSONException {
+    private <T extends Entry> JSONObject encodeEntry(JSONEncoder<T> encoder, Entry entry) throws JSONException {
         return encoder.encode((T) entry);
     }
 

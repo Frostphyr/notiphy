@@ -1,19 +1,19 @@
 package com.frostphyr.notiphy.twitter;
 
-import com.frostphyr.notiphy.Decoder;
+import com.frostphyr.notiphy.io.JSONDecoder;
 import com.frostphyr.notiphy.MediaType;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TwitterEntryDecoder implements Decoder<TwitterEntry> {
+public class TwitterEntryDecoder implements JSONDecoder<TwitterEntry> {
 
     @Override
     public TwitterEntry decode(JSONObject obj) throws JSONException {
         try {
             boolean active = obj.getBoolean("active");
-            long id = obj.getLong("id");
+            long id = obj.getLong("userId");
             String username = obj.getString("username");
             MediaType mediaType = MediaType.valueOf(obj.getString("mediaType"));
 
