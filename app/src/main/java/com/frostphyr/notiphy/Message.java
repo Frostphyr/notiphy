@@ -9,13 +9,15 @@ public class Message {
     private String username;
     private String title;
     private String text;
+    private String url;
     private Media[] media;
 
-    public Message(EntryType type, Date createdAt, String username, String title, String text, Media[] media) {
+    public Message(EntryType type, Date createdAt, String username, String title, String text, String url, Media[] media) {
         this.type = type;
         this.createdAt = createdAt;
         this.username = username;
         this.text = text;
+        this.url = url;
         this.media = media;
     }
 
@@ -37,6 +39,10 @@ public class Message {
 
     public String getText() {
         return text;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public Media[] getMedia() {

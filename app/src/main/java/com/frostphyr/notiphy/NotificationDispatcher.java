@@ -27,7 +27,7 @@ public class NotificationDispatcher {
 
     private static final String ACTION_PREVIOUS_MEDIA = "notificationPreviousMedia";
     private static final String ACTION_NEXT_MEDIA = "notificationNextMedia";
-    private static final String ACTION_OPEN_MEDIA = "notificationOpenMedia";
+    private static final String ACTION_OPEN_URL = "notificationOpenUrl";
 
     private NotificationManagerCompat notificationManager;
     private Context context;
@@ -44,7 +44,7 @@ public class NotificationDispatcher {
         RemoteViews smallView = createView(message, false);
         RemoteViews bigView = createView(message, true);
 
-        finalizeNotification(channelId, id, smallView, bigView, message);
+        finalizeNotification(channelId, message.getUrl(), id, smallView, bigView, message);
 
         id++;
     }
@@ -62,13 +62,14 @@ public class NotificationDispatcher {
 
         context.registerReceiver(new NavigateMediaBroadcastReceiver(), new IntentFilter(ACTION_PREVIOUS_MEDIA));
         context.registerReceiver(new NavigateMediaBroadcastReceiver(), new IntentFilter(ACTION_NEXT_MEDIA));
-        context.registerReceiver(new OpenMediaBroadcastReceiver(), new IntentFilter(ACTION_OPEN_MEDIA));
+        context.registerReceiver(new OpenUrlBroadcastReceiver(), new IntentFilter(ACTION_OPEN_URL));
     }
 
-    private Intent createMediaIntent(String action, int id, String channelId, int iconResId, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
+    private Intent createMediaIntent(String action, int id, String channelId, String url, int iconResId, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
         Intent intent = new Intent(action);
         intent.putExtra("id", id);
         intent.putExtra("channelId", channelId);
+        intent.putExtra("url", url);
         intent.putExtra("iconResId", iconResId);
         intent.putExtra("smallView", smallView);
         intent.putExtra("bigView", bigView);
@@ -77,7 +78,7 @@ public class NotificationDispatcher {
         return intent;
     }
 
-    private void finalizeNotification(String channelId, int iconResId, int id, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
+    private void finalizeNotification(String channelId, String url, int iconResId, int id, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
         if (media != null && media.length > 1) {
             bigView.setBoolean(R.id.notification_media_previous_button, "setEnabled", false);
             bigView.setBoolean(R.id.notification_media_next_button, "setEnabled", false);
@@ -86,36 +87,41 @@ public class NotificationDispatcher {
             bigView.setViewVisibility(R.id.notification_media_image_view, View.INVISIBLE);
             bigView.setViewVisibility(R.id.notification_media_icon_view, View.INVISIBLE);
 
-            Intent previousIntent = createMediaIntent(ACTION_PREVIOUS_MEDIA, id, channelId, iconResId, smallView, bigView, media, mediaIndex);
+            Intent previousIntent = createMediaIntent(ACTION_PREVIOUS_MEDIA, id, channelId, url, iconResId, smallView, bigView, media, mediaIndex);
             bigView.setOnClickPendingIntent(R.id.notification_media_previous_button, PendingIntent.getBroadcast(context, id, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
-            Intent nextIntent = createMediaIntent(ACTION_NEXT_MEDIA, id, channelId, iconResId, smallView, bigView, media, mediaIndex);
+            Intent nextIntent = createMediaIntent(ACTION_NEXT_MEDIA, id, channelId, url, iconResId, smallView, bigView, media, mediaIndex);
             bigView.setOnClickPendingIntent(R.id.notification_media_next_button, PendingIntent.getBroadcast(context, id, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
-            Intent openMediaIntent = new Intent(ACTION_OPEN_MEDIA);
+            Intent openMediaIntent = new Intent(ACTION_OPEN_URL);
             openMediaIntent.putExtra("url", ((Media) media[mediaIndex]).getUrl());
             bigView.setOnClickPendingIntent(R.id.notification_media, PendingIntent.getBroadcast(context, id, openMediaIntent, PendingIntent.FLAG_UPDATE_CURRENT));
         }
 
-        notificationManager.notify(id, createNotification(channelId, iconResId, smallView, bigView));
+        notificationManager.notify(id, createNotification(channelId, url, id, iconResId, smallView, bigView));
 
         if (media != null && media.length > 0) {
             Media m = (Media) media[mediaIndex];
-            downloadImage(m, channelId, iconResId, id, smallView, bigView);
+            downloadImage(m, channelId, url, iconResId, id, smallView, bigView);
         }
     }
 
-    private void finalizeNotification(String channelId, int id, RemoteViews smallView, RemoteViews bigView, Message message) {
-        finalizeNotification(channelId, message.getType().getIconResourceId(), id, smallView, bigView, message.getMedia(), 0);
+    private void finalizeNotification(String channelId, String url, int id, RemoteViews smallView, RemoteViews bigView, Message message) {
+        finalizeNotification(channelId, url, message.getType().getIconResourceId(), id, smallView, bigView, message.getMedia(), 0);
     }
 
-    private Notification createNotification(String channelId, int iconResId, RemoteViews smallView, RemoteViews bigView) {
+    private Notification createNotification(String channelId, String url, int id, int iconResId, RemoteViews smallView, RemoteViews bigView) {
+        Intent openUrlIntent = new Intent(ACTION_OPEN_URL);
+        openUrlIntent.putExtra("url", url);
+
         return new NotificationCompat.Builder(context, channelId)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(iconResId)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setCustomContentView(smallView)
                 .setCustomBigContentView(bigView)
+                .setContentIntent(PendingIntent.getBroadcast(context, id, openUrlIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setAutoCancel(true)
                 .build();
     }
 
@@ -147,7 +153,7 @@ public class NotificationDispatcher {
         return views;
     }
 
-    private void downloadImage(final Media media, final String channelId, final int iconResId, final int id, final RemoteViews smallView, final RemoteViews bigView) {
+    private void downloadImage(final Media media, final String channelId, final String url, final int iconResId, final int id, final RemoteViews smallView, final RemoteViews bigView) {
         ImageDownloader.execute(media.getThumbnailUrl(), new ImageDownloader.Callback() {
 
             @Override
@@ -175,7 +181,7 @@ public class NotificationDispatcher {
                 bigView.setBoolean(R.id.notification_media_previous_button, "setEnabled", true);
                 bigView.setBoolean(R.id.notification_media_next_button, "setEnabled", true);
 
-                notificationManager.notify(id, createNotification(channelId, iconResId, smallView, bigView));
+                notificationManager.notify(id, createNotification(channelId, url, id, iconResId, smallView, bigView));
             }
 
         });
@@ -199,13 +205,13 @@ public class NotificationDispatcher {
                 return;
             }
 
-            finalizeNotification(intent.getStringExtra("chanelId"), intent.getIntExtra("iconResId", -1), intent.getIntExtra("id", -1),
+            finalizeNotification(intent.getStringExtra("chanelId"), intent.getStringExtra("url"), intent.getIntExtra("iconResId", -1), intent.getIntExtra("id", -1),
                     (RemoteViews) intent.getParcelableExtra("smallView"), (RemoteViews) intent.getParcelableExtra("bigView"), media, mediaIndex);
         }
 
     }
 
-    private class OpenMediaBroadcastReceiver extends BroadcastReceiver {
+    private class OpenUrlBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
