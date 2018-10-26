@@ -13,7 +13,7 @@ public class TwitterEntryDecoder implements JSONDecoder<TwitterEntry> {
     public TwitterEntry decode(JSONObject obj) throws JSONException {
         try {
             boolean active = obj.getBoolean("active");
-            long id = obj.getLong("userId");
+            String id = obj.getString("userId");
             String username = obj.getString("username");
             MediaType mediaType = MediaType.valueOf(obj.getString("mediaType"));
 

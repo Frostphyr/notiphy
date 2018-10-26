@@ -114,7 +114,7 @@ public class TwitterActivity extends EntryActivity {
                 EditText usernameView = findViewById(R.id.username);
                 usernameView.setError(obj.getString("error"));
             } else {
-                finish(new TwitterEntry(obj.getLong("id"), username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true));
+                finish(new TwitterEntry(obj.getString("id"), username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true));
             }
         } catch (JSONException | IOException e) {
             Toast.makeText(TwitterActivity.this, "Error communicating with Notiphy server", Toast.LENGTH_LONG);
