@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.widget.Toast;
 
 import com.frostphyr.notiphy.io.EntryIO;
+import com.frostphyr.notiphy.io.NotiphyWebSocket;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,11 +20,14 @@ public class NotiphyApplication extends Application {
 
     private Set<Entry> entries = new LinkedHashSet<Entry>();
     private OkHttpClient httpClient = new OkHttpClient();
+    private NotiphyWebSocket webSocket;
     private EntryListener entryListener;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        webSocket = new NotiphyWebSocket(this, httpClient, entries);
 
         IntentFilter readFilter = new IntentFilter(EntryIO.ACTION_READ_RESPONSE);
         readFilter.addCategory(Intent.CATEGORY_DEFAULT);
@@ -49,6 +53,7 @@ public class NotiphyApplication extends Application {
         if (entries.add(entry)) {
             if (entryListener != null) {
                 entryListener.entryAdded(entry);
+                webSocket.entryAdded(entry);
                 saveEntries();
             }
         }
@@ -58,6 +63,7 @@ public class NotiphyApplication extends Application {
         if (entries.remove(entry)) {
             if (entryListener != null) {
                 entryListener.entryRemoved(entry);
+                webSocket.entryRemoved(entry);
                 saveEntries();
             }
         }
@@ -73,6 +79,7 @@ public class NotiphyApplication extends Application {
         }
 
         if (modified) {
+            webSocket.entryReplaced(oldEntry, newEntry);
             saveEntries();
         }
     }
@@ -98,6 +105,7 @@ public class NotiphyApplication extends Application {
             if (entryListener != null) {
                 entryListener.entriesAdded(readEntries);
             }
+            webSocket.entriesAdded(readEntries);
         }
 
     }
