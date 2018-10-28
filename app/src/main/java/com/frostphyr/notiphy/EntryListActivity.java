@@ -88,7 +88,7 @@ public class EntryListActivity extends AppCompatActivity {
             }
         });
 
-        new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_menu, menuBuilder);
+        new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_popup_menu, menuBuilder);
         addMenuHelper = new MenuPopupHelper(this, menuBuilder, findViewById(item.getItemId()));
         addMenuHelper.setForceShowIcon(true);
         addMenuHelper.show();
