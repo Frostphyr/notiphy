@@ -15,7 +15,7 @@ public class ImageDownloader {
         new ImageDownloadTask(url, callback).execute();
     }
 
-    public static interface Callback {
+    public interface Callback {
 
         void onDownload(Bitmap bitmap);
 

@@ -1,13 +1,10 @@
 package com.frostphyr.notiphy;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.widget.Toast;
 
-import com.frostphyr.notiphy.io.EntryIO;
+import com.frostphyr.notiphy.io.EntryReadTask;
+import com.frostphyr.notiphy.io.EntryWriteTask;
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
 
 import java.util.LinkedHashSet;
@@ -18,7 +15,7 @@ import okhttp3.OkHttpClient;
 
 public class NotiphyApplication extends Application {
 
-    private Set<Entry> entries = new LinkedHashSet<Entry>();
+    private Set<Entry> entries = new LinkedHashSet<>();
     private OkHttpClient httpClient = new OkHttpClient();
     private NotiphyWebSocket webSocket;
     private EntryListener entryListener;
@@ -29,24 +26,37 @@ public class NotiphyApplication extends Application {
 
         webSocket = new NotiphyWebSocket(this, httpClient, entries);
 
-        IntentFilter readFilter = new IntentFilter(EntryIO.ACTION_READ_RESPONSE);
-        readFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(new ReadResponseReceiver(), readFilter);
+        new EntryReadTask(this, new AsyncTaskHelper.Callback<List<Entry>>() {
+            @Override
+            public void onSuccess(List<Entry> readEntries) {
+                entries.addAll(readEntries);
+                if (entryListener != null) {
+                    entryListener.entriesAdded(readEntries);
+                }
+                webSocket.entriesAdded(readEntries);
+            }
 
-        IntentFilter exceptionFilter = new IntentFilter(EntryIO.ACTION_EXCEPTION);
-        exceptionFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        registerReceiver(new ExceptionReceiver(), exceptionFilter);
+            @Override
+            public void onException(Exception exception) {
+                showErrorMessage(R.string.error_message_read_entries);
+            }
 
-        Intent intent =  new Intent(this, EntryIO.class);
-        intent.setAction(EntryIO.ACTION_READ);
-        startService(intent);
+        }).execute();
     }
 
     public void saveEntries() {
-        Intent intent = new Intent(this, EntryIO.class);
-        intent.setAction(EntryIO.ACTION_WRITE);
-        intent.putExtra(EntryIO.EXTRA_ENTRIES, entries.toArray(new Entry[entries.size()]));
-        startService(intent);
+        new EntryWriteTask(this, new AsyncTaskHelper.Callback<Void>() {
+
+            @Override
+            public void onSuccess(Void v) {
+            }
+
+            @Override
+            public void onException(Exception exception) {
+                showErrorMessage(R.string.error_message_write_entries);
+            }
+
+        }).execute(entries.toArray(new Entry[entries.size()]));
     }
 
     public void addEntry(Entry entry) {
@@ -84,10 +94,6 @@ public class NotiphyApplication extends Application {
         }
     }
 
-    public OkHttpClient getHttpClient() {
-        return httpClient;
-    }
-
     public void setEntryListener(EntryListener entryListener) {
         this.entryListener = entryListener;
 
@@ -96,27 +102,12 @@ public class NotiphyApplication extends Application {
         }
     }
 
-    private class ReadResponseReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            List<Entry> readEntries = intent.getParcelableArrayListExtra(EntryIO.EXTRA_ENTRIES);
-            entries.addAll(readEntries);
-            if (entryListener != null) {
-                entryListener.entriesAdded(readEntries);
-            }
-            webSocket.entriesAdded(readEntries);
-        }
-
+    public OkHttpClient getHttpClient() {
+        return httpClient;
     }
 
-    private class ExceptionReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, intent.getIntExtra(EntryIO.EXTRA_ERROR_MESSAGE_ID, 0), Toast.LENGTH_LONG).show();
-        }
-
+    private void showErrorMessage(int textResId) {
+        Toast.makeText(this, textResId, Toast.LENGTH_LONG).show();
     }
 
 }
