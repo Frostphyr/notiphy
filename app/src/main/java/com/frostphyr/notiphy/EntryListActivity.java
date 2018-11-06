@@ -20,7 +20,6 @@ import android.widget.ListView;
 import com.frostphyr.notiphy.twitter.TwitterActivity;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class EntryListActivity extends AppCompatActivity {
 
@@ -34,8 +33,6 @@ public class EntryListActivity extends AppCompatActivity {
 
         ListView entryList = findViewById(R.id.entry_list);
         entryList.setAdapter(new EntryRowAdapter());
-
-        ((NotiphyApplication) getApplication()).setEntryListener(new EntryListenerImpl());
     }
 
     @Override
@@ -56,6 +53,33 @@ public class EntryListActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        if (resultCode == RESULT_OK) {
+            Entry entry = resultIntent.getParcelableExtra(EntryActivity.EXTRA_ENTRY);
+            NotiphyApplication application = (NotiphyApplication) getApplication();
+            ListView entryList = findViewById(R.id.entry_list);
+            ArrayAdapter<Entry> adapter = ((ArrayAdapter<Entry>) entryList.getAdapter());
+
+            switch (requestCode) {
+                case EntryActivity.REQUEST_CODE_EDIT:
+                    Entry oldEntry = resultIntent.getParcelableExtra(EntryActivity.EXTRA_OLD_ENTRY);
+                    application.replaceEntry(oldEntry, entry);
+                    int position = adapter.getPosition(oldEntry);
+                    if (position != -1) {
+                        adapter.remove(oldEntry);
+                        adapter.insert(entry, position);
+                        break;
+                    }
+                case EntryActivity.REQUEST_CODE_NEW:
+                    application.addEntry(entry);
+                    adapter.add(entry);
+                    break;
+            }
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     @SuppressLint("RestrictedApi")
     @Override
     protected void onPause() {
@@ -71,12 +95,13 @@ public class EntryListActivity extends AppCompatActivity {
     private void showAddPopupMenu(MenuItem item) {
         MenuBuilder menuBuilder = new MenuBuilder(this);
         menuBuilder.setCallback(new MenuBuilder.Callback() {
+
             @Override
             public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_add_twitter:
                         Intent intent = new Intent(EntryListActivity.this, TwitterActivity.class);
-                        startActivity(intent);
+                        startActivityForResult(intent, EntryActivity.REQUEST_CODE_NEW);
                         break;
                 }
                 return false;
@@ -86,6 +111,7 @@ public class EntryListActivity extends AppCompatActivity {
             public void onMenuModeChange(MenuBuilder menu) {
 
             }
+
         });
 
         new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_popup_menu, menuBuilder);
@@ -99,7 +125,7 @@ public class EntryListActivity extends AppCompatActivity {
         private LayoutInflater inflater;
 
         public EntryRowAdapter() {
-            super(EntryListActivity.this, -1, new ArrayList<Entry>());
+            super(EntryListActivity.this, -1, new ArrayList<>(((NotiphyApplication) getApplication()).getEntries()));
 
             inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
@@ -122,35 +148,6 @@ public class EntryListActivity extends AppCompatActivity {
         @SuppressWarnings("unchecked")
         private <T extends Entry> View createView(T entry, View convertView, ViewGroup parent) {
             return ((EntryViewFactory<T>) entry.getType().getViewFactory()).createView(entry, inflater, convertView, parent, EntryListActivity.this);
-        }
-
-    }
-
-    @SuppressWarnings("unchecked")
-    private class EntryListenerImpl implements EntryListener {
-
-        @Override
-        public void entriesAdded(Collection<Entry> collection) {
-            ListView entryList = findViewById(R.id.entry_list);
-            ArrayAdapter<Entry> adapter = ((ArrayAdapter<Entry>) entryList.getAdapter());
-            adapter.addAll(collection);
-            adapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void entryAdded(Entry entry) {
-            ListView entryList = findViewById(R.id.entry_list);
-            ArrayAdapter<Entry> adapter = ((ArrayAdapter<Entry>) entryList.getAdapter());
-            adapter.add(entry);
-            adapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void entryRemoved(Entry entry) {
-            ListView entryList = findViewById(R.id.entry_list);
-            ArrayAdapter<Entry> adapter = ((ArrayAdapter<Entry>) entryList.getAdapter());
-            adapter.remove(entry);
-            adapter.notifyDataSetChanged();
         }
 
     }

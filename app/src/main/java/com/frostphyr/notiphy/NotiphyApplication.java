@@ -3,7 +3,6 @@ package com.frostphyr.notiphy;
 import android.app.Application;
 import android.widget.Toast;
 
-import com.frostphyr.notiphy.io.EntryReadTask;
 import com.frostphyr.notiphy.io.EntryWriteTask;
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
 
@@ -18,30 +17,12 @@ public class NotiphyApplication extends Application {
     private Set<Entry> entries = new LinkedHashSet<>();
     private OkHttpClient httpClient = new OkHttpClient();
     private NotiphyWebSocket webSocket;
-    private EntryListener entryListener;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         webSocket = new NotiphyWebSocket(this, httpClient, entries);
-
-        new EntryReadTask(this, new AsyncTaskHelper.Callback<List<Entry>>() {
-            @Override
-            public void onSuccess(List<Entry> readEntries) {
-                entries.addAll(readEntries);
-                if (entryListener != null) {
-                    entryListener.entriesAdded(readEntries);
-                }
-                webSocket.entriesAdded(readEntries);
-            }
-
-            @Override
-            public void onException(Exception exception) {
-                showErrorMessage(R.string.error_message_read_entries);
-            }
-
-        }).execute();
     }
 
     public void saveEntries() {
@@ -59,23 +40,26 @@ public class NotiphyApplication extends Application {
         }).execute(entries.toArray(new Entry[entries.size()]));
     }
 
+    public Set<Entry> getEntries() {
+        return entries;
+    }
+
+    public void setEntries(List<Entry> newEntries) {
+        entries.addAll(newEntries);
+        webSocket.entriesAdded(newEntries);
+    }
+
     public void addEntry(Entry entry) {
         if (entries.add(entry)) {
-            if (entryListener != null) {
-                entryListener.entryAdded(entry);
-                webSocket.entryAdded(entry);
-                saveEntries();
-            }
+            webSocket.entryAdded(entry);
+            saveEntries();
         }
     }
 
     public void removeEntry(Entry entry) {
         if (entries.remove(entry)) {
-            if (entryListener != null) {
-                entryListener.entryRemoved(entry);
-                webSocket.entryRemoved(entry);
-                saveEntries();
-            }
+            webSocket.entryRemoved(entry);
+            saveEntries();
         }
     }
 
@@ -91,14 +75,6 @@ public class NotiphyApplication extends Application {
         if (modified) {
             webSocket.entryReplaced(oldEntry, newEntry);
             saveEntries();
-        }
-    }
-
-    public void setEntryListener(EntryListener entryListener) {
-        this.entryListener = entryListener;
-
-        if (entries.size() > 0) {
-            entryListener.entriesAdded(entries);
         }
     }
 

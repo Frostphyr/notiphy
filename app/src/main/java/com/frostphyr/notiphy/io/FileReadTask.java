@@ -18,11 +18,8 @@ public abstract class FileReadTask<Params, Result> extends FileIOTask<Params, Re
     }
 
     private byte[] read(File file) throws IOException {
-        if (file.exists()) {
-            AtomicFile atomicFile = new AtomicFile(file);
-            return atomicFile.readFully();
-        }
-        return null;
+        AtomicFile atomicFile = new AtomicFile(file);
+        return atomicFile.readFully();
     }
 
     protected abstract Result run(byte[] data, Params... params) throws Exception;

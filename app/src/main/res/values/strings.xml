@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Notiphy</string>
 
+    <string name="loading">Loading %1s</string>
+    <string name="finished">Finished</string>
+    <string name="settings">settings</string>
+    <string name="entries">entries</string>
+
     <string name="add_title">Add</string>
     <string name="save_title">Save</string>
     <string name="delete_title">Delete</string>
@@ -18,5 +23,7 @@
 
     <string name="error_message_read_entries">Error reading saved entries</string>
     <string name="error_message_write_entries">Error writing entries to storage</string>
+    <string name="error_message_read_settings">Error reading settings</string>
+    <string name="error_message_write_settings">Error saving settings</string>
     <string name="error_message_notiphy_connection">Error connecting to Notiphy server. Retrying in</string>
 </resources>

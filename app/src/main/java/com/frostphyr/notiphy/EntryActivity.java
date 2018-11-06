@@ -2,6 +2,7 @@ package com.frostphyr.notiphy;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,9 +26,13 @@ public abstract class EntryActivity extends AppCompatActivity {
     public static final int MAX_PHRASES = 10;
 
     public static final String EXTRA_ENTRY = "entry";
+    public static final String EXTRA_OLD_ENTRY = "oldEntry";
+
+    public static final int REQUEST_CODE_NEW = 100;
+    public static final int REQUEST_CODE_EDIT = 101;
 
     protected Entry oldEntry;
-    private Set<TextView> phraseViews = new LinkedHashSet<TextView>();
+    private Set<TextView> phraseViews = new LinkedHashSet<>();
 
     protected abstract void createEntry();
 
@@ -41,7 +46,7 @@ public abstract class EntryActivity extends AppCompatActivity {
 
         TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
         if (mediaSpinner != null) {
-            mediaSpinner.setAdapter(new ArrayAdapter<MediaType>(this, android.R.layout.simple_spinner_item, MediaType.values()));
+            mediaSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MediaType.values()));
         }
 
         TextView phrase1View = findViewById(R.id.phrase_1);
@@ -110,13 +115,12 @@ public abstract class EntryActivity extends AppCompatActivity {
     }
 
     protected void finish(Entry entry) {
-        NotiphyApplication app = (NotiphyApplication) getApplication();
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_ENTRY, entry);
         if (oldEntry != null) {
-            app.replaceEntry(oldEntry, entry);
-        } else {
-            app.addEntry(entry);
+            intent.putExtra(EXTRA_OLD_ENTRY, oldEntry);
         }
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, intent);
         finish();
     }
 
@@ -126,7 +130,7 @@ public abstract class EntryActivity extends AppCompatActivity {
     }
 
     protected String[] getPhrases() {
-        List<String> phrases = new ArrayList<String>();
+        List<String> phrases = new ArrayList<>();
         for (TextView v : phraseViews) {
             String phrase = v.getText().toString().trim();
             if (!phrase.equals("")) {
