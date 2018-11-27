@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 
 import okhttp3.OkHttpClient;
@@ -32,7 +33,7 @@ public class NotiphyWebSocket {
     private static final int OPERATION_ADD = 0;
     private static final int OPERATION_REMOVE = 1;
 
-    private SimpleDateFormat delayDateFormat = new SimpleDateFormat("s");
+    private SimpleDateFormat delayDateFormat = new SimpleDateFormat("s", Locale.getDefault());
 
     private Context context;
     private Handler mainHandler;
@@ -46,7 +47,7 @@ public class NotiphyWebSocket {
     private long reconnectStart;
     private String reconnectText;
     private boolean reconnectScheduled;
-
+    private boolean wifiOnly;
 
     public NotiphyWebSocket(Context context, OkHttpClient client, Set<Entry> entries) {
         this.context = context;
@@ -56,127 +57,121 @@ public class NotiphyWebSocket {
         init();
     }
 
-    public void entriesAdded(Collection<Entry> entries) {
-        if (webSocket != null) {
-            sendEntryOperations(encodeEntries(entries, OPERATION_ADD));
-        } else {
-            attemptConnection();
-        }
-    }
-
-    public void entryAdded(Entry entry) {
-        if (webSocket != null) {
-            sendEntryOperations(encodeEntry(entry, OPERATION_ADD));
-        } else {
-            attemptConnection();
-        }
-    }
-
-    public void entryRemoved(Entry entry) {
-        if (webSocket != null) {
-            if (entries.size() > 0) {
-                sendEntryOperations(encodeEntry(entry, OPERATION_REMOVE));
-            } else {
-                webSocket.cancel();
-            }
-        }
-    }
-
-    public void entryReplaced(Entry oldEntry, Entry newEntry) {
-        if (webSocket != null) {
-            sendEntryOperations(encodeEntry(oldEntry, OPERATION_REMOVE), encodeEntry(newEntry, OPERATION_ADD));
-        } else {
-            attemptConnection();
-        }
-    }
-
     private void init() {
         mainHandler = new Handler(context.getMainLooper());
         notificationDispatcher = new NotificationDispatcher(context);
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         reconnectDelay = context.getResources().getInteger(R.integer.reconnect_delay);
-        StringBuilder builder = new StringBuilder(5);
-        builder.append(context.getResources().getString(R.string.error_message_notiphy_connection));
-        builder.append(' ');
-        builder.append(delayDateFormat.format(new Date(context.getResources().getInteger(R.integer.reconnect_delay))));
-        builder.append(' ');
-        builder.append(context.getResources().getString(R.string.seconds));
-        reconnectText = builder.toString();
+        reconnectText = context.getString(R.string.error_message_notiphy_connection, delayDateFormat.format(new Date(context.getResources().getInteger(R.integer.reconnect_delay))));
 
         NetworkMonitor.addListener(context, new NetworkListener() {
 
             @Override
             public void networkChanged() {
-                attemptConnection();
+                checkConnection();
             }
 
         });
     }
 
-    private void attemptConnection() {
-        if (webSocket == null && isConnected() && (!reconnectScheduled || SystemClock.elapsedRealtime() - reconnectStart > reconnectDelay * 1.5)) {
-            Request request = new Request.Builder()
-                    .url("ws://frostphyr.com/NotiphyServer/server")
-                    .build();
-            webSocket = client.newWebSocket(request, new WebSocketListener() {
+    public void setWifiOnly(boolean wifiOnly) {
+        if (this.wifiOnly != wifiOnly) {
+            this.wifiOnly = wifiOnly;
 
-                @Override
-                public void onMessage(WebSocket webSocket, final String message) {
-                    processMessage(message);
-                }
+            checkConnection();
+        }
+    }
 
-                @Override
-                public void onClosed(WebSocket webSocket, int code, String reason) {
-                    attemptReconnection();
-                }
+    public NotificationDispatcher getNotificationDispatcher() {
+        return notificationDispatcher;
+    }
 
-                @Override
-                public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                    postDelayedReconnection();
-                }
-
-            });
-            sendEntryOperations(encodeEntries(entries, OPERATION_ADD));
+    public void entriesAdded(Collection<Entry> entries) {
+        int[] operations = new int[entries.size()];
+        for (int i = 0; i < operations.length; i++) {
+            operations[i] = OPERATION_ADD;
         }
 
+        entriesModified(entries.toArray(new Entry[entries.size()]), operations);
     }
 
-    private void attemptReconnection() {
-        mainHandler.post(new Runnable() {
+    public void entryAdded(Entry entry) {
+        entriesModified(new Entry[] {entry}, new int[] {OPERATION_ADD});
+    }
 
-            @Override
-            public void run() {
-                webSocket = null;
-                attemptConnection();
+    public void entryRemoved(Entry entry) {
+        entriesModified(new Entry[] {entry}, new int[] {OPERATION_REMOVE});
+    }
+
+    public void entryReplaced(Entry oldEntry, Entry newEntry) {
+        entriesModified(new Entry[] {oldEntry, newEntry}, new int[] {OPERATION_REMOVE, OPERATION_ADD});
+    }
+
+    private void entriesModified(Entry[] entries, int[] operations) {
+        if (webSocket != null) {
+            if (this.entries.size() > 0) {
+                JSONObject[] objects = new JSONObject[entries.length];
+                for (int i = 0; i < objects.length; i++) {
+                    objects[i] = encodeEntry(entries[i], operations[i]);
+                }
+
+                sendEntryOperations(objects);
+            } else {
+                disconnect();
             }
+        } else {
+            checkConnection();
+        }
+    }
 
-        });
+    private void checkConnection() {
+        boolean connected = isConnected();
+        if (connected && webSocket == null && entries.size() > 0) {
+            Request request = new Request.Builder()
+                    .url("ws://10.0.0.196:8080/NotiphyServer/server")
+                    .build();
+
+            webSocket = client.newWebSocket(request, webSocketListener);
+            sendEntryOperations(encodeEntries(entries, OPERATION_ADD));
+        } else if ((entries.size() == 0 || !connected) && webSocket != null) {
+            disconnect();
+        }
+    }
+
+    private void disconnect() {
+        webSocket.cancel();
+        webSocket = null;
     }
 
     private void postDelayedReconnection() {
         webSocket = null;
         reconnectScheduled = true;
         reconnectStart = SystemClock.elapsedRealtime();
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, reconnectText, Toast.LENGTH_LONG);
-            }
-        });
+        Toast.makeText(context, reconnectText, Toast.LENGTH_LONG).show();
         mainHandler.postDelayed(new Runnable() {
 
             @Override
             public void run() {
                 reconnectScheduled = false;
-                attemptConnection();
+                checkConnection();
             }
 
         }, reconnectDelay);
     }
 
     private boolean isConnected() {
-        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-        return info != null && info.isConnectedOrConnecting();
+        NetworkInfo wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (wifiInfo != null && wifiInfo.isConnectedOrConnecting()) {
+            return true;
+        }
+
+        if (!wifiOnly) {
+            NetworkInfo mobileInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            if (mobileInfo != null && mobileInfo.isConnectedOrConnecting()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void sendEntryOperations(JSONObject... operations) {
@@ -235,5 +230,42 @@ public class NotiphyWebSocket {
         } catch (JSONException | IllegalArgumentException e) {
         }
     }
+
+    private WebSocketListener webSocketListener = new WebSocketListener() {
+
+        @Override
+        public void onMessage(WebSocket webSocket, String message) {
+            processMessage(message);
+        }
+
+        @Override
+        public void onClosed(WebSocket webSocket, int code, String reason) {
+            mainHandler.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    NotiphyWebSocket.this.webSocket = null;
+                    checkConnection();
+                }
+
+            });
+        }
+
+        @Override
+        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+            mainHandler.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    NotiphyWebSocket.this.webSocket = null;
+                    if (!(reconnectScheduled && SystemClock.elapsedRealtime() - reconnectStart < reconnectDelay)) {
+                        postDelayedReconnection();
+                    }
+                }
+
+            });
+        }
+
+    };
 
 }

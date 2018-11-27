@@ -17,7 +17,6 @@
     <string name="close">Close</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="seconds">seconds</string>
 
     <string name="delete_entry_conformation">Are you sure you would like to delete this entry?</string>
 
@@ -25,5 +24,5 @@
     <string name="error_message_write_entries">Error writing entries to storage</string>
     <string name="error_message_read_settings">Error reading settings</string>
     <string name="error_message_write_settings">Error saving settings</string>
-    <string name="error_message_notiphy_connection">Error connecting to Notiphy server. Retrying in</string>
+    <string name="error_message_notiphy_connection">Error connecting to Notiphy server. Retrying in %1s seconds</string>
 </resources>
