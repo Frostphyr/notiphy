@@ -48,11 +48,15 @@ public class EntryListActivity extends AppCompatActivity {
             case R.id.action_add:
                 showAddPopupMenu(item);
                 return true;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         if (resultCode == RESULT_OK) {

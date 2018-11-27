@@ -31,6 +31,7 @@ public class NotificationDispatcher {
 
     private NotificationManagerCompat notificationManager;
     private Context context;
+    private boolean showMedia;
     private int id;
 
     public NotificationDispatcher(Context context) {
@@ -47,6 +48,10 @@ public class NotificationDispatcher {
         finalizeNotification(channelId, message.getUrl(), id, smallView, bigView, message);
 
         id++;
+    }
+
+    public void setShowMedia(boolean showMedia) {
+        this.showMedia = showMedia;
     }
 
     private void init() {
@@ -79,7 +84,7 @@ public class NotificationDispatcher {
     }
 
     private void finalizeNotification(String channelId, String url, int iconResId, int id, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
-        if (media != null && media.length > 1) {
+        if (showMedia && media != null && media.length > 1) {
             bigView.setBoolean(R.id.notification_media_previous_button, "setEnabled", false);
             bigView.setBoolean(R.id.notification_media_next_button, "setEnabled", false);
             bigView.setTextViewText(R.id.notification_media_count, (mediaIndex + 1) + "/" + media.length);
@@ -100,7 +105,7 @@ public class NotificationDispatcher {
 
         notificationManager.notify(id, createNotification(channelId, url, id, iconResId, smallView, bigView));
 
-        if (media != null && media.length > 0) {
+        if (showMedia && media != null && media.length > 0) {
             Media m = (Media) media[mediaIndex];
             downloadImage(m, channelId, url, iconResId, id, smallView, bigView);
         }
@@ -136,7 +141,7 @@ public class NotificationDispatcher {
         views.setTextViewText(R.id.notification_title, message.getUsername());
         views.setTextViewText(R.id.notification_text, message.getText());
         if (big) {
-            if (message.getMedia() == null || message.getMedia().length == 0) {
+            if (!showMedia || message.getMedia() == null || message.getMedia().length == 0) {
                 views.setViewVisibility(R.id.notification_media, View.GONE);
                 views.setViewVisibility(R.id.notification_media_count_layout, View.GONE);
             } else {

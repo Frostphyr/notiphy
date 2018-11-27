@@ -28,6 +28,7 @@
         <activity
             android:name=".twitter.TwitterActivity"
             android:label="@string/twitter_title"/>
+        <activity android:name=".SettingsActivity"/>
 
     </application>
 

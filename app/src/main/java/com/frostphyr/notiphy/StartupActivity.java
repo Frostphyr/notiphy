@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frostphyr.notiphy.io.EntryReadTask;
+import com.frostphyr.notiphy.io.SettingsReadTask;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class StartupActivity extends AppCompatActivity {
 
     private StartupTask<?>[] tasks = new StartupTask<?>[] {
+            new SettingsStartupTask(),
             new EntriesStartupTask()
     };
 
@@ -86,6 +88,39 @@ public class StartupActivity extends AppCompatActivity {
         int getNameResourceId();
 
         int getErrorResourceId();
+
+    }
+
+    private class SettingsStartupTask implements StartupTask<Object[]> {
+
+        @Override
+        public AsyncTaskHelper<Void, Void, Object[]> createAsyncTask(AsyncTaskHelper.Callback callback) {
+            return new SettingsReadTask(StartupActivity.this, callback);
+        }
+
+        @Override
+        public void onFinish(Object[] result) {
+            ((NotiphyApplication) getApplication()).setSettings(result);
+        }
+
+        @Override
+        public Object[] getDefault() {
+            Object[] settings = new Object[Setting.getCount()];
+            for (int i = 0; i < settings.length; i++) {
+                settings[i] = Setting.forId(i).getDefaultValue();
+            }
+            return settings;
+        }
+
+        @Override
+        public int getNameResourceId() {
+            return R.string.settings;
+        }
+
+        @Override
+        public int getErrorResourceId() {
+            return R.string.error_message_read_settings;
+        }
 
     }
 
