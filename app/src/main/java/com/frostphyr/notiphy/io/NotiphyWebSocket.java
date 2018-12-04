@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -35,9 +36,10 @@ public class NotiphyWebSocket {
 
     private SimpleDateFormat delayDateFormat = new SimpleDateFormat("s", Locale.getDefault());
 
+    private Set<Entry> entries = new HashSet<>();
+
     private Context context;
     private Handler mainHandler;
-    private Set<Entry> entries;
     private NotificationDispatcher notificationDispatcher;
 
     private OkHttpClient client;
@@ -49,10 +51,9 @@ public class NotiphyWebSocket {
     private boolean reconnectScheduled;
     private boolean wifiOnly;
 
-    public NotiphyWebSocket(Context context, OkHttpClient client, Set<Entry> entries) {
+    public NotiphyWebSocket(Context context, OkHttpClient client) {
         this.context = context;
         this.client = client;
-        this.entries = entries;
 
         init();
     }
@@ -86,25 +87,32 @@ public class NotiphyWebSocket {
         return notificationDispatcher;
     }
 
-    public void entriesAdded(Collection<Entry> entries) {
-        int[] operations = new int[entries.size()];
+    public void entriesAdded(Collection<Entry> newEntries) {
+        entries.addAll(newEntries);
+        int[] operations = new int[newEntries.size()];
         for (int i = 0; i < operations.length; i++) {
             operations[i] = OPERATION_ADD;
         }
 
-        entriesModified(entries.toArray(new Entry[entries.size()]), operations);
+        entriesModified(newEntries.toArray(new Entry[0]), operations);
     }
 
     public void entryAdded(Entry entry) {
-        entriesModified(new Entry[] {entry}, new int[] {OPERATION_ADD});
+        if (entries.add(entry)) {
+            entriesModified(new Entry[]{entry}, new int[]{OPERATION_ADD});
+        }
     }
 
     public void entryRemoved(Entry entry) {
-        entriesModified(new Entry[] {entry}, new int[] {OPERATION_REMOVE});
+        if (entries.remove(entry)) {
+            entriesModified(new Entry[]{entry}, new int[]{OPERATION_REMOVE});
+        }
     }
 
     public void entryReplaced(Entry oldEntry, Entry newEntry) {
-        entriesModified(new Entry[] {oldEntry, newEntry}, new int[] {OPERATION_REMOVE, OPERATION_ADD});
+        if (entries.remove(oldEntry) || entries.add(newEntry)) {
+            entriesModified(new Entry[]{oldEntry, newEntry}, new int[]{OPERATION_REMOVE, OPERATION_ADD});
+        }
     }
 
     private void entriesModified(Entry[] entries, int[] operations) {
@@ -187,11 +195,9 @@ public class NotiphyWebSocket {
     private JSONObject encodeEntries(Collection<Entry> entries, int operation) {
         JSONArray entriesArray = new JSONArray();
         for (Entry e : entries) {
-            if (e.isActive()) {
-                try {
-                    entriesArray.put(encodeEntry(e.getType().getEntryTransportEncoder(), e));
-                } catch (JSONException ex) {
-                }
+            try {
+                entriesArray.put(encodeEntry(e.getType().getEntryTransportEncoder(), e));
+            } catch (JSONException ex) {
             }
         }
         return encodeEntries(entriesArray, operation);
@@ -199,15 +205,14 @@ public class NotiphyWebSocket {
 
     private JSONObject encodeEntry(Entry entry, int operation) {
         JSONArray array = new JSONArray();
-        if (entry.isActive()) {
-            try {
-                array.put(encodeEntry(entry.getType().getEntryTransportEncoder(), entry));
-            } catch (JSONException e) {
-            }
+        try {
+            array.put(encodeEntry(entry.getType().getEntryTransportEncoder(), entry));
+        } catch (JSONException e) {
         }
         return encodeEntries(array, operation);
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Entry> JSONObject encodeEntry(JSONEncoder<T> encoder, Entry entry) throws JSONException {
         return encoder.encode((T) entry);
     }

@@ -30,6 +30,8 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         } else {
             holder = (ViewHolder) view.getTag();
         }
+        holder.entry = entry;
+        final View finalView = view;
 
         holder.username.setText(entry.getUsername());
         holder.mediaType.setText("Media: " + entry.getMediaType());
@@ -51,8 +53,11 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                entry.setActive(isChecked);
-                ((NotiphyApplication) activity.getApplicationContext()).saveEntries();
+                ViewHolder holder = (ViewHolder) finalView.getTag();
+                NotiphyApplication application = ((NotiphyApplication) activity.getApplicationContext());
+                TwitterEntry oldEntry = holder.entry;
+                holder.entry = holder.entry.withActive(isChecked);
+                application.replaceEntry(oldEntry, holder.entry);
             }
 
         });
@@ -71,6 +76,7 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
 
     private static class ViewHolder {
 
+        TwitterEntry entry;
         TextView username;
         TextView mediaType;
         TextView phrases;

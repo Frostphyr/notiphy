@@ -6,7 +6,7 @@ public interface Entry extends Parcelable {
 
     boolean isActive();
 
-    void setActive(boolean active);
+    Entry withActive(boolean active);
 
     EntryType getType();
 

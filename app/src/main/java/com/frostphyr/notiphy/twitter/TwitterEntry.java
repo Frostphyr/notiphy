@@ -24,7 +24,7 @@ public class TwitterEntry implements Entry {
     private String username;
     private MediaType mediaType;
     private String[] phrases;
-    private volatile boolean active;
+    private boolean active;
 
     public TwitterEntry(String id, String username, MediaType mediaType, String[] phrases, boolean active) {
         this.id = id;
@@ -56,8 +56,8 @@ public class TwitterEntry implements Entry {
     }
 
     @Override
-    public void setActive(boolean active) {
-        this.active = active;
+    public TwitterEntry withActive(boolean active) {
+        return active == this.active ? this : new TwitterEntry(id, username, mediaType, phrases, active);
     }
 
     @Override

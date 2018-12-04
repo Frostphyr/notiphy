@@ -133,7 +133,7 @@ public class StartupActivity extends AppCompatActivity {
 
         @Override
         public void onFinish(List<Entry> result) {
-            ((NotiphyApplication) getApplication()).setEntries(result);
+            ((NotiphyApplication) getApplication()).addEntries(result);
         }
 
         @Override

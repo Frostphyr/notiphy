@@ -25,7 +25,7 @@ public class NotiphyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        webSocket = new NotiphyWebSocket(this, httpClient, entries);
+        webSocket = new NotiphyWebSocket(this, httpClient);
     }
 
     public void saveEntries() {
@@ -47,21 +47,25 @@ public class NotiphyApplication extends Application {
         return entries;
     }
 
-    public void setEntries(List<Entry> newEntries) {
+    public void addEntries(List<Entry> newEntries) {
         entries.addAll(newEntries);
         webSocket.entriesAdded(newEntries);
     }
 
     public void addEntry(Entry entry) {
         if (entries.add(entry)) {
-            webSocket.entryAdded(entry);
+            if (entry.isActive()) {
+                webSocket.entryAdded(entry);
+            }
             saveEntries();
         }
     }
 
     public void removeEntry(Entry entry) {
         if (entries.remove(entry)) {
-            webSocket.entryRemoved(entry);
+            if (entry.isActive()) {
+                webSocket.entryRemoved(entry);
+            }
             saveEntries();
         }
     }
@@ -76,7 +80,13 @@ public class NotiphyApplication extends Application {
         }
 
         if (modified) {
-            webSocket.entryReplaced(oldEntry, newEntry);
+            if (oldEntry.isActive() && newEntry.isActive()) {
+                webSocket.entryReplaced(oldEntry, newEntry);
+            } else if (oldEntry.isActive()) {
+                webSocket.entryRemoved(oldEntry);
+            } else if (newEntry.isActive()) {
+                webSocket.entryAdded(newEntry);
+            }
             saveEntries();
         }
     }
