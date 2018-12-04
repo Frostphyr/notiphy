@@ -34,7 +34,7 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         final View finalView = view;
 
         holder.username.setText(entry.getUsername());
-        holder.mediaType.setText("Media: " + entry.getMediaType());
+        holder.mediaType.setText(activity.getString(R.string.media_label, entry.getMediaType().toString()));
         String[] phrases = entry.getPhrases();
         if (phrases.length > 0) {
             StringBuilder builder = new StringBuilder(Math.max(phrases.length * 2 - 1, 0));
