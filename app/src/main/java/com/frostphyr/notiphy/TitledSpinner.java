@@ -53,6 +53,7 @@ public class TitledSpinner extends LinearLayout {
 
             TextView titleView = findViewById(R.id.titled_spinner_title);
             titleView.setText(arr.getString(R.styleable.TitledSpinner_title));
+            arr.recycle();
         }
     }
 
