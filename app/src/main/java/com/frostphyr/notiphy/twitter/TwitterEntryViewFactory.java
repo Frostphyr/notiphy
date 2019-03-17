@@ -2,11 +2,11 @@ package com.frostphyr.notiphy.twitter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.frostphyr.notiphy.EntryActivity;
@@ -48,12 +48,16 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         } else {
             holder.phrases.setVisibility(View.GONE);
         }
+
+        setEnabled(holder, entry.isActive());
         holder.active.setChecked(entry.isActive());
         holder.active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 ViewHolder holder = (ViewHolder) finalView.getTag();
+                setEnabled(holder, isChecked);
+
                 NotiphyApplication application = ((NotiphyApplication) activity.getApplicationContext());
                 TwitterEntry oldEntry = holder.entry;
                 holder.entry = holder.entry.withActive(isChecked);
@@ -74,13 +78,19 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         return view;
     }
 
+    private static void setEnabled(ViewHolder holder, boolean enabled) {
+        holder.username.setEnabled(enabled);
+        holder.mediaType.setEnabled(enabled);
+        holder.phrases.setEnabled(enabled);
+    }
+
     private static class ViewHolder {
 
         TwitterEntry entry;
         TextView username;
         TextView mediaType;
         TextView phrases;
-        Switch active;
+        SwitchCompat active;
 
     }
 
