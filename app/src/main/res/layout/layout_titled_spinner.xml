@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <View style="@style/NotiphyTheme.Divider"/>
+    <View style="@style/NotiphyTheme.Divider"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginBottom="@dimen/default_margin"/>
 
     <TextView
         android:id="@+id/titled_spinner_title"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"/>
 
     <Spinner
         android:id="@+id/titled_spinner_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
         android:spinnerMode="dialog"
-        android:prompt="@string/media_spinner_title"/>
+        android:prompt="@string/media_spinner_title"
+        android:theme="@style/NotiphyTheme.Spinner"/>
 
-    <View style="@style/NotiphyTheme.Divider"/>
+    <View style="@style/NotiphyTheme.Divider"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginBottom="@dimen/default_margin"/>
 
-</merge>
+</LinearLayout>

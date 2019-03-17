@@ -46,7 +46,9 @@ public abstract class EntryActivity extends AppCompatActivity {
 
         TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
         if (mediaSpinner != null) {
-            mediaSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, MediaType.values()));
+            ArrayAdapter<MediaType> adapter = new ArrayAdapter<>(this, R.layout.layout_spinner_item, MediaType.values());
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mediaSpinner.setAdapter(adapter);
         }
 
         TextView phrase1View = findViewById(R.id.phrase_1);

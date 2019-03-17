@@ -3,26 +3,56 @@
     <style name="NotiphyTheme" parent="Theme.AppCompat.Light">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowBackground">@color/background</item>
         <item name="popupMenuStyle">@style/NotiphyTheme.ActionBar.PopupMenu</item>
-        <item name="android:itemTextAppearance">@style/NotiphyTheme.ActionBar.PopupMenu</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/NotiphyTheme.Text</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/NotiphyTheme.Text</item>
+        <item name="android:textViewStyle">@style/NotiphyTheme.Text</item>
+        <item name="editTextStyle">@style/NotiphyTheme.EditText</item>
     </style>
 
     <style name="NotiphyTheme.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorActionBarBackground</item>
-        <item name="titleTextColor">@color/colorActionBarTextColor</item>
-        <item name="popupTheme">@style/NotiphyTheme.ActionBar.PopupMenu</item>
+        <item name="android:background">@color/action_bar_background</item>
+        <item name="titleTextColor">@color/action_bar_text</item>
+
     </style>
 
-    <style name="NotiphyTheme.ActionBar.PopupMenu" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:popupBackground">@color/colorActionBarBackground</item>
-        <item name="android:textColor">@color/colorActionBarTextColor</item>
+    <style name="NotiphyTheme.ActionBar.PopupMenu" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:popupBackground">@color/action_bar_background</item>
     </style>
 
     <style name="NotiphyTheme.Divider">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/colorDivider</item>
+        <item name="android:layout_height">@dimen/divider_height</item>
+        <item name="android:background">@color/divider</item>
+    </style>
+
+    <style name="NotiphyTheme.Text" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">@dimen/text_size</item>
+    </style>
+
+    <style name="NotiphyTheme.TextValue" parent="NotiphyTheme.Text">
+        <item name="android:textColor">@color/text_value</item>
+    </style>
+
+    <style name="NotiphyTheme.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textCursorDrawable">@color/text_cursor</item>
+        <item name="android:textColor">@color/edit_text</item>
+        <item name="android:background">@color/edit_text_background</item>
+        <item name="android:textSize">@dimen/text_size</item>
+    </style>
+
+    <style name="NotiphyTheme.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="colorControlActivated">@color/switch_activated</item>
+        <item name="colorSwitchThumbNormal">@color/disabled</item>
+        <item name="android:colorForeground">@color/disabled</item>
+    </style>
+
+    <style name="NotiphyTheme.Spinner" parent="Widget.AppCompat.Spinner">
+        <item name="backgroundTint">@color/spinner_tint</item>
+        <item name="android:background">@color/action_bar_background</item>
+        <item name="android:textColor">@color/action_bar_text</item>
     </style>
 
 </resources>

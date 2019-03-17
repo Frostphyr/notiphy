@@ -7,8 +7,10 @@
 
     <EditText
         android:id="@+id/phrase"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        android:padding="@dimen/edit_text_padding"
         android:hint="@string/phrase_hint"
         android:maxLength="50"
         android:layout_weight="1"/>

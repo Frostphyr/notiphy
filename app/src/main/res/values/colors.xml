@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#000000</color>
+    <color name="background">#222222</color>
+    <color name="disabled">#808080</color>
 
-    <color name="colorBackground">#FFFFFF</color>
+    <color name="action_bar_background">#111111</color>
+    <color name="action_bar_text">#FFFFFF</color>
 
-    <color name="colorActionBarBackground">#000000</color>
-    <color name="colorActionBarTextColor">#FFFFFF</color>
+    <color name="media_background">#000000</color>
 
-    <color name="colorDivider">#808080</color>
+    <color name="divider">#808080</color>
+
+    <color name="text">#EEEEEE</color>
+    <color name="text_value">#AAAAAA</color>
+    <color name="edit_text">#000000</color>
+    <color name="edit_text_background">#FFFFFF</color>
+    <color name="text_cursor">#000000</color>
+
+    <color name="spinner_tint">#FFFFFF</color>
+
+    <color name="switch_activated">#b9e8ea</color>
 </resources>

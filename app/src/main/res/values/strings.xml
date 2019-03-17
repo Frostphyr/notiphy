@@ -13,11 +13,13 @@
     <string name="settings_title">Settings</string>
     <string name="media_spinner_title">Media</string>
     <string name="media_label">Media: %1s</string>
+    <string name="username_hint">Username</string>
     <string name="phrase_hint">Phrase</string>
     <string name="report_error">Report error</string>
     <string name="close">Close</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="at">\@</string>
 
     <string name="delete_entry_conformation">Are you sure you would like to delete this entry?</string>
 

@@ -18,6 +18,8 @@
     <TextView
         android:id="@+id/startup_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:divider="@color/divider"
+        android:dividerHeight="@dimen/divider_height"/>
 
 </LinearLayout>

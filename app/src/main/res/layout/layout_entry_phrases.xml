@@ -6,6 +6,8 @@
         android:id="@+id/phrase_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        android:padding="@dimen/edit_text_padding"
         android:hint="@string/phrase_hint"
         android:maxLength="50"/>
 
