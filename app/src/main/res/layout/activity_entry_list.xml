@@ -6,11 +6,7 @@
     android:orientation="vertical"
     tools:context=".EntryListActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/entry_list_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:theme="@style/NotiphyTheme.ActionBar"/>
+    <include layout="@layout/layout_toolbar"/>
 
     <ListView
         android:id="@+id/entry_list"

@@ -29,7 +29,7 @@ public class EntryListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry_list);
-        setSupportActionBar((Toolbar) findViewById(R.id.entry_list_toolbar));
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         ListView entryList = findViewById(R.id.entry_list);
         entryList.setAdapter(new EntryRowAdapter());

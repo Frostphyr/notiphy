@@ -39,7 +39,7 @@ public abstract class EntryActivity extends AppCompatActivity {
     protected void init() {
         oldEntry = getIntent().getParcelableExtra(EXTRA_ENTRY);
 
-        setSupportActionBar((Toolbar) findViewById(R.id.add_toolbar));
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back);
         actionBar.setDisplayHomeAsUpEnabled(true);
