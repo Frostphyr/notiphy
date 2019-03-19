@@ -37,7 +37,7 @@ public class Setting<T> {
 
             @Override
             public void onChange(NotiphyApplication application, Boolean value) {
-                application.getWebSocket().getNotificationDispatcher().setShowMedia(value);
+                application.getNotificationDispatcher().setShowMedia(value);
             }
 
         });

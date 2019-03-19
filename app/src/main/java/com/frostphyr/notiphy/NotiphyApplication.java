@@ -7,6 +7,7 @@ import com.frostphyr.notiphy.io.EntryWriteTask;
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
 import com.frostphyr.notiphy.io.SettingsWriteTask;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ public class NotiphyApplication extends Application {
 
     private Set<Entry> entries = new LinkedHashSet<>();
     private OkHttpClient httpClient = new OkHttpClient();
+    private NotificationDispatcher notificationDispatcher;
     private NotiphyWebSocket webSocket;
     private Object[] settings;
 
@@ -25,7 +27,21 @@ public class NotiphyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        notificationDispatcher = new NotificationDispatcher(this);
         webSocket = new NotiphyWebSocket(this, httpClient);
+        webSocket.addListener(new NotiphyWebSocket.Listener() {
+
+            @Override
+            public void onStatusChange(NotiphyWebSocket socket, NotiphyWebSocket.Status status) {
+
+            }
+
+            @Override
+            public void onMessage(NotiphyWebSocket socket, Message message) {
+                notificationDispatcher.dispatch(message);
+            }
+
+        });
     }
 
     public void saveEntries() {
@@ -40,7 +56,7 @@ public class NotiphyApplication extends Application {
                 showErrorMessage(R.string.error_message_write_entries);
             }
 
-        }).execute(entries.toArray(new Entry[entries.size()]));
+        }).execute(entries.toArray(new Entry[0]));
     }
 
     public Set<Entry> getEntries() {
@@ -49,7 +65,17 @@ public class NotiphyApplication extends Application {
 
     public void addEntries(List<Entry> newEntries) {
         entries.addAll(newEntries);
-        webSocket.entriesAdded(newEntries);
+
+        List<Entry> activeEntries = new ArrayList<>(newEntries.size());
+        for (Entry e : newEntries) {
+            if (e.isActive()) {
+                activeEntries.add(e);
+            }
+        }
+
+        if (activeEntries.size() > 0) {
+            webSocket.entriesAdded(activeEntries);
+        }
     }
 
     public void addEntry(Entry entry) {
@@ -127,6 +153,10 @@ public class NotiphyApplication extends Application {
             }
 
         }).execute(Arrays.copyOf(settings, settings.length));
+    }
+
+    public NotificationDispatcher getNotificationDispatcher() {
+        return notificationDispatcher;
     }
 
     public OkHttpClient getHttpClient() {

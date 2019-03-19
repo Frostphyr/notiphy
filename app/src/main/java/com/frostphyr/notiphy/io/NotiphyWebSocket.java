@@ -5,22 +5,20 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.widget.Toast;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
-import com.frostphyr.notiphy.NotificationDispatcher;
+import com.frostphyr.notiphy.Message;
 import com.frostphyr.notiphy.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Locale;
+import java.util.List;
 import java.util.Set;
 
 import okhttp3.OkHttpClient;
@@ -34,36 +32,31 @@ public class NotiphyWebSocket {
     private static final int OPERATION_ADD = 0;
     private static final int OPERATION_REMOVE = 1;
 
-    private SimpleDateFormat delayDateFormat = new SimpleDateFormat("s", Locale.getDefault());
-
     private Set<Entry> entries = new HashSet<>();
+    private List<Listener> listeners = new ArrayList<>();
 
-    private Context context;
+    private Status status = Status.DISCONNECTED;
+
     private Handler mainHandler;
-    private NotificationDispatcher notificationDispatcher;
-
     private OkHttpClient client;
     private WebSocket webSocket;
     private ConnectivityManager connectivityManager;
-    private long reconnectDelay;
+
     private long reconnectStart;
-    private String reconnectText;
+    private long reconnectDelay;
     private boolean reconnectScheduled;
     private boolean wifiOnly;
 
     public NotiphyWebSocket(Context context, OkHttpClient client) {
-        this.context = context;
         this.client = client;
 
-        init();
+        init(context);
     }
 
-    private void init() {
+    private void init(Context context) {
         mainHandler = new Handler(context.getMainLooper());
-        notificationDispatcher = new NotificationDispatcher(context);
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         reconnectDelay = context.getResources().getInteger(R.integer.reconnect_delay);
-        reconnectText = context.getString(R.string.error_message_notiphy_connection, delayDateFormat.format(new Date(context.getResources().getInteger(R.integer.reconnect_delay))));
 
         NetworkMonitor.addListener(context, new NetworkListener() {
 
@@ -75,16 +68,28 @@ public class NotiphyWebSocket {
         });
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
+    public long getReconnectDelay() {
+        return reconnectDelay;
+    }
+
+    public boolean addListener(Listener listener) {
+        return listeners.add(listener);
+    }
+
+    public boolean removeListener(Listener listener) {
+        return listeners.remove(listener);
+    }
+
     public void setWifiOnly(boolean wifiOnly) {
         if (this.wifiOnly != wifiOnly) {
             this.wifiOnly = wifiOnly;
 
             checkConnection();
         }
-    }
-
-    public NotificationDispatcher getNotificationDispatcher() {
-        return notificationDispatcher;
     }
 
     public void entriesAdded(Collection<Entry> newEntries) {
@@ -128,7 +133,11 @@ public class NotiphyWebSocket {
                 disconnect();
             }
         } else {
-            checkConnection();
+            if (this.entries.size() > 0) {
+                checkConnection();
+            } else {
+                setStatus(Status.DISCONNECTED);
+            }
         }
     }
 
@@ -155,7 +164,6 @@ public class NotiphyWebSocket {
         webSocket = null;
         reconnectScheduled = true;
         reconnectStart = SystemClock.elapsedRealtime();
-        Toast.makeText(context, reconnectText, Toast.LENGTH_LONG).show();
         mainHandler.postDelayed(new Runnable() {
 
             @Override
@@ -228,15 +236,50 @@ public class NotiphyWebSocket {
         }
     }
 
-    private void processMessage(String message) {
-        try {
-            JSONObject obj = new JSONObject(message);
-            notificationDispatcher.dispatch(EntryType.valueOf(obj.getString("type")).getMessageDecoder().decode(obj));
-        } catch (JSONException | IllegalArgumentException e) {
+    private void processMessage(final String messageJson) {
+        mainHandler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    JSONObject obj = new JSONObject(messageJson);
+                    onMessage(EntryType.valueOf(obj.getString("type")).getMessageDecoder().decode(obj));
+                } catch (JSONException | IllegalArgumentException e) {
+                }
+            }
+
+        });
+    }
+
+    private void setStatus(Status status) {
+        if (this.status != status) {
+            this.status = status;
+
+            for (Listener l : listeners) {
+                l.onStatusChange(this, status);
+            }
+        }
+    }
+
+    private void onMessage(Message message) {
+        for (Listener l : listeners) {
+            l.onMessage(this, message);
         }
     }
 
     private WebSocketListener webSocketListener = new WebSocketListener() {
+
+        @Override
+        public void onOpen(WebSocket webSocket, Response response) {
+            mainHandler.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    setStatus(Status.CONNECTED);
+                }
+
+            });
+        }
 
         @Override
         public void onMessage(WebSocket webSocket, String message) {
@@ -250,6 +293,7 @@ public class NotiphyWebSocket {
                 @Override
                 public void run() {
                     NotiphyWebSocket.this.webSocket = null;
+                    setStatus(Status.DISCONNECTED);
                     checkConnection();
                 }
 
@@ -263,6 +307,7 @@ public class NotiphyWebSocket {
                 @Override
                 public void run() {
                     NotiphyWebSocket.this.webSocket = null;
+                    setStatus(Status.FAILURE);
                     if (!(reconnectScheduled && SystemClock.elapsedRealtime() - reconnectStart < reconnectDelay)) {
                         postDelayedReconnection();
                     }
@@ -272,5 +317,21 @@ public class NotiphyWebSocket {
         }
 
     };
+
+    public enum Status {
+
+        CONNECTED,
+        DISCONNECTED,
+        FAILURE
+
+    }
+
+    public interface Listener {
+
+        void onStatusChange(NotiphyWebSocket socket, Status status);
+
+        void onMessage(NotiphyWebSocket socket, Message message);
+
+    }
 
 }
