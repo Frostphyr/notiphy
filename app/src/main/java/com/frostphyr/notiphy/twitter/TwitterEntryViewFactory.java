@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frostphyr.notiphy.EntryActivity;
@@ -34,7 +35,12 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         final View finalView = view;
 
         holder.username.setText(entry.getUsername());
-        holder.mediaType.setText(activity.getString(R.string.media_label, entry.getMediaType().toString()));
+        int mediaTypeResId = entry.getMediaType().getIconResId();
+        if (mediaTypeResId != -1) {
+            holder.mediaType.setImageResource(mediaTypeResId);
+        } else {
+            holder.mediaType.setVisibility(View.GONE);
+        }
         String[] phrases = entry.getPhrases();
         if (phrases.length > 0) {
             StringBuilder builder = new StringBuilder(Math.max(phrases.length * 2 - 1, 0));
@@ -88,7 +94,7 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
 
         TwitterEntry entry;
         TextView username;
-        TextView mediaType;
+        ImageView mediaType;
         TextView phrases;
         SwitchCompat active;
 

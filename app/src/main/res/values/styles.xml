@@ -32,8 +32,8 @@
         <item name="android:textSize">@dimen/text_size</item>
     </style>
 
-    <style name="NotiphyTheme.TextValue" parent="NotiphyTheme.Text">
-        <item name="android:textColor">@color/text_value</item>
+    <style name="NotiphyTheme.LightText" parent="NotiphyTheme.Text">
+        <item name="android:textColor">@color/light_text</item>
     </style>
 
     <style name="NotiphyTheme.EditText" parent="Widget.AppCompat.EditText">
@@ -52,6 +52,13 @@
     <style name="NotiphyTheme.Spinner" parent="Widget.AppCompat.Spinner">
         <item name="backgroundTint">@color/spinner_tint</item>
         <item name="android:background">@color/action_bar_background</item>
+    </style>
+
+    <style name="NotiphyTheme.Spinner.ItemText" parent="Widget.AppCompat.TextView.SpinnerItem">
+        <item name="android:textColor">@color/light_text</item>
+    </style>
+
+    <style name="NotiphyTheme.Spinner.DropdownItem" parent="Widget.AppCompat.TextView.SpinnerItem">
         <item name="android:textColor">@color/action_bar_text</item>
     </style>
 
