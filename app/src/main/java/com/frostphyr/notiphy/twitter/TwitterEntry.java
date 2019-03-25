@@ -3,11 +3,11 @@ package com.frostphyr.notiphy.twitter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.frostphyr.notiphy.CharUtils;
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryActivity;
 import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.MediaType;
+import com.frostphyr.notiphy.CharUtils;
 
 import java.util.Arrays;
 
@@ -84,18 +84,18 @@ public class TwitterEntry implements Entry {
     public boolean equals(Object o) {
         if (o instanceof TwitterEntry) {
             TwitterEntry e = (TwitterEntry) o;
-            return e.id == id
-                    && e.username.equals(username)
+            return e.id.equals(id)
+                    && e.username.equalsIgnoreCase(username)
                     && e.mediaType.equals(mediaType)
                     && Arrays.equals(e.phrases, phrases)
-                    && active == active;
+                    && e.active == active;
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[] {id, username, mediaType, active, Arrays.hashCode(phrases)});
+        return Arrays.hashCode(new Object[] {id, username, mediaType, Arrays.hashCode(phrases), active});
     }
 
     private static String validateUsername(String username) {

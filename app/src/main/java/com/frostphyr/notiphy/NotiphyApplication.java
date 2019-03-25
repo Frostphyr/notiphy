@@ -9,15 +9,13 @@ import com.frostphyr.notiphy.io.SettingsWriteTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import okhttp3.OkHttpClient;
 
 public class NotiphyApplication extends Application {
 
-    private Set<Entry> entries = new LinkedHashSet<>();
+    private List<Entry> entries = new ArrayList<>();
     private OkHttpClient httpClient = new OkHttpClient();
     private NotificationDispatcher notificationDispatcher;
     private NotiphyWebSocket webSocket;
@@ -59,7 +57,7 @@ public class NotiphyApplication extends Application {
         }).execute(entries.toArray(new Entry[0]));
     }
 
-    public Set<Entry> getEntries() {
+    public List<Entry> getEntries() {
         return entries;
     }
 
@@ -79,33 +77,29 @@ public class NotiphyApplication extends Application {
     }
 
     public void addEntry(Entry entry) {
-        if (entries.add(entry)) {
-            if (entry.isActive()) {
-                webSocket.entryAdded(entry);
-            }
-            saveEntries();
+        entries.add(entry);
+        if (entry.isActive()) {
+            webSocket.entryAdded(entry);
         }
+        saveEntries();
     }
 
-    public void removeEntry(Entry entry) {
+    public boolean removeEntry(Entry entry) {
         if (entries.remove(entry)) {
             if (entry.isActive()) {
                 webSocket.entryRemoved(entry);
             }
             saveEntries();
+            return true;
         }
+        return false;
     }
 
     public void replaceEntry(Entry oldEntry, Entry newEntry) {
-        boolean modified = false;
-        if (entries.remove(oldEntry)) {
-            modified = true;
-        }
-        if (entries.add(newEntry)) {
-            modified = true;
-        }
-
-        if (modified) {
+        int index = entries.indexOf(oldEntry);
+        if (index != -1) {
+            entries.remove(index);
+            entries.add(index, newEntry);
             if (oldEntry.isActive() && newEntry.isActive()) {
                 webSocket.entryReplaced(oldEntry, newEntry);
             } else if (oldEntry.isActive()) {
@@ -113,8 +107,11 @@ public class NotiphyApplication extends Application {
             } else if (newEntry.isActive()) {
                 webSocket.entryAdded(newEntry);
             }
-            saveEntries();
+        } else {
+            entries.add(newEntry);
+            webSocket.entryAdded(newEntry);
         }
+        saveEntries();
     }
 
     public Object[] getSettings() {

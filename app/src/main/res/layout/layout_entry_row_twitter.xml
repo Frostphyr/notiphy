@@ -1,66 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:padding="@dimen/entry_padding">
+    android:layout_weight="1"
+    android:layout_gravity="center_vertical"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <LinearLayout
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/icon_size"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_twitter_logo"/>
+
+        <TextView
+            android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/icon_size"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_twitter_logo"/>
-
-            <TextView
-                android:id="@+id/username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/media_type"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/icon_size"
-                android:layout_gravity="center_vertical"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"/>
-
-            <TextView
-                android:id="@+id/phrases"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/default_margin"
-                android:layout_marginRight="@dimen/default_margin"
-                android:layout_gravity="center_vertical"
-                style="@style/NotiphyTheme.LightText"/>
-
-        </LinearLayout>
+            android:layout_gravity="center_vertical"/>
 
     </LinearLayout>
 
-    <include layout="@layout/layout_entry_row_switch"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/media_type"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/icon_size"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"/>
+
+        <TextView
+            android:id="@+id/phrases"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/default_margin"
+            android:layout_marginRight="@dimen/default_margin"
+            android:layout_gravity="center_vertical"
+            style="@style/NotiphyTheme.LightText"/>
+
+    </LinearLayout>
 
 </LinearLayout>

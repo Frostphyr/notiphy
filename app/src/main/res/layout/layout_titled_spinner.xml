@@ -5,9 +5,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <View style="@style/NotiphyTheme.Divider"
+    <View
         android:layout_marginTop="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/default_margin"/>
+        android:layout_marginBottom="@dimen/default_margin"
+        style="@style/NotiphyTheme.Divider"/>
 
     <TextView
         android:id="@+id/titled_spinner_title"
@@ -26,8 +27,9 @@
         android:prompt="@string/media_spinner_title"
         android:theme="@style/NotiphyTheme.Spinner"/>
 
-    <View style="@style/NotiphyTheme.Divider"
+    <View
         android:layout_marginTop="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/default_margin"/>
+        android:layout_marginBottom="@dimen/default_margin"
+        style="@style/NotiphyTheme.Divider"/>
 
 </LinearLayout>

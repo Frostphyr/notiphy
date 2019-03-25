@@ -27,5 +27,9 @@
     <string name="error_message_write_entries">Error writing entries to storage</string>
     <string name="error_message_read_settings">Error reading settings</string>
     <string name="error_message_write_settings">Error saving settings</string>
-    <string name="error_message_notiphy_connection">Error connecting to Notiphy server. Retrying in %1s seconds</string>
+    <string name="error_message_notiphy_connection">Error connecting to Notiphy server. Retrying in %1s seconds.</string>
+    <string name="error_message_twitter_connection">Error connecting with Notiphy server, please try again later.</string>
+    <string name="error_message_fetch_user_id">Error fetching user ID, please try again later.</string>
+    <string name="error_message_user_not_found">User not found</string>
+    <string name="error_message_user_suspended">User is suspended</string>
 </resources>

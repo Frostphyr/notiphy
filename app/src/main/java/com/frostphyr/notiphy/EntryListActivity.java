@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.TooltipCompat;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
@@ -77,13 +79,14 @@ public class EntryListActivity extends AppCompatActivity {
             switch (requestCode) {
                 case EntryActivity.REQUEST_CODE_EDIT:
                     Entry oldEntry = resultIntent.getParcelableExtra(EntryActivity.EXTRA_OLD_ENTRY);
-                    application.replaceEntry(oldEntry, entry);
-                    int position = adapter.getPosition(oldEntry);
-                    if (position != -1) {
-                        adapter.remove(oldEntry);
-                        adapter.insert(entry, position);
-                        break;
+                    if (entry == null) {
+                        if (application.removeEntry(oldEntry)) {
+                            adapter.remove(oldEntry);
+                        }
+                    } else {
+                        replaceEntry(oldEntry, entry);
                     }
+                    break;
                 case EntryActivity.REQUEST_CODE_NEW:
                     application.addEntry(entry);
                     adapter.add(entry);
@@ -145,6 +148,17 @@ public class EntryListActivity extends AppCompatActivity {
         addMenuHelper.show();
     }
 
+    @SuppressWarnings("unchecked")
+    private void replaceEntry(Entry oldEntry, Entry newEntry) {
+        ArrayAdapter<Entry> adapter = ((ArrayAdapter<Entry>) ((ListView) findViewById(R.id.entry_list)).getAdapter());
+        int position = adapter.getPosition(oldEntry);
+        if (position != -1) {
+            adapter.remove(oldEntry);
+            ((NotiphyApplication) getApplication()).replaceEntry(oldEntry, newEntry);
+            adapter.insert(newEntry, position);
+        }
+    }
+
     private void updateError(NotiphyWebSocket.Status status) {
         findViewById(R.id.toolbar_error).setVisibility(status == NotiphyWebSocket.Status.FAILURE ? View.VISIBLE : View.GONE);
     }
@@ -175,8 +189,29 @@ public class EntryListActivity extends AppCompatActivity {
         }
 
         @SuppressWarnings("unchecked")
-        private <T extends Entry> View createView(T entry, View convertView, ViewGroup parent) {
-            return ((EntryViewFactory<T>) entry.getType().getViewFactory()).createView(entry, inflater, convertView, parent, EntryListActivity.this);
+        private <T extends Entry> View createView(final T entry, View convertView, ViewGroup parent) {
+            ViewGroup view = (ViewGroup) convertView;
+            View entryView = null;
+            if (convertView == null) {
+                view = (ViewGroup) inflater.inflate(R.layout.layout_entry_row, parent, false);
+            } else {
+                entryView = view.getChildAt(0);
+            }
+            entryView = ((EntryViewFactory<T>) entry.getType().getViewFactory()).createView(entry, inflater, entryView, view, EntryListActivity.this);
+            SwitchCompat activeSwitch = view.findViewById(R.id.active_switch);
+            activeSwitch.setChecked(entry.isActive());
+            activeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    replaceEntry(entry, entry.withActive(isChecked));
+                }
+
+            });
+            if (convertView == null) {
+                view.addView(entryView, 0);
+            }
+            return view;
         }
 
     }

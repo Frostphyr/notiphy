@@ -2,17 +2,14 @@ package com.frostphyr.notiphy.twitter;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frostphyr.notiphy.EntryActivity;
 import com.frostphyr.notiphy.EntryViewFactory;
-import com.frostphyr.notiphy.NotiphyApplication;
 import com.frostphyr.notiphy.R;
 
 public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
@@ -26,18 +23,17 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
             holder.username = view.findViewById(R.id.username);
             holder.mediaType = view.findViewById(R.id.media_type);
             holder.phrases = view.findViewById(R.id.phrases);
-            holder.active = view.findViewById(R.id.active_switch);
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
         }
         holder.entry = entry;
-        final View finalView = view;
 
         holder.username.setText(entry.getUsername());
         int mediaTypeResId = entry.getMediaType().getIconResId();
         if (mediaTypeResId != -1) {
             holder.mediaType.setImageResource(mediaTypeResId);
+            holder.mediaType.setVisibility(View.VISIBLE);
         } else {
             holder.mediaType.setVisibility(View.GONE);
         }
@@ -55,39 +51,17 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
             holder.phrases.setVisibility(View.GONE);
         }
 
-        setEnabled(holder, entry.isActive());
-        holder.active.setChecked(entry.isActive());
-        holder.active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                ViewHolder holder = (ViewHolder) finalView.getTag();
-                setEnabled(holder, isChecked);
-
-                NotiphyApplication application = ((NotiphyApplication) activity.getApplicationContext());
-                TwitterEntry oldEntry = holder.entry;
-                holder.entry = holder.entry.withActive(isChecked);
-                application.replaceEntry(oldEntry, holder.entry);
-            }
-
-        });
-        view.setOnClickListener(new View.OnClickListener() {
+        parent.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(activity, TwitterActivity.class);
                 intent.putExtra(EntryActivity.EXTRA_ENTRY, entry);
-                activity.startActivity(intent);
+                activity.startActivityForResult(intent, TwitterActivity.REQUEST_CODE_EDIT);
             }
 
         });
         return view;
-    }
-
-    private static void setEnabled(ViewHolder holder, boolean enabled) {
-        holder.username.setEnabled(enabled);
-        holder.mediaType.setEnabled(enabled);
-        holder.phrases.setEnabled(enabled);
     }
 
     private static class ViewHolder {
@@ -96,7 +70,6 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         TextView username;
         ImageView mediaType;
         TextView phrases;
-        SwitchCompat active;
 
     }
 

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="@dimen/entry_padding">
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/active_switch"
@@ -9,4 +13,4 @@
         android:layout_gravity="center_vertical"
         android:theme="@style/NotiphyTheme.Switch"/>
 
-</merge>
+</LinearLayout>

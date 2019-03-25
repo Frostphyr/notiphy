@@ -37,7 +37,7 @@ public abstract class EntryActivity extends AppCompatActivity {
     protected Entry oldEntry;
     private Set<TextView> phraseViews = new LinkedHashSet<>();
 
-    protected abstract void createEntry();
+    protected abstract void save();
 
     protected void init() {
         oldEntry = getIntent().getParcelableExtra(EXTRA_ENTRY);
@@ -67,6 +67,7 @@ public abstract class EntryActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     addNewPhrase(null);
                 }
+
             });
 
         }
@@ -90,7 +91,7 @@ public abstract class EntryActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.action_save:
-                createEntry();
+                save();
                 return true;
             case R.id.action_delete:
                 new AlertDialog.Builder(this)
@@ -100,9 +101,7 @@ public abstract class EntryActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                ((NotiphyApplication) getApplication()).removeEntry(oldEntry);
-                                setResult(RESULT_OK);
-                                finish();
+                                finish(null);
                             }
 
                         })
@@ -115,13 +114,16 @@ public abstract class EntryActivity extends AppCompatActivity {
 
                         })
                         .show();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     protected void finish(Entry entry) {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_ENTRY, entry);
+        if (entry != null) {
+            intent.putExtra(EXTRA_ENTRY, entry);
+        }
         if (oldEntry != null) {
             intent.putExtra(EXTRA_OLD_ENTRY, oldEntry);
         }
@@ -142,15 +144,15 @@ public abstract class EntryActivity extends AppCompatActivity {
                 phrases.add(phrase);
             }
         }
-        return phrases.toArray(new String[phrases.size()]);
+        return phrases.toArray(new String[0]);
     }
 
     protected void addNewPhrase(String text) {
         final ViewGroup layout = findViewById(R.id.entry_layout);
         final ViewGroup newLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.layout_entry_phrase, null, false);
+        final EditText phraseView = newLayout.findViewById(R.id.phrase);
 
         if (text != null) {
-            EditText phraseView = newLayout.findViewById(R.id.phrase);
             phraseView.setText(text);
         }
 
@@ -161,7 +163,7 @@ public abstract class EntryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 layout.removeView(newLayout);
-                phraseViews.remove(newLayout);
+                phraseViews.remove(phraseView);
                 if (addNewPhraseButton.getVisibility() == View.GONE) {
                     addNewPhraseButton.setVisibility(View.VISIBLE);
                 }
@@ -169,9 +171,8 @@ public abstract class EntryActivity extends AppCompatActivity {
 
         });
 
-
         layout.addView(newLayout, layout.indexOfChild(addNewPhraseButton));
-        phraseViews.add((TextView) newLayout.findViewById(R.id.phrase));
+        phraseViews.add(phraseView);
         if (phraseViews.size() >= MAX_PHRASES) {
             addNewPhraseButton.setVisibility(View.GONE);
         }

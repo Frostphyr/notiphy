@@ -17,7 +17,6 @@
             android:layout_height="match_parent">
 
             <LinearLayout
-                android:id="@+id/entry_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -35,7 +34,7 @@
                         android:text="@string/at"/>
 
                     <EditText
-                        android:id="@+id/username"
+                        android:id="@+id/twitter_username"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/default_margin"
@@ -47,13 +46,9 @@
 
                 </LinearLayout>
 
-                <include layout="@layout/layout_entry_media"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                <include layout="@layout/layout_entry_media"/>
 
-                <include layout="@layout/layout_entry_phrases"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"/>
+                <include layout="@layout/layout_entry_phrases"/>
 
             </LinearLayout>
 
@@ -62,11 +57,12 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/loading"
+        android:id="@+id/twitter_loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:clickable="true"
+        android:focusable="true"
         android:visibility="gone">
 
         <ProgressBar

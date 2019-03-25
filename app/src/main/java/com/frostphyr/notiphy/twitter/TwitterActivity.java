@@ -8,24 +8,12 @@ import android.widget.Toast;
 
 import com.frostphyr.notiphy.CharRangeInputFilter;
 import com.frostphyr.notiphy.EntryActivity;
-import com.frostphyr.notiphy.MediaType;
 import com.frostphyr.notiphy.NotiphyApplication;
 import com.frostphyr.notiphy.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
-
 public class TwitterActivity extends EntryActivity {
 
-    private Call userIdCall;
+    private TwitterUserIdRequest idRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +21,13 @@ public class TwitterActivity extends EntryActivity {
         setContentView(R.layout.activity_twitter);
 
         init();
+    }
 
-        EditText usernameView = findViewById(R.id.username);
+    @Override
+    protected void init() {
+        super.init();
+
+        EditText usernameView = findViewById(R.id.twitter_username);
         usernameView.setFilters(new InputFilter[]{new CharRangeInputFilter(TwitterEntry.USERNAME_CHAR_RANGES)});
 
         TwitterEntry oldEntry = (TwitterEntry) super.oldEntry;
@@ -49,81 +42,66 @@ public class TwitterActivity extends EntryActivity {
     protected void onStop() {
         super.onStop();
 
-        if (userIdCall != null) {
-            userIdCall.cancel();
+        if (idRequest != null) {
+            idRequest.cancel();
         }
     }
 
     @Override
-    protected void createEntry() {
-        final EditText usernameView = findViewById(R.id.username);
-        final String username = usernameView.getText().toString().trim();
+    protected void save() {
+        EditText usernameView = findViewById(R.id.twitter_username);
+        String username = usernameView.getText().toString().trim();
         if (username.length() == 0) {
             usernameView.setError("Please enter a username");
-            return;
         }
 
-        final MediaType mediaType = getMediaType();
-        final String[] phrases = getPhrases();
+        View loadingView = findViewById(R.id.twitter_loading);
+        loadingView.setVisibility(View.VISIBLE);
+        fetchUserId(usernameView, loadingView, username);
+    }
 
-        findViewById(R.id.loading).setVisibility(View.VISIBLE);
-
-        HttpUrl url = HttpUrl.parse("http://frostphyr.com/notiphy/lookup_twitter_user_id.php").newBuilder()
-                .addQueryParameter("username", username)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        userIdCall = ((NotiphyApplication) getApplication()).getHttpClient().newCall(request);
-        userIdCall.enqueue(new Callback() {
+    private void fetchUserId(final EditText usernameView, final View loadingView, final String username) {
+        idRequest = new TwitterUserIdRequest(((NotiphyApplication) getApplication()).getHttpClient(), username, new TwitterUserIdRequest.Callback() {
 
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {
+            public void onResult(final String userId) {
                 runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        onUserIdResponse(response, username, mediaType, phrases);
+                        finish(new TwitterEntry(userId, username, getMediaType(), getPhrases(), oldEntry == null || oldEntry.isActive()));
                     }
 
                 });
             }
 
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onError(final int code) {
                 runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        onUserIdError();
+                        loadingView.setVisibility(View.GONE);
+                        switch (code) {
+                            case TwitterUserIdRequest.ERROR_CONNECTION:
+                                Toast.makeText(TwitterActivity.this, R.string.error_message_twitter_connection, Toast.LENGTH_LONG).show();
+                                break;
+                            case TwitterUserIdRequest.ERROR_USER_NOT_FOUND:
+                                usernameView.setError(getString(R.string.error_message_user_not_found));
+                                break;
+                            case TwitterUserIdRequest.ERROR_USER_SUSPENDED:
+                                usernameView.setError(getString(R.string.error_message_user_suspended));
+                            default:
+                                Toast.makeText(TwitterActivity.this, R.string.error_message_fetch_user_id, Toast.LENGTH_LONG).show();
+                                break;
+
+                        }
                     }
 
                 });
             }
 
         });
-    }
-
-    private void onUserIdResponse(Response response, String username, MediaType mediaType, String[] phrases) {
-        findViewById(R.id.loading).setVisibility(View.GONE);
-        try {
-            JSONObject obj = new JSONObject(response.body().string());
-            if (obj.has("error")) {
-                EditText usernameView = findViewById(R.id.username);
-                usernameView.setError(obj.getString("error"));
-            } else {
-                finish(new TwitterEntry(obj.getString("id"), username, mediaType, phrases, oldEntry != null ? oldEntry.isActive() : true));
-            }
-        } catch (JSONException | IOException e) {
-            Toast.makeText(TwitterActivity.this, "Error communicating with Notiphy server", Toast.LENGTH_LONG);
-        }
-    }
-
-    private void onUserIdError() {
-        findViewById(R.id.loading).setVisibility(View.GONE);
-        Toast.makeText(TwitterActivity.this, "Error connecting to Notiphy server", Toast.LENGTH_LONG);
     }
 
 }
