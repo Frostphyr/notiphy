@@ -6,7 +6,7 @@
     android:paddingTop="@dimen/default_margin"
     android:paddingBottom="@dimen/default_margin"
     android:orientation="horizontal"
-    android:theme="@style/Widget.AppCompat.TextView.SpinnerItem">
+    style="@style/Widget.AppCompat.TextView.SpinnerItem">
 
     <ImageView
         android:id="@+id/spinner_dropdown_item_image"
