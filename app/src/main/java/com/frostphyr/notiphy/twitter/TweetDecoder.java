@@ -12,24 +12,25 @@ import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Date;
 
 public class TweetDecoder implements JSONDecoder<Message> {
 
     @Override
     public Message decode(JSONObject obj) throws JSONException {
-        Date createdAt = null;
+        Message.Builder builder = new Message.Builder()
+                .setType(EntryType.TWITTER);
         try {
-            createdAt = DateFormat.getInstance().parse(obj.getString("createdAt"));
+            builder.setCreatedAt(DateFormat.getInstance().parse(obj.getString("createdAt")));
         } catch (ParseException e) {
         }
-        String id = obj.getString("id");
         String username = obj.getString("username");
-        String text = obj.getString("text");
-        Media[] media = null;
+        builder.setTitle(username)
+                .setText(obj.getString("text"))
+                .setUrl("https://twitter.com/" + username + "/status/" + obj.getString("id"));
+
         if (obj.has("media")) {
             JSONArray mediaArray = obj.getJSONArray("media");
-            media = new Media[mediaArray.length()];
+            Media[] media = new Media[mediaArray.length()];
             for (int i = 0; i < media.length; i++) {
                 JSONObject mediaObj = mediaArray.getJSONObject(i);
                 MediaType type = MediaType.valueOf(mediaObj.getString("type"));
@@ -39,8 +40,9 @@ public class TweetDecoder implements JSONDecoder<Message> {
                     media[i] = new Media(type, mediaObj.getString("url"), mediaObj.getString("thumbnailUrl"));
                 }
             }
+            builder.setMedia(media);
         }
-        return new Message(EntryType.TWITTER, createdAt, username, null, text, "https://twitter.com/" + username + "/status/" + id, media);
+        return builder.build();
     }
 
 }

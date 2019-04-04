@@ -133,13 +133,10 @@ public class NotificationDispatcher {
     private RemoteViews createView(Message message, boolean big) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.layout_notification);
         views.setImageViewResource(R.id.notification_icon, message.getType().getIconResourceId());
-        if (message.getCreatedAt() != null) {
-            views.setTextViewText(R.id.notification_time, DateFormat.getTimeInstance().format(message.getCreatedAt()));
-        } else {
-            views.setViewVisibility(R.id.notification_time, View.GONE);
-        }
-        views.setTextViewText(R.id.notification_title, message.getUsername());
-        views.setTextViewText(R.id.notification_text, message.getText());
+        views.setTextViewText(R.id.notification_title, message.getTitle());
+        setText(views, R.id.notification_description, message.getDescription());
+        setText(views, R.id.notification_text, message.getText());
+        setText(views, R.id.notification_time, DateFormat.getTimeInstance().format(message.getCreatedAt()));
         if (big) {
             if (!showMedia || message.getMedia() == null || message.getMedia().length == 0) {
                 views.setViewVisibility(R.id.notification_media, View.GONE);
@@ -156,6 +153,14 @@ public class NotificationDispatcher {
             views.setBoolean(R.id.notification_text, "setSingleLine", true);
         }
         return views;
+    }
+
+    private void setText(RemoteViews views, int viewId, String text) {
+        if (text != null) {
+            views.setTextViewText(viewId, text);
+        } else {
+            views.setViewVisibility(viewId, View.GONE);
+        }
     }
 
     private void downloadImage(final Media media, final String channelId, final String url, final int iconResId, final int id, final RemoteViews smallView, final RemoteViews bigView) {

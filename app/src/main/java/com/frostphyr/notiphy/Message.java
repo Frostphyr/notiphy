@@ -6,19 +6,13 @@ public class Message {
 
     private EntryType type;
     private Date createdAt;
-    private String username;
     private String title;
+    private String description;
     private String text;
     private String url;
     private Media[] media;
 
-    public Message(EntryType type, Date createdAt, String username, String title, String text, String url, Media[] media) {
-        this.type = type;
-        this.createdAt = createdAt;
-        this.username = username;
-        this.text = text;
-        this.url = url;
-        this.media = media;
+    private Message() {
     }
 
     public EntryType getType() {
@@ -29,12 +23,12 @@ public class Message {
         return createdAt;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getText() {
@@ -47,6 +41,53 @@ public class Message {
 
     public Media[] getMedia() {
         return media;
+    }
+
+    public static class Builder {
+
+        private Message message = new Message();
+
+        public Builder setType(EntryType type) {
+            message.type = type;
+            return this;
+        }
+
+        public Builder setCreatedAt(Date createdAt) {
+            message.createdAt = createdAt;
+            return this;
+        }
+
+        public Builder setTitle(String title) {
+            message.title = title;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            message.description = description;
+            return this;
+        }
+
+        public Builder setText(String text) {
+            message.text = text;
+            return this;
+        }
+
+        public Builder setUrl(String url) {
+            message.url = url;
+            return this;
+        }
+
+        public Builder setMedia(Media[] media) {
+            message.media = media;
+            return this;
+        }
+
+        public Message build() {
+            Message m = message;
+            message = null;
+            return m;
+        }
+
     }
 
 }
