@@ -5,11 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <View
-        android:layout_marginTop="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/default_margin"
-        style="@style/NotiphyTheme.Divider"/>
-
     <TextView
         android:id="@+id/titled_spinner_title"
         android:layout_width="wrap_content"
@@ -26,10 +21,5 @@
         android:spinnerMode="dialog"
         android:prompt="@string/media_spinner_title"
         android:theme="@style/NotiphyTheme.Spinner"/>
-
-    <View
-        android:layout_marginTop="@dimen/default_margin"
-        android:layout_marginBottom="@dimen/default_margin"
-        style="@style/NotiphyTheme.Divider"/>
 
 </LinearLayout>
