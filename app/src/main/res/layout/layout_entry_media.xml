@@ -11,6 +11,8 @@
         android:id="@+id/media_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
         android:orientation="vertical"
         app:title="Media"/>
 
