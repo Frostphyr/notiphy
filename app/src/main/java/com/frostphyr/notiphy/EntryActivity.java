@@ -1,19 +1,15 @@
 package com.frostphyr.notiphy;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -50,9 +46,7 @@ public abstract class EntryActivity extends AppCompatActivity {
 
         TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
         if (mediaSpinner != null) {
-            ArrayAdapter<MediaType> adapter = new MediaTypeAdapter();
-            adapter.setDropDownViewResource(R.layout.layout_spinner_dropdown_icon_item);
-            mediaSpinner.setAdapter(adapter);
+            mediaSpinner.setAdapter(new BasicSpinnerIconAdapter<>(this, MediaType.values()));
         }
 
         TextView phrase1View = findViewById(R.id.phrase_1);
@@ -193,44 +187,6 @@ public abstract class EntryActivity extends AppCompatActivity {
                 addNewPhrase(phrases[i]);
             }
         }
-    }
-
-    private class MediaTypeAdapter extends ArrayAdapter<MediaType> {
-
-        private LayoutInflater inflater;
-
-        public MediaTypeAdapter() {
-            super(EntryActivity.this, -1, MediaType.values());
-
-            inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return createView(position, parent,
-                    R.layout.layout_spinner_icon_item, R.id.spinner_item_image, R.id.spinner_item_text);
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            return createView(position, parent,
-                    R.layout.layout_spinner_dropdown_icon_item, R.id.spinner_dropdown_item_image, R.id.spinner_dropdown_item_text);
-        }
-
-        private View createView(int position, ViewGroup parent,
-                                int layoutResId, int imageResId, int textResId) {
-            View view = inflater.inflate(layoutResId, parent, false);
-            MediaType mediaType = getItem(position);
-            ImageView imageView = view.findViewById(imageResId);
-            if (mediaType.getIconResId() == -1) {
-                imageView.setVisibility(View.GONE);
-            } else {
-                imageView.setImageResource(mediaType.getIconResId());
-            }
-            ((TextView) view.findViewById(textResId)).setText(mediaType.name());
-            return view;
-        }
-
     }
 
 }

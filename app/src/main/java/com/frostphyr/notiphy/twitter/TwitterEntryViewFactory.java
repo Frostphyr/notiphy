@@ -30,7 +30,7 @@ public class TwitterEntryViewFactory implements EntryViewFactory<TwitterEntry> {
         holder.entry = entry;
 
         holder.username.setText(entry.getUsername());
-        int mediaTypeResId = entry.getMediaType().getIconResId();
+        int mediaTypeResId = entry.getMediaType().getIconResourceId();
         if (mediaTypeResId != -1) {
             holder.mediaType.setImageResource(mediaTypeResId);
             holder.mediaType.setVisibility(View.VISIBLE);

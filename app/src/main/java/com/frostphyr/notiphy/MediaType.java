@@ -1,6 +1,6 @@
 package com.frostphyr.notiphy;
 
-public enum MediaType {
+public enum MediaType implements IconResource {
 
     OPTIONAL(-1),
     ANY(R.drawable.ic_media),
@@ -14,7 +14,8 @@ public enum MediaType {
         this.iconResId = iconResId;
     }
 
-    public int getIconResId() {
+    @Override
+    public int getIconResourceId() {
         return iconResId;
     }
 
