@@ -11,6 +11,7 @@ public class Message {
     private String text;
     private String url;
     private Media[] media;
+    private boolean nsfw;
 
     private Message() {
     }
@@ -41,6 +42,10 @@ public class Message {
 
     public Media[] getMedia() {
         return media;
+    }
+
+    public boolean isNsfw() {
+        return nsfw;
     }
 
     public static class Builder {
@@ -79,6 +84,11 @@ public class Message {
 
         public Builder setMedia(Media[] media) {
             message.media = media;
+            return this;
+        }
+
+        public Builder setNsfw(boolean nsfw) {
+            message.nsfw = nsfw;
             return this;
         }
 

@@ -6,7 +6,7 @@
     android:gravity="center_vertical"
     android:padding="@dimen/entry_padding">
 
-    <android.support.v7.widget.SwitchCompat
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/active_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -26,6 +26,7 @@ public class TweetDecoder implements JSONDecoder<Message> {
         String username = obj.getString("username");
         builder.setTitle(username)
                 .setText(obj.getString("text"))
+                .setNsfw(obj.getBoolean("nsfw"))
                 .setUrl("https://twitter.com/" + username + "/status/" + obj.getString("id"));
 
         if (obj.has("media")) {

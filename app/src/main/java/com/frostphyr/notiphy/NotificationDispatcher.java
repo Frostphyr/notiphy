@@ -11,15 +11,17 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import com.frostphyr.notiphy.io.ImageDownloader;
 
 import java.text.DateFormat;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 public class NotificationDispatcher {
 
@@ -28,10 +30,13 @@ public class NotificationDispatcher {
     private static final String ACTION_PREVIOUS_MEDIA = "notificationPreviousMedia";
     private static final String ACTION_NEXT_MEDIA = "notificationNextMedia";
     private static final String ACTION_OPEN_URL = "notificationOpenUrl";
+    private static final String ACTION_SHOW_NSFW = "notificationShowNsfw";
+
+    private NsfwContent nsfwContent;
+    private boolean showMedia;
 
     private NotificationManagerCompat notificationManager;
     private Context context;
-    private boolean showMedia;
     private int id;
 
     public NotificationDispatcher(Context context) {
@@ -41,13 +46,23 @@ public class NotificationDispatcher {
     }
 
     public void dispatch(Message message) {
-        String channelId = message.getType() + CHANNEL_ID_SUFFIX;
-        RemoteViews smallView = createView(message, false);
-        RemoteViews bigView = createView(message, true);
+        if (nsfwContent != NsfwContent.BLOCK || !message.isNsfw()) {
+            State state = new State();
+            state.smallView = createView(message, false);
+            state.bigView = createView(message, true);
+            state.channelId = message.getType().toString() + CHANNEL_ID_SUFFIX;
+            state.url = message.getUrl();
+            state.media = message.getMedia();
+            state.id = id++;
+            state.iconResId = message.getType().getIconResourceId();
+            state.hideNsfw = nsfwContent == NsfwContent.HIDE && message.isNsfw();
 
-        finalizeNotification(channelId, message.getUrl(), id, smallView, bigView, message);
+            finalizeNotification(state);
+        }
+    }
 
-        id++;
+    public void setNsfwContent(NsfwContent nsfwContent) {
+        this.nsfwContent = nsfwContent;
     }
 
     public void setShowMedia(boolean showMedia) {
@@ -68,66 +83,64 @@ public class NotificationDispatcher {
         context.registerReceiver(new NavigateMediaBroadcastReceiver(), new IntentFilter(ACTION_PREVIOUS_MEDIA));
         context.registerReceiver(new NavigateMediaBroadcastReceiver(), new IntentFilter(ACTION_NEXT_MEDIA));
         context.registerReceiver(new OpenUrlBroadcastReceiver(), new IntentFilter(ACTION_OPEN_URL));
+        context.registerReceiver(new ShowNsfwBroadcastReceiver(), new IntentFilter(ACTION_SHOW_NSFW));
     }
 
-    private Intent createMediaIntent(String action, int id, String channelId, String url, int iconResId, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
-        Intent intent = new Intent(action);
-        intent.putExtra("id", id);
-        intent.putExtra("channelId", channelId);
-        intent.putExtra("url", url);
-        intent.putExtra("iconResId", iconResId);
-        intent.putExtra("smallView", smallView);
-        intent.putExtra("bigView", bigView);
-        intent.putExtra("media", media);
-        intent.putExtra("mediaIndex", mediaIndex);
-        return intent;
-    }
+    private void finalizeNotification(State state) {
+        if (showMedia && state.media != null && state.media.length > 1) {
+            state.bigView.setBoolean(R.id.notification_media_previous_button, "setEnabled", false);
+            state.bigView.setBoolean(R.id.notification_media_next_button, "setEnabled", false);
+            state.bigView.setTextViewText(R.id.notification_media_count, (state.mediaIndex + 1) + "/" + state.media.length);
+            state.bigView.setViewVisibility(R.id.notification_media_loading, View.VISIBLE);
+            state.bigView.setViewVisibility(R.id.notification_media_image_view, View.INVISIBLE);
+            state.bigView.setViewVisibility(R.id.notification_media_icon_view, View.INVISIBLE);
 
-    private void finalizeNotification(String channelId, String url, int iconResId, int id, RemoteViews smallView, RemoteViews bigView, Parcelable[] media, int mediaIndex) {
-        if (showMedia && media != null && media.length > 1) {
-            bigView.setBoolean(R.id.notification_media_previous_button, "setEnabled", false);
-            bigView.setBoolean(R.id.notification_media_next_button, "setEnabled", false);
-            bigView.setTextViewText(R.id.notification_media_count, (mediaIndex + 1) + "/" + media.length);
-            bigView.setViewVisibility(R.id.notification_media_loading, View.VISIBLE);
-            bigView.setViewVisibility(R.id.notification_media_image_view, View.INVISIBLE);
-            bigView.setViewVisibility(R.id.notification_media_icon_view, View.INVISIBLE);
+            Intent previousIntent = new Intent(ACTION_PREVIOUS_MEDIA).putExtra("state", state);
+            state.bigView.setOnClickPendingIntent(R.id.notification_media_previous_button, PendingIntent.getBroadcast(context, id, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
-            Intent previousIntent = createMediaIntent(ACTION_PREVIOUS_MEDIA, id, channelId, url, iconResId, smallView, bigView, media, mediaIndex);
-            bigView.setOnClickPendingIntent(R.id.notification_media_previous_button, PendingIntent.getBroadcast(context, id, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-
-            Intent nextIntent = createMediaIntent(ACTION_NEXT_MEDIA, id, channelId, url, iconResId, smallView, bigView, media, mediaIndex);
-            bigView.setOnClickPendingIntent(R.id.notification_media_next_button, PendingIntent.getBroadcast(context, id, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+            Intent nextIntent = new Intent(ACTION_PREVIOUS_MEDIA).putExtra("state", state);
+            state.bigView.setOnClickPendingIntent(R.id.notification_media_next_button, PendingIntent.getBroadcast(context, id, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
             Intent openMediaIntent = new Intent(ACTION_OPEN_URL);
-            openMediaIntent.putExtra("url", ((Media) media[mediaIndex]).getUrl());
-            bigView.setOnClickPendingIntent(R.id.notification_media, PendingIntent.getBroadcast(context, id, openMediaIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+            openMediaIntent.putExtra("url", state.media[state.mediaIndex].getUrl());
+            state.bigView.setOnClickPendingIntent(R.id.notification_media, PendingIntent.getBroadcast(context, id, openMediaIntent, PendingIntent.FLAG_UPDATE_CURRENT));
         }
 
-        notificationManager.notify(id, createNotification(channelId, url, id, iconResId, smallView, bigView));
+        if (state.hideNsfw) {
+            Intent nextIntent = new Intent(ACTION_SHOW_NSFW).putExtra("state", state);
+            state.smallView.setOnClickPendingIntent(R.id.notification_show_nsfw, PendingIntent.getBroadcast(context, id, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+            state.bigView.setOnClickPendingIntent(R.id.notification_show_nsfw, PendingIntent.getBroadcast(context, id, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT));
 
-        if (showMedia && media != null && media.length > 0) {
-            Media m = (Media) media[mediaIndex];
-            downloadImage(m, channelId, url, iconResId, id, smallView, bigView);
+            state.smallView.setViewVisibility(R.id.notification_content, View.INVISIBLE);
+            state.bigView.setViewVisibility(R.id.notification_content, View.INVISIBLE);
+        } else {
+            state.smallView.setViewVisibility(R.id.notification_nsfw_layout, View.GONE);
+            state.bigView.setViewVisibility(R.id.notification_nsfw_layout, View.GONE);
+            state.smallView.setViewVisibility(R.id.notification_content, View.VISIBLE);
+            state.bigView.setViewVisibility(R.id.notification_content, View.VISIBLE);
+        }
+
+        notificationManager.notify(id, createNotification(state));
+
+        if (showMedia && state.media != null && state.media.length > 0) {
+            Media m = (Media) state.media[state.mediaIndex];
+            downloadImage(m, state);
         }
     }
 
-    private void finalizeNotification(String channelId, String url, int id, RemoteViews smallView, RemoteViews bigView, Message message) {
-        finalizeNotification(channelId, url, message.getType().getIconResourceId(), id, smallView, bigView, message.getMedia(), 0);
-    }
-
-    private Notification createNotification(String channelId, String url, int id, int iconResId, RemoteViews smallView, RemoteViews bigView) {
-        Intent openUrlIntent = new Intent(ACTION_OPEN_URL);
-        openUrlIntent.putExtra("url", url);
-
-        return new NotificationCompat.Builder(context, channelId)
+    private Notification createNotification(State state) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, state.channelId)
                 .setOnlyAlertOnce(true)
-                .setSmallIcon(iconResId)
+                .setSmallIcon(state.iconResId)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                .setCustomContentView(smallView)
-                .setCustomBigContentView(bigView)
-                .setContentIntent(PendingIntent.getBroadcast(context, id, openUrlIntent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setAutoCancel(true)
-                .build();
+                .setCustomContentView(state.smallView)
+                .setCustomBigContentView(state.bigView)
+                .setAutoCancel(true);
+        if (!state.hideNsfw) {
+            builder.setContentIntent(PendingIntent.getBroadcast(context, id,
+                    new Intent(ACTION_OPEN_URL).putExtra("url", state.url), PendingIntent.FLAG_UPDATE_CURRENT));
+        }
+        return builder.build();
     }
 
     private RemoteViews createView(Message message, boolean big) {
@@ -163,16 +176,16 @@ public class NotificationDispatcher {
         }
     }
 
-    private void downloadImage(final Media media, final String channelId, final String url, final int iconResId, final int id, final RemoteViews smallView, final RemoteViews bigView) {
+    private void downloadImage(final Media media, final State state) {
         ImageDownloader.execute(media.getThumbnailUrl(), new ImageDownloader.Callback() {
 
             @Override
             public void onDownload(Bitmap bitmap) {
-                bigView.setImageViewBitmap(R.id.notification_media_image_view, bitmap);
-                bigView.setViewVisibility(R.id.notification_media_image_view, View.VISIBLE);
+                state.bigView.setImageViewBitmap(R.id.notification_media_image_view, bitmap);
+                state.bigView.setViewVisibility(R.id.notification_media_image_view, View.VISIBLE);
                 if (media.getType() != MediaType.IMAGE) {
-                    bigView.setImageViewResource(R.id.notification_media_icon_view, R.drawable.ic_play);
-                    bigView.setViewVisibility(R.id.notification_media_icon_view, View.VISIBLE);
+                    state.bigView.setImageViewResource(R.id.notification_media_icon_view, R.drawable.ic_play);
+                    state.bigView.setViewVisibility(R.id.notification_media_icon_view, View.VISIBLE);
                 }
 
                 onResult();
@@ -180,18 +193,18 @@ public class NotificationDispatcher {
 
             @Override
             public void onFailure(Exception e) {
-                bigView.setImageViewResource(R.id.notification_media_icon_view, R.drawable.ic_error);
-                bigView.setViewVisibility(R.id.notification_media_icon_view, View.VISIBLE);
+                state.bigView.setImageViewResource(R.id.notification_media_icon_view, R.drawable.ic_error);
+                state.bigView.setViewVisibility(R.id.notification_media_icon_view, View.VISIBLE);
 
                 onResult();
             }
 
             private void onResult() {
-                bigView.setViewVisibility(R.id.notification_media_loading, View.GONE);
-                bigView.setBoolean(R.id.notification_media_previous_button, "setEnabled", true);
-                bigView.setBoolean(R.id.notification_media_next_button, "setEnabled", true);
+                state.bigView.setViewVisibility(R.id.notification_media_loading, View.GONE);
+                state.bigView.setBoolean(R.id.notification_media_previous_button, "setEnabled", true);
+                state.bigView.setBoolean(R.id.notification_media_next_button, "setEnabled", true);
 
-                notificationManager.notify(id, createNotification(channelId, url, id, iconResId, smallView, bigView));
+                notificationManager.notify(id, createNotification(state));
             }
 
         });
@@ -201,22 +214,20 @@ public class NotificationDispatcher {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Parcelable[] media = intent.getParcelableArrayExtra("media");
-            int mediaIndex = intent.getIntExtra("mediaIndex", -1);
+            State state = intent.getParcelableExtra("state");
             if (intent.getAction().equals(ACTION_PREVIOUS_MEDIA)) {
-                if (--mediaIndex < 0) {
-                    mediaIndex = media.length - 1;
+                if (--state.mediaIndex < 0) {
+                    state.mediaIndex = state.media.length - 1;
                 }
             } else if (intent.getAction().equals(ACTION_NEXT_MEDIA)) {
-                if (++mediaIndex >= media.length) {
-                    mediaIndex = 0;
+                if (++state.mediaIndex >= state.media.length) {
+                    state.mediaIndex = 0;
                 }
             } else {
                 return;
             }
 
-            finalizeNotification(intent.getStringExtra("chanelId"), intent.getStringExtra("url"), intent.getIntExtra("iconResId", -1), intent.getIntExtra("id", -1),
-                    (RemoteViews) intent.getParcelableExtra("smallView"), (RemoteViews) intent.getParcelableExtra("bigView"), media, mediaIndex);
+            finalizeNotification(state);
         }
 
     }
@@ -228,6 +239,73 @@ public class NotificationDispatcher {
             Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(intent.getStringExtra("url")));
             context.startActivity(viewIntent);
         }
+
+    }
+
+    private class ShowNsfwBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            State state = intent.getParcelableExtra("state");
+            state.hideNsfw = false;
+            finalizeNotification(state);
+        }
+
+    }
+
+    private static class State implements Parcelable {
+
+        private RemoteViews smallView;
+        private RemoteViews bigView;
+        private String channelId;
+        private String url;
+        private Media[] media;
+        private int id;
+        private int iconResId;
+        private int mediaIndex;
+        private boolean hideNsfw;
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeParcelable(smallView, 0);
+            dest.writeParcelable(bigView, 0);
+            dest.writeString(channelId);
+            dest.writeString(url);
+            dest.writeTypedArray(media, 0);
+            dest.writeInt(id);
+            dest.writeInt(iconResId);
+            dest.writeInt(mediaIndex);
+            dest.writeInt(hideNsfw ? 1 : 0);
+        }
+
+        public static final Parcelable.Creator<State> CREATOR = new Parcelable.Creator<State>() {
+
+            @Override
+            public State createFromParcel(Parcel in) {
+                State state = new State();
+                state.smallView = in.readParcelable(RemoteViews.class.getClassLoader());
+                state.bigView = in.readParcelable(RemoteViews.class.getClassLoader());
+                state.channelId = in.readString();
+                state.url = in.readString();
+                state.media = in.createTypedArray(Media.CREATOR);
+                state.id = in.readInt();
+                state.iconResId = in.readInt();
+                state.mediaIndex = in.readInt();
+                state.hideNsfw = in.readInt() == 1;
+                return state;
+            }
+
+            @Override
+            public State[] newArray(int size) {
+                return new State[size];
+            }
+
+        };
 
     }
 

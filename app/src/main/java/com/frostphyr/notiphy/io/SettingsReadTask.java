@@ -25,10 +25,19 @@ public class SettingsReadTask extends FileReadTask<Void, Object[]> {
             Setting setting = Setting.forId(i);
             if (obj.has(setting.getName())) {
                 Object o = obj.get(setting.getName());
-                if (setting.getType().isInstance(o)) {
-                    settings[i] = o;
+                if (o != null) {
+                    if (setting.getType().isInstance(o)) {
+                        settings[i] = o;
+                    } else if (setting.getType().isEnum() && o instanceof String) {
+                        try {
+                            settings[i] = Enum.valueOf(setting.getType(), (String) o);
+                        } catch (IllegalArgumentException e) {
+                        }
+                    }
                 }
-            } else {
+            }
+
+            if (settings[i] == null) {
                 settings[i] = Setting.forId(i).getDefaultValue();
             }
         }

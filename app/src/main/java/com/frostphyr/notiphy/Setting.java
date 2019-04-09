@@ -9,6 +9,7 @@ public class Setting<T> {
 
     public static final Setting WIFI_ONLY;
     public static final Setting SHOW_MEDIA;
+    public static final Setting NSFW_CONTENT;
 
     private static Map<String, Setting> settingNames;
     private static List<Setting> settingIds;
@@ -38,6 +39,15 @@ public class Setting<T> {
             @Override
             public void onChange(NotiphyApplication application, Boolean value) {
                 application.getNotificationDispatcher().setShowMedia(value);
+            }
+
+        });
+
+        NSFW_CONTENT = new Setting<>("NSFW Content", NsfwContent.class, NsfwContent.SHOW, new OnChangeHandler<NsfwContent>() {
+
+            @Override
+            public void onChange(NotiphyApplication application, NsfwContent value) {
+                application.getNotificationDispatcher().setNsfwContent(value);
             }
 
         });

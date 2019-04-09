@@ -20,6 +20,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="at">\@</string>
+    <string name="show_nsfw">Show NSFW</string>
 
     <string name="delete_entry_conformation">Are you sure you would like to delete this entry?</string>
 

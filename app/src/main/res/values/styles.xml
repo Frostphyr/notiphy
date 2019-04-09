@@ -44,7 +44,7 @@
     </style>
 
     <style name="NotiphyTheme.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
-        <item name="colorControlActivated">@color/switch_activated</item>
+        <item name="colorControlActivated">@color/accent</item>
         <item name="colorSwitchThumbNormal">@color/disabled</item>
         <item name="android:colorForeground">@color/disabled</item>
     </style>
@@ -60,6 +60,11 @@
 
     <style name="NotiphyTheme.Spinner.DropdownItem" parent="Widget.AppCompat.TextView.SpinnerItem">
         <item name="android:textColor">@color/action_bar_text</item>
+    </style>
+
+    <style name="NotiphyTheme.Button" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textColor">@color/show_nsfw_button</item>
+        <item name="android:background">@drawable/bg_show_nsfw_button</item>
     </style>
 
 </resources>

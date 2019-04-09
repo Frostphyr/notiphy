@@ -2,7 +2,6 @@ package com.frostphyr.notiphy;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,6 +11,8 @@ import com.frostphyr.notiphy.io.SettingsReadTask;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class StartupActivity extends AppCompatActivity {
 

@@ -4,9 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +20,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public abstract class EntryActivity extends AppCompatActivity {
 
@@ -50,7 +51,7 @@ public abstract class EntryActivity extends AppCompatActivity {
         TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
         if (mediaSpinner != null) {
             ArrayAdapter<MediaType> adapter = new MediaTypeAdapter();
-            adapter.setDropDownViewResource(R.layout.layout_spinner_dropdown_item);
+            adapter.setDropDownViewResource(R.layout.layout_spinner_dropdown_icon_item);
             mediaSpinner.setAdapter(adapter);
         }
 
@@ -207,13 +208,13 @@ public abstract class EntryActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             return createView(position, parent,
-                    R.layout.layout_spinner_item, R.id.spinner_item_image, R.id.spinner_item_text);
+                    R.layout.layout_spinner_icon_item, R.id.spinner_item_image, R.id.spinner_item_text);
         }
 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             return createView(position, parent,
-                    R.layout.layout_spinner_dropdown_item, R.id.spinner_dropdown_item_image, R.id.spinner_dropdown_item_text);
+                    R.layout.layout_spinner_dropdown_icon_item, R.id.spinner_dropdown_item_image, R.id.spinner_dropdown_item_text);
         }
 
         private View createView(int position, ViewGroup parent,

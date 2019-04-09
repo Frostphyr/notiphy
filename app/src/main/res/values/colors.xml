@@ -18,5 +18,7 @@
 
     <color name="spinner_tint">#FFFFFF</color>
 
-    <color name="switch_activated">#b9e8ea</color>
+    <color name="accent">#b9e8ea</color>
+    
+    <color name="show_nsfw_button">#FF0000</color>
 </resources>

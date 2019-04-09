@@ -2,18 +2,20 @@ package com.frostphyr.notiphy;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -41,8 +43,8 @@ public class SettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private View createSwitchSetting(LayoutInflater inflater, final Setting setting, boolean value) {
-        View view = inflater.inflate(R.layout.layout_settings_switch, null, false);
+    private View createSwitchSetting(LayoutInflater inflater, ViewGroup parent, final Setting setting, boolean value) {
+        View view = inflater.inflate(R.layout.layout_settings_switch, parent, false);
         SwitchCompat s = view.findViewById(R.id.settings_switch);
         s.setChecked(value);
         s.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -55,6 +57,27 @@ public class SettingsActivity extends AppCompatActivity {
         });
         TextView textView = view.findViewById(R.id.settings_switch_text);
         textView.setText(setting.getName());
+        return view;
+    }
+
+    private View createSpinnerSetting(LayoutInflater inflater, ViewGroup parent, final Setting setting, Object value) {
+        View view = inflater.inflate(R.layout.layout_settings_spinner, parent, false);
+        TitledSpinner spinner = view.findViewById(R.id.settings_spinner);
+        spinner.setAdapter(new BasicSpinnerAdapter<>(this, NsfwContent.values()));
+        spinner.setSelectedItem(((NsfwContent) value).ordinal());
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ((NotiphyApplication) getApplication()).setSetting(setting, parent.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+
+        });
         return view;
     }
 
@@ -72,7 +95,9 @@ public class SettingsActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             Setting setting = Setting.forId(position);
             if (setting.getType().equals(Boolean.class)) {
-                return createSwitchSetting(inflater, setting, (boolean) getItem(position));
+                return createSwitchSetting(inflater, parent, setting, (boolean) getItem(position));
+            } else if (setting.getType().isEnum()) {
+                return createSpinnerSetting(inflater, parent, setting, getItem(position));
             }
             return null;
         }
