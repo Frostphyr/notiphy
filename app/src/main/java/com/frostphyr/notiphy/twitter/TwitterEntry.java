@@ -4,14 +4,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.frostphyr.notiphy.Entry;
-import com.frostphyr.notiphy.EntryActivity;
 import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.MediaType;
-import com.frostphyr.notiphy.CharUtils;
+import com.frostphyr.notiphy.TextUtils;
 
 import java.util.Arrays;
 
-public class TwitterEntry implements Entry {
+public class TwitterEntry extends Entry {
 
     public static final char[][] USERNAME_CHAR_RANGES = {
             {'a', 'z'},
@@ -23,15 +22,13 @@ public class TwitterEntry implements Entry {
     private String id;
     private String username;
     private MediaType mediaType;
-    private String[] phrases;
-    private boolean active;
 
     public TwitterEntry(String id, String username, MediaType mediaType, String[] phrases, boolean active) {
+        super(phrases, active);
+
         this.id = id;
         this.username = validateUsername(username);
         this.mediaType = validateMediaType(mediaType);
-        this.phrases = validatePhrases(phrases);
-        this.active = active;
     }
 
     public String getId() {
@@ -46,23 +43,28 @@ public class TwitterEntry implements Entry {
         return mediaType;
     }
 
-    public String[] getPhrases() {
-        return phrases;
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public TwitterEntry withActive(boolean active) {
-        return active == this.active ? this : new TwitterEntry(id, username, mediaType, phrases, active);
-    }
-
     @Override
     public EntryType getType() {
         return EntryType.TWITTER;
+    }
+
+    @Override
+    public String getTitle() {
+        return username;
+    }
+
+    @Override
+    public String getDescription() {
+        return TextUtils.concat(getPhrases(), ", ");
+    }
+
+    @Override
+    public int getDescriptionIconResId() {
+        return mediaType.getIconResourceId();
+    }
+    @Override
+    public TwitterEntry withActive(boolean active) {
+        return active == isActive() ? this : new TwitterEntry(id, username, mediaType, getPhrases(), active);
     }
 
     @Override
@@ -75,9 +77,8 @@ public class TwitterEntry implements Entry {
         dest.writeString(id);
         dest.writeString(username);
         dest.writeInt(mediaType.ordinal());
-        dest.writeInt(phrases.length);
-        dest.writeStringArray(phrases);
-        dest.writeInt(active ? 1 : 0);
+        dest.writeStringArray(getPhrases());
+        dest.writeInt(isActive() ? 1 : 0);
     }
 
     @Override
@@ -87,19 +88,19 @@ public class TwitterEntry implements Entry {
             return e.id.equals(id)
                     && e.username.equalsIgnoreCase(username)
                     && e.mediaType.equals(mediaType)
-                    && Arrays.equals(e.phrases, phrases)
-                    && e.active == active;
+                    && Arrays.equals(e.getPhrases(), getPhrases())
+                    && e.isActive() == isActive();
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[] {id, username, mediaType, Arrays.hashCode(phrases), active});
+        return Arrays.hashCode(new Object[] {id, username, mediaType, Arrays.hashCode(getPhrases()), isActive()});
     }
 
     private static String validateUsername(String username) {
-        if (username.length() <= 0 || username.length() > 15 || !CharUtils.inRanges(USERNAME_CHAR_RANGES, username)) {
+        if (username.length() <= 0 || username.length() > 15 || !TextUtils.inRanges(USERNAME_CHAR_RANGES, username)) {
             throw new IllegalArgumentException();
         }
         return username;
@@ -112,13 +113,6 @@ public class TwitterEntry implements Entry {
         return mediaType;
     }
 
-    private static String[] validatePhrases(String[] phrases) {
-        if (phrases == null || phrases.length > EntryActivity.MAX_PHRASES) {
-            throw new IllegalArgumentException();
-        }
-        return phrases;
-    }
-
     public static final Parcelable.Creator<Entry> CREATOR = new Parcelable.Creator<Entry>() {
 
         @Override
@@ -126,8 +120,7 @@ public class TwitterEntry implements Entry {
             String id = in.readString();
             String username = in.readString();
             MediaType mediaType = MediaType.values()[in.readInt()];
-            String[] phrases = new String[in.readInt()];
-            in.readStringArray(phrases);
+            String[] phrases = in.createStringArray();
             boolean active = in.readInt() != 0;
             return new TwitterEntry(id, username, mediaType, phrases, active);
         }

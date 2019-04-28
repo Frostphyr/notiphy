@@ -16,12 +16,12 @@ import android.os.Parcelable;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
 import com.frostphyr.notiphy.io.ImageDownloader;
 
 import java.text.DateFormat;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 public class NotificationDispatcher {
 
@@ -149,7 +149,7 @@ public class NotificationDispatcher {
         views.setTextViewText(R.id.notification_title, message.getTitle());
         setText(views, R.id.notification_description, message.getDescription());
         setText(views, R.id.notification_text, message.getText());
-        setText(views, R.id.notification_time, DateFormat.getTimeInstance().format(message.getCreatedAt()));
+        setText(views, R.id.notification_time, DateFormat.getTimeInstance(DateFormat.SHORT).format(message.getCreatedAt()));
         if (big) {
             if (!showMedia || message.getMedia() == null || message.getMedia().length == 0) {
                 views.setViewVisibility(R.id.notification_media, View.GONE);
@@ -168,7 +168,7 @@ public class NotificationDispatcher {
         return views;
     }
 
-    private void setText(RemoteViews views, int viewId, String text) {
+    private void setText(RemoteViews views, int viewId, CharSequence text) {
         if (text != null) {
             views.setTextViewText(viewId, text);
         } else {

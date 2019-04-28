@@ -12,15 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
-
-import com.frostphyr.notiphy.io.NotiphyWebSocket;
-import com.frostphyr.notiphy.twitter.TwitterActivity;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
@@ -28,6 +22,15 @@ import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.TooltipCompat;
+
+import com.frostphyr.notiphy.io.NotiphyWebSocket;
+import com.frostphyr.notiphy.reddit.RedditActivity;
+import com.frostphyr.notiphy.twitter.TwitterActivity;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class EntryListActivity extends AppCompatActivity {
 
@@ -129,8 +132,10 @@ public class EntryListActivity extends AppCompatActivity {
             public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_add_twitter:
-                        Intent intent = new Intent(EntryListActivity.this, TwitterActivity.class);
-                        startActivityForResult(intent, EntryActivity.REQUEST_CODE_NEW);
+                        startActivityForResult(new Intent(EntryListActivity.this, TwitterActivity.class), EntryActivity.REQUEST_CODE_NEW);
+                        break;
+                    case R.id.action_add_reddit:
+                        startActivityForResult(new Intent(EntryListActivity.this, RedditActivity.class), EntryActivity.REQUEST_CODE_NEW);
                         break;
                 }
                 return false;
@@ -138,7 +143,6 @@ public class EntryListActivity extends AppCompatActivity {
 
             @Override
             public void onMenuModeChange(MenuBuilder menu) {
-
             }
 
         });
@@ -176,32 +180,38 @@ public class EntryListActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return createView(getItem(position), convertView, parent);
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return EntryType.values().length;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return getItem(position).getType().ordinal();
-        }
-
-        @SuppressWarnings("unchecked")
-        private <T extends Entry> View createView(final T entry, View convertView, ViewGroup parent) {
-            ViewGroup view = (ViewGroup) convertView;
-            View entryView = null;
+            final Entry entry = getItem(position);
+            ViewHolder holder;
             if (convertView == null) {
-                view = (ViewGroup) inflater.inflate(R.layout.layout_entry_row, parent, false);
+                convertView = inflater.inflate(R.layout.layout_entry_row, parent, false);
+                holder = new ViewHolder();
+                holder.iconView = convertView.findViewById(R.id.entry_row_icon);
+                holder.descriptionIconView = convertView.findViewById(R.id.entry_row_description_icon);
+                holder.titleView = convertView.findViewById(R.id.entry_row_title);
+                holder.descriptionView = convertView.findViewById(R.id.entry_row_description);
+                holder.activeSwitch = convertView.findViewById(R.id.entry_row_active_switch);
+                convertView.setTag(holder);
             } else {
-                entryView = view.getChildAt(0);
+                holder = (ViewHolder) convertView.getTag();
             }
-            entryView = ((EntryViewFactory<T>) entry.getType().getViewFactory()).createView(entry, inflater, entryView, view, EntryListActivity.this);
-            SwitchCompat activeSwitch = view.findViewById(R.id.active_switch);
-            activeSwitch.setChecked(entry.isActive());
-            activeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            holder.iconView.setImageResource(entry.getType().getIconResourceId());
+            if (entry.getDescriptionIconResId() != -1) {
+                holder.descriptionIconView.setVisibility(View.VISIBLE);
+                holder.descriptionIconView.setImageResource(entry.getDescriptionIconResId());
+            } else {
+                holder.descriptionIconView.setVisibility(View.GONE);
+            }
+            holder.titleView.setText(entry.getTitle());
+            String description = entry.getDescription();
+            if (description != null && description.length() > 0) {
+                holder.descriptionView.setVisibility(View.VISIBLE);
+                holder.descriptionView.setText(description);
+            } else {
+                holder.descriptionView.setVisibility(View.GONE);
+            }
+            holder.activeSwitch.setChecked(entry.isActive());
+            holder.activeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -209,10 +219,27 @@ public class EntryListActivity extends AppCompatActivity {
                 }
 
             });
-            if (convertView == null) {
-                view.addView(entryView, 0);
-            }
-            return view;
+            convertView.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(EntryListActivity.this, entry.getType().getActivityClass());
+                    intent.putExtra(EntryActivity.EXTRA_ENTRY, entry);
+                    startActivityForResult(intent, EntryActivity.REQUEST_CODE_EDIT);
+                }
+
+            });
+            return convertView;
+        }
+
+        private class ViewHolder {
+
+            ImageView iconView;
+            ImageView descriptionIconView;
+            TextView titleView;
+            TextView descriptionView;
+            SwitchCompat activeSwitch;
+
         }
 
     }

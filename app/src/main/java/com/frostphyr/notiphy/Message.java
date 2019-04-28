@@ -8,8 +8,8 @@ public class Message {
     private Date createdAt;
     private String title;
     private String description;
-    private String text;
     private String url;
+    private CharSequence text;
     private Media[] media;
     private boolean nsfw;
 
@@ -32,12 +32,12 @@ public class Message {
         return description;
     }
 
-    public String getText() {
-        return text;
-    }
-
     public String getUrl() {
         return url;
+    }
+
+    public CharSequence getText() {
+        return text;
     }
 
     public Media[] getMedia() {
@@ -72,13 +72,13 @@ public class Message {
             return this;
         }
 
-        public Builder setText(String text) {
-            message.text = text;
+        public Builder setUrl(String url) {
+            message.url = url;
             return this;
         }
 
-        public Builder setUrl(String url) {
-            message.url = url;
+        public Builder setText(CharSequence text) {
+            message.text = text;
             return this;
         }
 

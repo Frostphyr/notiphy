@@ -19,7 +19,7 @@ public class CharRangeInputFilter implements InputFilter {
         StringBuilder builder = new StringBuilder(end - start);
         for (int i = start; i < end; i++) {
             char c = source.charAt(i);
-            if (CharUtils.inRanges(ranges, c)) {
+            if (com.frostphyr.notiphy.TextUtils.inRanges(ranges, c)) {
                 builder.append(c);
             } else {
                 modified = true;

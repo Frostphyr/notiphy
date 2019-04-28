@@ -12,14 +12,14 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 public abstract class EntryActivity extends AppCompatActivity {
 
@@ -128,7 +128,7 @@ public abstract class EntryActivity extends AppCompatActivity {
 
     protected MediaType getMediaType() {
         TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
-        return mediaSpinner != null ? MediaType.valueOf(mediaSpinner.getSelectedItem()) : null;
+        return mediaSpinner != null ? (MediaType) mediaSpinner.getSelectedItem() : null;
     }
 
     protected String[] getPhrases() {

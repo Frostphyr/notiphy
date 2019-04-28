@@ -36,8 +36,8 @@ public class TitledSpinner extends LinearLayout {
         spinner.setAdapter(adapter);
     }
 
-    public String getSelectedItem() {
-        return spinner.getSelectedItem().toString();
+    public Object getSelectedItem() {
+        return spinner.getSelectedItem();
     }
 
     public void setSelectedItem(int position) {

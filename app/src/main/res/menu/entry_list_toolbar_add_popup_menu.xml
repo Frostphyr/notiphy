@@ -8,4 +8,10 @@
         android:title="@string/twitter_title"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/action_add_reddit"
+        android:icon="@drawable/ic_reddit_logo"
+        android:title="@string/reddit_title"
+        app:showAsAction="ifRoom"/>
+
 </menu>

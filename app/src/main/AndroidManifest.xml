@@ -25,9 +25,10 @@
         </activity>
         <activity android:name=".EntryListActivity">
         </activity>
-        <activity
-            android:name=".twitter.TwitterActivity"
+        <activity android:name=".twitter.TwitterActivity"
             android:label="@string/twitter_title"/>
+        <activity android:name=".reddit.RedditActivity"
+            android:label="@string/reddit_title"/>
         <activity android:name=".SettingsActivity"/>
 
     </application>
