@@ -23,12 +23,11 @@ public class RedditPostDecoder implements JSONDecoder<Message> {
     public Message decode(JSONObject obj) throws JSONException {
         Message.Builder builder = new Message.Builder()
                 .setType(EntryType.REDDIT)
+                .setCreatedAt(new Date(Long.parseLong(obj.getString("createdAt"))))
                 .setTitle(obj.getString("title"))
                 .setDescription("r/" + obj.getString("subreddit") + " \u00B7 u/" + obj.getString("user"))
                 .setUrl(obj.getString("url"))
                 .setNsfw(obj.getBoolean("nsfw"));
-
-        builder.setCreatedAt(new Date(Long.parseLong(obj.getString("createdAt")) * 1000));
 
         if (obj.has("text")) {
             builder.setText(TextUtils.fromHtml(renderer.render(parser.parse(obj.getString("text")))));

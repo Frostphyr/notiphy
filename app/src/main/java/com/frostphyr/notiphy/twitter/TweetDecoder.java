@@ -10,22 +10,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.ParseException;
+import java.util.Date;
 
 public class TweetDecoder implements JSONDecoder<Message> {
 
     @Override
     public Message decode(JSONObject obj) throws JSONException {
-        Message.Builder builder = new Message.Builder()
-                .setType(EntryType.TWITTER);
-        try {
-            builder.setCreatedAt(DateFormat.getInstance().parse(obj.getString("createdAt")));
-        } catch (ParseException e) {
-        }
         String username = obj.getString("username");
-        builder.setTitle(username)
+        Message.Builder builder = new Message.Builder()
+                .setType(EntryType.TWITTER)
+                .setTitle(username)
                 .setText(obj.getString("text"))
+                .setCreatedAt(new Date(Long.parseLong(obj.getString("createdAt"))))
                 .setNsfw(obj.getBoolean("nsfw"))
                 .setUrl("https://twitter.com/" + username + "/status/" + obj.getString("id"));
 
