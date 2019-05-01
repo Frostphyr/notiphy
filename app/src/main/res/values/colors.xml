@@ -12,6 +12,7 @@
 
     <color name="text">#EEEEEE</color>
     <color name="light_text">#AAAAAA</color>
+    <color name="dark_text">#000000</color>
     <color name="edit_text">#000000</color>
     <color name="edit_text_background">#FFFFFF</color>
     <color name="text_cursor">#000000</color>
