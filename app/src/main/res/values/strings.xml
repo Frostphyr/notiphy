@@ -43,6 +43,7 @@
     <string name="error_message_twitter_media_type">Media type must be either OPTIONAL, ANY, NONE, IMAGE, or VIDEO</string>
 
     <string name="error_message_reddit_type">Must be either user or subreddit</string>
+    <string name="error_message_reddit_value">Must have either a user or subreddit</string>
     <string name="error_message_reddit_user">User must be between 3 and 20 characters and only contain letters, numbers, dashes, and underscores</string>
     <string name="error_message_reddit_subreddit">Subreddit must be between 3 and 21 characters and only contain letters, numbers, and underscores</string>
     <string name="error_message_reddit_post_type">Post type must be either ANY, TEXT, or, LINK</string>

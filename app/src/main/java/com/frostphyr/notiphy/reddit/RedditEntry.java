@@ -9,6 +9,8 @@ import com.frostphyr.notiphy.IllegalInputException;
 import com.frostphyr.notiphy.R;
 import com.frostphyr.notiphy.TextUtils;
 
+import java.util.Arrays;
+
 public class RedditEntry extends Entry {
 
     public static final char[][] USER_CHAR_RANGES = {
@@ -99,6 +101,24 @@ public class RedditEntry extends Entry {
         dest.writeInt(isActive() ? 1 : 0);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof RedditEntry) {
+            RedditEntry e = (RedditEntry) o;
+            return e.type == type
+                    && e.value.equals(value)
+                    && e.postType == postType
+                    && Arrays.equals(e.getPhrases(), getPhrases())
+                    && e.isActive() == isActive();
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new Object[] {type, value, postType, Arrays.hashCode(getPhrases()), isActive()});
+    }
+
     private RedditEntryType validateType(RedditEntryType type) {
         if (type == null) {
             throw new IllegalInputException(R.string.error_message_reddit_type);
@@ -107,7 +127,9 @@ public class RedditEntry extends Entry {
     }
 
     private String validateValue(String value) {
-        if (type == RedditEntryType.USER && value.length() < 3 || value.length() > 20 || !TextUtils.inRanges(USER_CHAR_RANGES, value)) {
+        if (value == null) {
+            throw new IllegalInputException(R.string.error_message_reddit_value);
+        } if (type == RedditEntryType.USER && value.length() < 3 || value.length() > 20 || !TextUtils.inRanges(USER_CHAR_RANGES, value)) {
             throw new IllegalInputException(R.string.error_message_reddit_user);
         } else if (type == RedditEntryType.SUBREDDIT && value.length() < 3 || value.length() > 21 || !TextUtils.inRanges(SUBREDDIT_CHAR_RANGES, value)) {
             throw new IllegalInputException(R.string.error_message_reddit_subreddit);
