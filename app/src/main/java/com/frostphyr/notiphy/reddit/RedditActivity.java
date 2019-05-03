@@ -9,6 +9,7 @@ import com.frostphyr.notiphy.BasicSpinnerAdapter;
 import com.frostphyr.notiphy.BasicSpinnerIconAdapter;
 import com.frostphyr.notiphy.CharRangeInputFilter;
 import com.frostphyr.notiphy.EntryActivity;
+import com.frostphyr.notiphy.IllegalInputException;
 import com.frostphyr.notiphy.R;
 import com.frostphyr.notiphy.TitledSpinner;
 
@@ -29,10 +30,19 @@ public class RedditActivity extends EntryActivity {
         EditText valueView = findViewById(R.id.reddit_value);
         valueView.setFilters(new InputFilter[]{new CharRangeInputFilter(RedditEntry.VALUE_CHAR_RANGES)});
 
-        ((Spinner) findViewById(R.id.reddit_type_spinner))
-                .setAdapter(new BasicSpinnerAdapter<>(this, RedditEntryType.values()));
-        ((TitledSpinner) findViewById(R.id.reddit_post_type_spinner))
-                .setAdapter(new BasicSpinnerIconAdapter<>(this, RedditPostType.values()));
+        Spinner typeSpinner = findViewById(R.id.reddit_type_spinner);
+        typeSpinner.setAdapter(new BasicSpinnerAdapter<>(this, RedditEntryType.values()));
+
+        TitledSpinner postTypeSpinner = findViewById(R.id.reddit_post_type_spinner);
+        postTypeSpinner.setAdapter(new BasicSpinnerIconAdapter<>(this, RedditPostType.values()));
+
+        RedditEntry entry = (RedditEntry) oldEntry;
+        if (entry != null) {
+            valueView.setText(entry.getValue());
+            typeSpinner.setSelection(entry.getType().ordinal());
+            postTypeSpinner.setSelectedItem(entry.getPostType().ordinal());
+            setPhrases(entry.getPhrases());
+        }
     }
 
     @Override
@@ -48,8 +58,8 @@ public class RedditActivity extends EntryActivity {
 
         try {
             finish(new RedditEntry(type, value, postType, getPhrases(), true));
-        } catch (IllegalArgumentException e) {
-            valueView.setError(e.getMessage());
+        } catch (IllegalInputException e) {
+            valueView.setError(getResources().getString(e.getErrorMessageResourceId()));
         }
     }
 

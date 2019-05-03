@@ -5,7 +5,9 @@ import android.os.Parcelable;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
+import com.frostphyr.notiphy.IllegalInputException;
 import com.frostphyr.notiphy.MediaType;
+import com.frostphyr.notiphy.R;
 import com.frostphyr.notiphy.TextUtils;
 
 import java.util.Arrays;
@@ -26,7 +28,7 @@ public class TwitterEntry extends Entry {
     public TwitterEntry(String id, String username, MediaType mediaType, String[] phrases, boolean active) {
         super(phrases, active);
 
-        this.id = id;
+        this.id = validateId(id);
         this.username = validateUsername(username);
         this.mediaType = validateMediaType(mediaType);
     }
@@ -99,16 +101,23 @@ public class TwitterEntry extends Entry {
         return Arrays.hashCode(new Object[] {id, username, mediaType, Arrays.hashCode(getPhrases()), isActive()});
     }
 
+    private static String validateId(String id) {
+        if (id == null) {
+            throw new IllegalInputException(R.string.error_message_twitter_id);
+        }
+        return id;
+    }
+
     private static String validateUsername(String username) {
         if (username.length() <= 0 || username.length() > 15 || !TextUtils.inRanges(USERNAME_CHAR_RANGES, username)) {
-            throw new IllegalArgumentException();
+            throw new IllegalInputException(R.string.error_message_twitter_username);
         }
         return username;
     }
 
     private static MediaType validateMediaType(MediaType mediaType) {
         if (mediaType == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalInputException(R.string.error_message_twitter_media_type);
         }
         return mediaType;
     }

@@ -7,6 +7,10 @@ import org.json.JSONObject;
 public class IOUtils {
 
     public static String[] readPhrases(JSONObject obj) throws JSONException {
+        if (!obj.has("phrases")) {
+            return null;
+        }
+
         JSONArray phraseArray = obj.getJSONArray("phrases");
         if (phraseArray == null) {
             return null;
@@ -19,11 +23,13 @@ public class IOUtils {
     }
 
     public static void putPhrases(JSONObject obj, String[] phrases) throws JSONException {
-        JSONArray phraseArray = new JSONArray();
-        for (String s : phrases) {
-            phraseArray.put(s);
+        if (phrases != null && phrases.length > 0) {
+            JSONArray phraseArray = new JSONArray();
+            for (String s : phrases) {
+                phraseArray.put(s);
+            }
+            obj.put("phrases", phraseArray);
         }
-        obj.put("phrases", phraseArray);
     }
 
 }

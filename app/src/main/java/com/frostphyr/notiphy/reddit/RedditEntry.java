@@ -1,11 +1,11 @@
 package com.frostphyr.notiphy.reddit;
 
-import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
+import com.frostphyr.notiphy.IllegalInputException;
 import com.frostphyr.notiphy.R;
 import com.frostphyr.notiphy.TextUtils;
 
@@ -101,23 +101,23 @@ public class RedditEntry extends Entry {
 
     private RedditEntryType validateType(RedditEntryType type) {
         if (type == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalInputException(R.string.error_message_reddit_type);
         }
         return type;
     }
 
     private String validateValue(String value) {
         if (type == RedditEntryType.USER && value.length() < 3 || value.length() > 20 || !TextUtils.inRanges(USER_CHAR_RANGES, value)) {
-            throw new IllegalArgumentException(Resources.getSystem().getString(R.string.error_message_reddit_user));
+            throw new IllegalInputException(R.string.error_message_reddit_user);
         } else if (type == RedditEntryType.SUBREDDIT && value.length() < 3 || value.length() > 21 || !TextUtils.inRanges(SUBREDDIT_CHAR_RANGES, value)) {
-            throw new IllegalArgumentException(Resources.getSystem().getString(R.string.error_message_reddit_subreddit));
+            throw new IllegalInputException(R.string.error_message_reddit_subreddit);
         }
         return value;
     }
 
     private RedditPostType validatePostType(RedditPostType postType) {
         if (postType == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalInputException(R.string.error_message_reddit_post_type);
         }
         return postType;
     }

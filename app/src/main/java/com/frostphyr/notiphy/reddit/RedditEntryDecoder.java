@@ -1,5 +1,6 @@
 package com.frostphyr.notiphy.reddit;
 
+import com.frostphyr.notiphy.IllegalInputException;
 import com.frostphyr.notiphy.io.IOUtils;
 import com.frostphyr.notiphy.io.JSONDecoder;
 
@@ -25,7 +26,7 @@ public class RedditEntryDecoder implements JSONDecoder<RedditEntry> {
             String[] phrases = IOUtils.readPhrases(obj);
             boolean active = obj.getBoolean("active");
             return new RedditEntry(type, value, postType, phrases, active);
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalInputException | NullPointerException e) {
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package com.frostphyr.notiphy.twitter;
 
+import com.frostphyr.notiphy.IllegalInputException;
 import com.frostphyr.notiphy.MediaType;
 import com.frostphyr.notiphy.io.IOUtils;
 import com.frostphyr.notiphy.io.JSONDecoder;
@@ -18,7 +19,7 @@ public class TwitterEntryDecoder implements JSONDecoder<TwitterEntry> {
             MediaType mediaType = MediaType.valueOf(obj.getString("mediaType"));
             String[] phrases = IOUtils.readPhrases(obj);
             return new TwitterEntry(id, username, mediaType, phrases, active);
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalInputException | NullPointerException e) {
             return null;
         }
     }

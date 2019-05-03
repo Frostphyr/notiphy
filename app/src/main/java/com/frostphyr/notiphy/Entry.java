@@ -31,8 +31,10 @@ public abstract class Entry implements Parcelable {
     }
 
     private static String[] validatePhrases(String[] phrases) {
-        if (phrases == null || phrases.length > EntryActivity.MAX_PHRASES) {
-            throw new IllegalArgumentException();
+        if (phrases == null) {
+            return new String[0];
+        } else if (phrases.length > EntryActivity.MAX_PHRASES) {
+            throw new IllegalInputException(R.string.error_message_entry_phrases);
         }
         return phrases;
     }
