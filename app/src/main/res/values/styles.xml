@@ -37,7 +37,7 @@
     </style>
 
     <style name="NotiphyTheme.EditText" parent="Widget.AppCompat.EditText">
-        <item name="android:textCursorDrawable">@color/text_cursor</item>
+        <item name="android:textCursorDrawable">@drawable/drawable_text_cursor</item>
         <item name="android:textColor">@color/edit_text</item>
         <item name="android:background">@color/edit_text_background</item>
         <item name="android:textSize">@dimen/text_size</item>
