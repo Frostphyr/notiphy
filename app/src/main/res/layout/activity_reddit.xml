@@ -31,26 +31,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/default_margin"
                 android:layout_marginRight="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
                 android:padding="@dimen/edit_text_padding"
                 android:maxLength="21"
                 android:inputType="text"/>
 
             <View
-                android:layout_marginTop="@dimen/default_margin"
-                android:layout_marginBottom="@dimen/default_margin"
                 style="@style/NotiphyTheme.Divider"/>
 
             <com.frostphyr.notiphy.TitledSpinner
                 android:id="@+id/reddit_post_type_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/default_margin"
-                android:layout_marginRight="@dimen/default_margin"
+                android:layout_margin="@dimen/default_margin"
                 app:title="@string/post_type"/>
 
             <View
-                android:layout_marginTop="@dimen/default_margin"
-                android:layout_marginBottom="@dimen/default_margin"
                 style="@style/NotiphyTheme.Divider"/>
 
             <include layout="@layout/layout_entry_phrases"/>

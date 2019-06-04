@@ -4,7 +4,7 @@
     <dimen name="setting_padding">12dp</dimen>
     <dimen name="notification_padding">16dp</dimen>
     <dimen name="edit_text_padding">4dp</dimen>
-    <dimen name="default_margin">8dp</dimen>
+    <dimen name="default_margin">12dp</dimen>
 
     <dimen name="divider_height">1dp</dimen>
 
