@@ -1,7 +1,6 @@
 package com.frostphyr.notiphy.io;
 
 import android.content.Context;
-import android.os.Environment;
 
 import com.frostphyr.notiphy.AsyncTaskHelper;
 
@@ -19,17 +18,7 @@ public abstract class FileIOTask<Params, Result> extends AsyncTaskHelper<Params,
 
     @Override
     protected Result run(Params... params) throws Exception {
-        return run(getFile(), params);
-    }
-
-    private File getFile() {
-        File dir;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            dir = context.getExternalFilesDir(null);
-        } else {
-            dir =  context.getFilesDir();
-        }
-        return new File(dir, getFileName());
+        return run(new File(context.getFilesDir(), getFileName()), params);
     }
 
     protected abstract String getFileName();
