@@ -15,6 +15,8 @@ import okhttp3.OkHttpClient;
 
 public class NotiphyApplication extends Application {
 
+    public static final int MAX_ENTRIES = 25;
+
     private List<Entry> entries = new ArrayList<>();
     private OkHttpClient httpClient = new OkHttpClient();
     private NotificationDispatcher notificationDispatcher;
@@ -77,11 +79,13 @@ public class NotiphyApplication extends Application {
     }
 
     public void addEntry(Entry entry) {
-        entries.add(entry);
-        if (entry.isActive()) {
-            webSocket.entryAdded(entry);
+        if (entries.size() < MAX_ENTRIES) {
+            entries.add(entry);
+            if (entry.isActive()) {
+                webSocket.entryAdded(entry);
+            }
+            saveEntries();
         }
-        saveEntries();
     }
 
     public boolean removeEntry(Entry entry) {

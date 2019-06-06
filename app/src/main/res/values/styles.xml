@@ -66,5 +66,10 @@
         <item name="android:textColor">@color/show_nsfw_button</item>
         <item name="android:background">@drawable/bg_show_nsfw_button</item>
     </style>
+    
+    <style name="NotiphyTheme.AlertDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@color/action_bar_background</item>
+        <item name="android:textColor">@color/action_bar_text</item>
+    </style>
 
 </resources>

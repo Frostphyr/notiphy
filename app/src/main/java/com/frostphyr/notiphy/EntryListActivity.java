@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
@@ -125,32 +126,42 @@ public class EntryListActivity extends AppCompatActivity {
 
     @SuppressLint("RestrictedApi")
     private void showAddPopupMenu(MenuItem item) {
-        MenuBuilder menuBuilder = new MenuBuilder(this);
-        menuBuilder.setCallback(new MenuBuilder.Callback() {
+        NotiphyApplication application = (NotiphyApplication) getApplication();
+        if (application.getEntries().size() >= NotiphyApplication.MAX_ENTRIES) {
+            new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
+                    .setTitle(R.string.max_entries_title)
+                    .setMessage(getResources().getString(R.string.max_entries_message, Integer.toString(NotiphyApplication.MAX_ENTRIES)))
+                    .setPositiveButton(R.string.ok, null)
+                    .create()
+                    .show();
+        } else {
+            MenuBuilder menuBuilder = new MenuBuilder(this);
+            menuBuilder.setCallback(new MenuBuilder.Callback() {
 
-            @Override
-            public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_add_twitter:
-                        startActivityForResult(new Intent(EntryListActivity.this, TwitterActivity.class), EntryActivity.REQUEST_CODE_NEW);
-                        break;
-                    case R.id.action_add_reddit:
-                        startActivityForResult(new Intent(EntryListActivity.this, RedditActivity.class), EntryActivity.REQUEST_CODE_NEW);
-                        break;
+                @Override
+                public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.action_add_twitter:
+                            startActivityForResult(new Intent(EntryListActivity.this, TwitterActivity.class), EntryActivity.REQUEST_CODE_NEW);
+                            break;
+                        case R.id.action_add_reddit:
+                            startActivityForResult(new Intent(EntryListActivity.this, RedditActivity.class), EntryActivity.REQUEST_CODE_NEW);
+                            break;
+                    }
+                    return false;
                 }
-                return false;
-            }
 
-            @Override
-            public void onMenuModeChange(MenuBuilder menu) {
-            }
+                @Override
+                public void onMenuModeChange(MenuBuilder menu) {
+                }
 
-        });
+            });
 
-        new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_popup_menu, menuBuilder);
-        addMenuHelper = new MenuPopupHelper(this, menuBuilder, findViewById(item.getItemId()));
-        addMenuHelper.setForceShowIcon(true);
-        addMenuHelper.show();
+            new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_popup_menu, menuBuilder);
+            addMenuHelper = new MenuPopupHelper(this, menuBuilder, findViewById(item.getItemId()));
+            addMenuHelper.setForceShowIcon(true);
+            addMenuHelper.show();
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -20,9 +20,13 @@
     <string name="close">Close</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="ok">Ok</string>
     <string name="at">\@</string>
     <string name="show_nsfw">Show NSFW</string>
     <string name="post_type">Post Type</string>
+
+    <string name="max_entries_title">Max Entries</string>
+    <string name="max_entries_message">You may only have a maximum of %1s entries.</string>
 
     <string name="delete_entry_conformation">Are you sure you would like to delete this entry?</string>
 
