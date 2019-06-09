@@ -16,6 +16,10 @@
         android:theme="@style/NotiphyTheme"
         android:fullBackupContent="true">
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-5141874150695762~5117322160"/>
+
         <activity android:name=".StartupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

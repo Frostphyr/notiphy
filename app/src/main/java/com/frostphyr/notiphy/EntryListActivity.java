@@ -27,6 +27,8 @@ import androidx.appcompat.widget.TooltipCompat;
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
 import com.frostphyr.notiphy.reddit.RedditActivity;
 import com.frostphyr.notiphy.twitter.TwitterActivity;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,6 +51,9 @@ public class EntryListActivity extends AppCompatActivity {
 
         TooltipCompat.setTooltipText(findViewById(R.id.toolbar_error), getString(R.string.error_message_notiphy_connection,
                 new SimpleDateFormat("s", Locale.getDefault()).format(new Date(((NotiphyApplication) getApplication()).getWebSocket().getReconnectDelay()))));
+
+        AdView adView = findViewById(R.id.ad_banner);
+        adView.loadAd(new AdRequest.Builder().build());
     }
 
     @Override

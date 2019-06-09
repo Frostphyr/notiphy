@@ -6,19 +6,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.frostphyr.notiphy.io.EntryReadTask;
 import com.frostphyr.notiphy.io.SettingsReadTask;
+import com.google.android.gms.ads.MobileAds;
 
 import java.io.FileNotFoundException;
 import java.util.List;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 public class StartupActivity extends AppCompatActivity {
 
     private StartupTask<?>[] tasks = new StartupTask<?>[] {
             new SettingsStartupTask(),
-            new EntriesStartupTask()
+            new EntriesStartupTask(),
+            new AdsStartupTask()
     };
 
     private int nextTaskIndex;
@@ -42,12 +44,12 @@ public class StartupActivity extends AppCompatActivity {
         } else {
             StartupTask<?> task = tasks[nextTaskIndex++];
             textView.setText(getString(R.string.loading, getString(task.getNameResourceId())));
-            task.createAsyncTask(createCallback(task)).execute();
+            execute(task);
         }
     }
 
-    private <T> AsyncTaskHelper.Callback<T> createCallback(final StartupTask<T> task) {
-        return new AsyncTaskHelper.Callback<T>() {
+    private <T> void execute(final StartupTask<T> task) {
+        task.execute(new AsyncTaskHelper.Callback<T>() {
 
             @Override
             public void onSuccess(T t) {
@@ -75,12 +77,12 @@ public class StartupActivity extends AppCompatActivity {
                 progress.incrementProgressBy(1);
             }
 
-        };
+        });
     }
 
     private interface StartupTask<T> {
 
-        AsyncTaskHelper<Void, Void, T> createAsyncTask(AsyncTaskHelper.Callback callback);
+        void execute(AsyncTaskHelper.Callback<T> callback);
 
         void onFinish(T result);
 
@@ -95,8 +97,8 @@ public class StartupActivity extends AppCompatActivity {
     private class SettingsStartupTask implements StartupTask<Object[]> {
 
         @Override
-        public AsyncTaskHelper<Void, Void, Object[]> createAsyncTask(AsyncTaskHelper.Callback callback) {
-            return new SettingsReadTask(StartupActivity.this, callback);
+        public void execute(AsyncTaskHelper.Callback callback) {
+            new SettingsReadTask(StartupActivity.this, callback).execute();
         }
 
         @Override
@@ -128,8 +130,8 @@ public class StartupActivity extends AppCompatActivity {
     private class EntriesStartupTask implements StartupTask<List<Entry>> {
 
         @Override
-        public AsyncTaskHelper<Void, Void, List<Entry>> createAsyncTask(AsyncTaskHelper.Callback callback) {
-            return new EntryReadTask(StartupActivity.this, callback);
+        public void execute(AsyncTaskHelper.Callback callback) {
+            new EntryReadTask(StartupActivity.this, callback).execute();
         }
 
         @Override
@@ -150,6 +152,35 @@ public class StartupActivity extends AppCompatActivity {
         @Override
         public int getErrorResourceId() {
             return R.string.error_message_read_entries;
+        }
+
+    }
+
+    private class AdsStartupTask implements StartupTask<Void> {
+
+        @Override
+        public void execute(AsyncTaskHelper.Callback callback) {
+            MobileAds.initialize(StartupActivity.this, "ca-app-pub-5141874150695762~5117322160");
+            callback.onSuccess(null);
+        }
+
+        @Override
+        public void onFinish(Void result) {
+        }
+
+        @Override
+        public Void getDefault() {
+            return null;
+        }
+
+        @Override
+        public int getNameResourceId() {
+            return R.string.ads;
+        }
+
+        @Override
+        public int getErrorResourceId() {
+            return R.string.error_message_initializing_ads;
         }
 
     }

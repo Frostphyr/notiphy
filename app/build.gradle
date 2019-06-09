@@ -22,6 +22,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.core:core:1.0.1'
+    implementation 'com.google.android.gms:play-services-ads:17.2.1'
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation 'com.atlassian.commonmark:commonmark:0.12.1'
     testImplementation 'junit:junit:4.12'
