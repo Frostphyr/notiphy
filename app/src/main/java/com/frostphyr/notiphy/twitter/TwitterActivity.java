@@ -28,7 +28,10 @@ public class TwitterActivity extends EntryActivity {
         super.init();
 
         EditText usernameView = findViewById(R.id.twitter_username);
-        usernameView.setFilters(new InputFilter[]{new CharRangeInputFilter(TwitterEntry.USERNAME_CHAR_RANGES)});
+        usernameView.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(15),
+                new CharRangeInputFilter(TwitterEntry.USERNAME_CHAR_RANGES)
+        });
 
         TwitterEntry oldEntry = (TwitterEntry) super.oldEntry;
         if (oldEntry != null) {
@@ -94,7 +97,6 @@ public class TwitterActivity extends EntryActivity {
                             default:
                                 Toast.makeText(TwitterActivity.this, R.string.error_message_fetch_user_id, Toast.LENGTH_LONG).show();
                                 break;
-
                         }
                     }
 

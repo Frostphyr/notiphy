@@ -33,7 +33,6 @@
                 android:layout_marginRight="@dimen/default_margin"
                 android:layout_marginBottom="@dimen/default_margin"
                 android:padding="@dimen/edit_text_padding"
-                android:maxLength="21"
                 android:inputType="text"/>
 
             <View

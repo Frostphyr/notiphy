@@ -28,7 +28,10 @@ public class RedditActivity extends EntryActivity {
         super.init();
 
         EditText valueView = findViewById(R.id.reddit_value);
-        valueView.setFilters(new InputFilter[]{new CharRangeInputFilter(RedditEntry.VALUE_CHAR_RANGES)});
+        valueView.setFilters(new InputFilter[] {
+                new InputFilter.LengthFilter(21),
+                new CharRangeInputFilter(RedditEntry.VALUE_CHAR_RANGES)
+        });
 
         Spinner typeSpinner = findViewById(R.id.reddit_type_spinner);
         typeSpinner.setAdapter(new BasicSpinnerAdapter<>(this, RedditEntryType.values()));
