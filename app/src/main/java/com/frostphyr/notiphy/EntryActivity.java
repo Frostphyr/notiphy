@@ -89,7 +89,7 @@ public abstract class EntryActivity extends AppCompatActivity {
                 save();
                 return true;
             case R.id.action_delete:
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
                         .setMessage(R.string.delete_entry_conformation)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
