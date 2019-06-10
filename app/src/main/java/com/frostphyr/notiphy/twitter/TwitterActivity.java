@@ -53,11 +53,11 @@ public class TwitterActivity extends EntryActivity {
         String username = usernameView.getText().toString().trim();
         if (username.length() == 0) {
             usernameView.setError("Please enter a username");
+        } else {
+            View loadingView = findViewById(R.id.twitter_loading);
+            loadingView.setVisibility(View.VISIBLE);
+            fetchUserId(usernameView, loadingView, username);
         }
-
-        View loadingView = findViewById(R.id.twitter_loading);
-        loadingView.setVisibility(View.VISIBLE);
-        fetchUserId(usernameView, loadingView, username);
     }
 
     private void fetchUserId(final EditText usernameView, final View loadingView, final String username) {
