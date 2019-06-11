@@ -129,9 +129,9 @@ public class RedditEntry extends Entry {
     private String validateValue(String value) {
         if (value == null) {
             throw new IllegalInputException(R.string.error_message_reddit_value);
-        } if (type == RedditEntryType.USER && value.length() < 3 || value.length() > 20 || !TextUtils.inRanges(USER_CHAR_RANGES, value)) {
+        } if (type == RedditEntryType.USER && (value.length() < 3 || value.length() > 20 || !TextUtils.inRanges(USER_CHAR_RANGES, value))) {
             throw new IllegalInputException(R.string.error_message_reddit_user);
-        } else if (type == RedditEntryType.SUBREDDIT && value.length() < 3 || value.length() > 21 || !TextUtils.inRanges(SUBREDDIT_CHAR_RANGES, value)) {
+        } else if (type == RedditEntryType.SUBREDDIT && (value.length() < 3 || value.length() > 21 || !TextUtils.inRanges(SUBREDDIT_CHAR_RANGES, value))) {
             throw new IllegalInputException(R.string.error_message_reddit_subreddit);
         }
         return value;
