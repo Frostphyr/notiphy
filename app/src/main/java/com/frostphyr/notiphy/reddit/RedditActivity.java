@@ -2,6 +2,7 @@ package com.frostphyr.notiphy.reddit;
 
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -42,7 +43,7 @@ public class RedditActivity extends EntryActivity {
         RedditEntry entry = (RedditEntry) oldEntry;
         if (entry != null) {
             valueView.setText(entry.getValue());
-            typeSpinner.setSelection(entry.getType().ordinal());
+            typeSpinner.setSelection(entry.getEntryType().ordinal());
             postTypeSpinner.setSelectedItem(entry.getPostType().ordinal());
             setPhrases(entry.getPhrases());
         }
