@@ -94,6 +94,7 @@ public class TwitterActivity extends EntryActivity {
                                 break;
                             case TwitterUserIdRequest.ERROR_USER_SUSPENDED:
                                 usernameView.setError(getString(R.string.error_message_user_suspended));
+                                break;
                             default:
                                 Toast.makeText(TwitterActivity.this, R.string.error_message_fetch_user_id, Toast.LENGTH_LONG).show();
                                 break;
