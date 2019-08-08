@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.frostphyr.notiphy.io.EntryWriteTask;
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
 import com.frostphyr.notiphy.io.SettingsWriteTask;
+import com.frostphyr.notiphy.notification.NotificationDispatcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;

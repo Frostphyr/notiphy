@@ -1,8 +1,12 @@
 package com.frostphyr.notiphy;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.TextUtils;
+
 import java.util.Date;
 
-public class Message {
+public class Message implements Parcelable {
 
     private EntryType type;
     private Date createdAt;
@@ -47,6 +51,46 @@ public class Message {
     public boolean isNsfw() {
         return nsfw;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(type.ordinal());
+        dest.writeLong(createdAt.getTime());
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeString(url);
+        TextUtils.writeToParcel(text, dest, flags);
+        dest.writeTypedArray(media, flags);
+        dest.writeInt(nsfw ? 1 : 0);
+    }
+
+    public static final Parcelable.Creator<Message> CREATOR = new Parcelable.Creator<Message>() {
+
+        @Override
+        public Message createFromParcel(Parcel in) {
+            return new Builder()
+                    .setType(EntryType.values()[in.readInt()])
+                    .setCreatedAt(new Date(in.readLong()))
+                    .setTitle(in.readString())
+                    .setDescription(in.readString())
+                    .setUrl(in.readString())
+                    .setText(TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in))
+                    .setMedia(in.createTypedArray(Media.CREATOR))
+                    .setNsfw(in.readInt() != 0)
+                    .build();
+        }
+
+        @Override
+        public Message[] newArray(int size) {
+            return new Message[size];
+        }
+
+    };
 
     public static class Builder {
 

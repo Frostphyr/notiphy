@@ -17,6 +17,11 @@ import java.util.List;
 
 public class StartupActivity extends AppCompatActivity {
 
+    public static final String EXTRA_FINISH_ACTIVITY_INTENT = "com.frostphyr.notiphy.extra.FINISH_ACTIVITY_INTENT";
+    public static final String EXTRA_IS_APP_LAUNCH = "com.frostphyr.notiphy.extra.IS_APP_LAUNCH";
+
+    private static boolean init;
+
     private StartupTask<?>[] tasks = new StartupTask<?>[] {
             new SettingsStartupTask(),
             new EntriesStartupTask(),
@@ -30,17 +35,30 @@ public class StartupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_startup);
 
-        ProgressBar progress = findViewById(R.id.startup_progress);
-        progress.setMax(tasks.length);
-        startNextTask();
+        if (!init) {
+            init = true;
+            ProgressBar progress = findViewById(R.id.startup_progress);
+            progress.setMax(tasks.length);
+            startNextTask();
+        } else {
+            complete(false);
+        }
+    }
+
+    private void complete(boolean appLaunch) {
+        Intent intent = getIntent().getParcelableExtra(EXTRA_FINISH_ACTIVITY_INTENT);
+        if (intent == null) {
+            intent = new Intent(this, EntryListActivity.class);
+        }
+        intent.setExtrasClassLoader(getClassLoader());
+        startActivity(intent.putExtra(EXTRA_IS_APP_LAUNCH, appLaunch));
     }
 
     private void startNextTask() {
         TextView textView = findViewById(R.id.startup_text);
         if (nextTaskIndex >= tasks.length) {
             textView.setText(R.string.finished);
-            Intent intent = new Intent(StartupActivity.this, EntryListActivity.class);
-            startActivity(intent);
+            complete(true);
         } else {
             StartupTask<?> task = tasks[nextTaskIndex++];
             textView.setText(getString(R.string.loading, getString(task.getNameResourceId())));

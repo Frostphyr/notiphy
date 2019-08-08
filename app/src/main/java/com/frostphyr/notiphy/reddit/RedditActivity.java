@@ -2,7 +2,6 @@ package com.frostphyr.notiphy.reddit;
 
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.Spinner;
 
