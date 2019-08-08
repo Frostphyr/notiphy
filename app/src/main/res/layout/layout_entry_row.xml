@@ -55,7 +55,7 @@
                 android:layout_marginLeft="@dimen/default_margin"
                 android:layout_marginRight="@dimen/default_margin"
                 android:layout_gravity="center_vertical"
-                style="@style/NotiphyTheme.LightText"/>
+                style="@style/NotiphyTheme.TextSecondary"/>
 
         </LinearLayout>
 

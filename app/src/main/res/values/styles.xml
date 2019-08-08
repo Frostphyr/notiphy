@@ -28,12 +28,12 @@
     </style>
 
     <style name="NotiphyTheme.Text" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/text</item>
+        <item name="android:textColor">@color/light_text</item>
         <item name="android:textSize">@dimen/text_size</item>
     </style>
 
-    <style name="NotiphyTheme.LightText" parent="NotiphyTheme.Text">
-        <item name="android:textColor">@color/light_text</item>
+    <style name="NotiphyTheme.TextSecondary" parent="NotiphyTheme.Text">
+        <item name="android:textColor">@color/light_text_secondary</item>
     </style>
 
     <style name="NotiphyTheme.EditText" parent="Widget.AppCompat.EditText">
@@ -55,7 +55,7 @@
     </style>
 
     <style name="NotiphyTheme.Spinner.ItemText" parent="Widget.AppCompat.TextView.SpinnerItem">
-        <item name="android:textColor">@color/light_text</item>
+        <item name="android:textColor">@color/light_text_secondary</item>
     </style>
 
     <style name="NotiphyTheme.Spinner.DropdownItem" parent="Widget.AppCompat.TextView.SpinnerItem">
