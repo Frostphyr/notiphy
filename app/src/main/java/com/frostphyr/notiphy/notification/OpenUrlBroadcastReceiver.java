@@ -11,8 +11,11 @@ public class OpenUrlBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(intent.getStringExtra(EXTRA_URL)))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        Intent viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(intent.getStringExtra(EXTRA_URL)))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (context.getPackageManager().queryIntentActivities(viewIntent, 0).size() > 0) {
+            context.startActivity(viewIntent);
+        }
     }
 
 }
