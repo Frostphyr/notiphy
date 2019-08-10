@@ -28,8 +28,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".EntryListActivity"/>
-        <activity android:name=".notification.NotificationListActivity"
-            android:noHistory="true"/>
+        <activity android:name=".notification.NotificationListActivity"/>
         <activity android:name=".twitter.TwitterActivity"
             android:label="@string/twitter_title"/>
         <activity android:name=".reddit.RedditActivity"

@@ -71,9 +71,8 @@ public class NotificationListActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             if (getIntent().getBooleanExtra(StartupActivity.EXTRA_IS_APP_LAUNCH, false)) {
                 startActivity(new Intent(this, EntryListActivity.class));
-            } else {
-                finish();
             }
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
