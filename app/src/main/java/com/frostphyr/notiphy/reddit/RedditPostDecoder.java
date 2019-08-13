@@ -7,17 +7,12 @@ import com.frostphyr.notiphy.Message;
 import com.frostphyr.notiphy.TextUtils;
 import com.frostphyr.notiphy.io.JSONDecoder;
 
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.html.HtmlRenderer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
 
 public class RedditPostDecoder implements JSONDecoder<Message> {
-
-    private Parser parser = Parser.builder().build();
-    private HtmlRenderer renderer = HtmlRenderer.builder().build();
 
     @Override
     public Message decode(JSONObject obj) throws JSONException {
@@ -30,7 +25,7 @@ public class RedditPostDecoder implements JSONDecoder<Message> {
                 .setNsfw(obj.getBoolean("nsfw"));
 
         if (obj.has("text")) {
-            builder.setText(TextUtils.fromHtml(renderer.render(parser.parse(obj.getString("text")))));
+            builder.setText(TextUtils.fromHtml(obj.getString("text")));
         }
         if (obj.has("link")) {
             builder.setMedia(new Media[] {
@@ -40,7 +35,6 @@ public class RedditPostDecoder implements JSONDecoder<Message> {
                             obj.getString("thumbnailUrl"))
             });
         }
-
         return builder.build();
     }
 

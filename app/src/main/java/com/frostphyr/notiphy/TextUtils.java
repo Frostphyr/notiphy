@@ -32,9 +32,9 @@ public final class TextUtils {
 
     public static Spanned fromHtml(String html) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT);
+            return Html.fromHtml(Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT).toString(), Html.FROM_HTML_MODE_COMPACT);
         } else {
-            return Html.fromHtml(html);
+            return Html.fromHtml(Html.fromHtml(html).toString());
         }
     }
 
