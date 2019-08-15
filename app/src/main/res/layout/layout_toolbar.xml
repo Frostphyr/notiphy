@@ -11,6 +11,7 @@
         android:id="@+id/toolbar_error"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/icon_size"
+        android:padding="@dimen/icon_padding"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_error"/>
 
