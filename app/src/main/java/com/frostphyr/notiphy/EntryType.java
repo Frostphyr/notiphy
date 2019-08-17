@@ -17,11 +17,11 @@ public enum EntryType {
 
     TWITTER(new TwitterEntryEncoder(false), new TwitterEntryDecoder(),
             new TwitterEntryEncoder(true), new TweetDecoder(),
-            TwitterActivity.class, R.drawable.ic_twitter_logo, R.drawable.ic_twitter_logo_image),
+            TwitterActivity.class, R.drawable.ic_twitter_logo),
 
     REDDIT(new RedditEntryEncoder(false), new RedditEntryDecoder(),
             new RedditEntryEncoder(true), new RedditPostDecoder(),
-            RedditActivity.class, R.drawable.ic_reddit_logo, R.drawable.ic_reddit_logo_image);
+            RedditActivity.class, R.drawable.ic_reddit_logo);
 
     private final JSONEncoder<? extends Entry> entryEncoder;
     private final JSONDecoder<? extends Entry> entryDecoder;
@@ -29,18 +29,16 @@ public enum EntryType {
     private final JSONDecoder<? extends Message> messageDecoder;
     private final Class<? extends Activity>  activityClass;
     private final int iconResId;
-    private final int iconImageResId;
 
     private EntryType(JSONEncoder<? extends Entry> entryEncoder, JSONDecoder<? extends Entry> entryDecoder,
                       JSONEncoder<? extends Entry> entryTransportEncoder, JSONDecoder<? extends Message> messageDecoder,
-                      Class<? extends Activity> activityClass, int iconResId, int iconImageResId) {
+                      Class<? extends Activity> activityClass, int iconResId) {
         this.entryEncoder = entryEncoder;
         this.entryDecoder = entryDecoder;
         this.entryTransportEncoder = entryTransportEncoder;
         this.messageDecoder = messageDecoder;
         this.activityClass = activityClass;
         this.iconResId = iconResId;
-        this.iconImageResId = iconImageResId;
     }
 
     public JSONEncoder<? extends Entry> getEntryEncoder() {
@@ -67,13 +65,9 @@ public enum EntryType {
         return iconResId;
     }
 
-    public int getIconImageResourceId() {
-        return iconImageResId;
-    }
-
     public String getName() {
         String s = toString();
-        return s.charAt(0) + s.substring(1, s.length()).toLowerCase();
+        return s.charAt(0) + s.substring(1).toLowerCase();
     }
 
 }

@@ -75,7 +75,7 @@ public class MessageNotificationViews extends NotificationViews {
 
     private RemoteViews createBaseView() {
         RemoteViews view = new RemoteViews(getContext().getPackageName(), R.layout.layout_notification);
-        view.setImageViewResource(R.id.notification_icon, message.getType().getIconImageResourceId());
+        view.setImageViewResource(R.id.notification_icon, message.getType().getIconResourceId());
         view.setCharSequence(R.id.notification_icon, "setContentDescription", message.getType().getName());
         view.setInt(R.id.notification_description, "setMaxLines", 1);
         view.setViewVisibility(R.id.notification_time, View.GONE);

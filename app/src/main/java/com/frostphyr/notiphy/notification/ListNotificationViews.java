@@ -103,7 +103,7 @@ public class ListNotificationViews extends NotificationViews {
 
     private void addToViews(Message message, int index) {
         RemoteViews itemView = new RemoteViews(getContext().getPackageName(), R.layout.layout_list_notification_item);
-        itemView.setImageViewResource(R.id.list_notification_item_icon, message.getType().getIconImageResourceId());
+        itemView.setImageViewResource(R.id.list_notification_item_icon, message.getType().getIconResourceId());
         itemView.setTextViewText(R.id.list_notification_item_text, getText(message));
         if (message.isNsfw() && getNsfwContent() == NsfwContent.HIDE) {
             hidden = true;
