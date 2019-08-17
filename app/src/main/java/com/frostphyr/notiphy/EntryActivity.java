@@ -25,8 +25,8 @@ public abstract class EntryActivity extends AppCompatActivity {
 
     public static final int MAX_PHRASES = 10;
 
-    public static final String EXTRA_ENTRY = "entry";
-    public static final String EXTRA_OLD_ENTRY = "oldEntry";
+    public static final String EXTRA_ENTRY = "com.frostphyr.notiphy.extra.ENTRY";
+    public static final String EXTRA_OLD_ENTRY = "com.frostphyr.notiphy.extra.OLD_ENTRY";
 
     public static final int REQUEST_CODE_NEW = 100;
     public static final int REQUEST_CODE_EDIT = 101;
