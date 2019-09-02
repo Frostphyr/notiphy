@@ -17,6 +17,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -28,6 +31,9 @@ public class SettingsActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        AdView adView = findViewById(R.id.ad_banner);
+        adView.loadAd(new AdRequest.Builder().build());
 
         ((ListView) findViewById(R.id.settings_list)).setAdapter(new SettingsAdapter());
     }

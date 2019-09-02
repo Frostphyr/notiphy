@@ -16,6 +16,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,6 +46,9 @@ public abstract class EntryActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        AdView adView = findViewById(R.id.ad_banner);
+        adView.loadAd(new AdRequest.Builder().build());
 
         TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
         if (mediaSpinner != null) {

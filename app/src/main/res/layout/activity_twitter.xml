@@ -1,67 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".twitter.TwitterActivity">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <include layout="@layout/layout_toolbar"/>
-
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <include layout="@layout/layout_toolbar"/>
+
+            <ScrollView
                 android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                        <EditText
+                            android:id="@+id/twitter_username"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_margin="@dimen/default_margin"
+                            android:padding="@dimen/edit_text_padding"
+                            android:hint="@string/username_hint"
+                            android:layout_weight="1"
+                            android:inputType="text"/>
+
+                    <View
+                        style="@style/NotiphyTheme.Divider"/>
+
+                    <include layout="@layout/layout_entry_media"/>
+
+                    <View
+                        style="@style/NotiphyTheme.Divider"/>
+
+                    <include layout="@layout/layout_entry_phrases"/>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/twitter_loading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_gravity="center"
+                android:indeterminate="true"/>
 
-                    <EditText
-                        android:id="@+id/twitter_username"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_margin="@dimen/default_margin"
-                        android:padding="@dimen/edit_text_padding"
-                        android:hint="@string/username_hint"
-                        android:layout_weight="1"
-                        android:inputType="text"/>
+        </LinearLayout>
 
-                <View
-                    style="@style/NotiphyTheme.Divider"/>
+    </FrameLayout>
 
-                <include layout="@layout/layout_entry_media"/>
-
-                <View
-                    style="@style/NotiphyTheme.Divider"/>
-
-                <include layout="@layout/layout_entry_phrases"/>
-
-            </LinearLayout>
-
-        </ScrollView>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/twitter_loading"
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/ad_banner"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_margin"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/ad_unit_id"/>
 
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true"/>
-
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

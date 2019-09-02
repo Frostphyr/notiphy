@@ -29,6 +29,8 @@ import com.frostphyr.notiphy.NsfwContent;
 import com.frostphyr.notiphy.R;
 import com.frostphyr.notiphy.StartupActivity;
 import com.frostphyr.notiphy.io.ImageDownloader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.text.DateFormat;
 import java.util.List;
@@ -54,6 +56,9 @@ public class NotificationListActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        AdView adView = findViewById(R.id.ad_banner);
+        adView.loadAd(new AdRequest.Builder().build());
 
         nsfwContent = NsfwContent.values()[getIntent().getIntExtra(EXTRA_NSFW_CONTENT_ORDINAL, 0)];
         showMedia = getIntent().getBooleanExtra(EXTRA_SHOW_MEDIA, true);

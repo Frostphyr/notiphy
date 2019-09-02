@@ -14,4 +14,13 @@
         android:divider="@color/divider"
         android:dividerHeight="@dimen/divider_height"/>
 
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/ad_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_margin"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/ad_unit_id"/>
+
 </LinearLayout>
