@@ -35,6 +35,9 @@
             android:label="@string/reddit_title"/>
         <activity android:name=".SettingsActivity"/>
 
+        <service android:name=".io.NotiphyWebSocket"
+            android:stopWithTask="true"/>
+
         <receiver android:name=".notification.LaunchNotificationBroadcastReceiver"/>
         <receiver android:name=".notification.MessageNotificationBroadcastReceiver"/>
         <receiver android:name=".notification.ListNotificationBroadcastReceiver"/>

@@ -1,21 +1,24 @@
 package com.frostphyr.notiphy.io;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.SystemClock;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
-import com.frostphyr.notiphy.Message;
 import com.frostphyr.notiphy.R;
+import com.frostphyr.notiphy.notification.NotificationDispatcher;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -27,13 +30,27 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
-public class NotiphyWebSocket {
+public class NotiphyWebSocket extends Service {
+
+    public static final String ACTION_ENTRY_ADD = "com.frostphyr.notiphy.action.ENTRY_ADD";
+    public static final String ACTION_ENTRY_REMOVE = "com.frostphyr.notiphy.action.ENTRY_REMOVE";
+    public static final String ACTION_ENTRY_REPLACE = "com.frostphyr.notiphy.action.ENTRY_REPLACE";
+    public static final String ACTION_WIFI_ONLY = "com.frostphyr.notiphy.action.WIFI_ONLY";
+    public static final String ACTION_GET_STATUS = "com.frostphyr.notiphy.action.GET_STATUS";
+    public static final String ACTION_MESSAGE_RECEIVED = "com.frostphyr.notiphy.action.MESSAGE_RECEIVED";
+    public static final String ACTION_STATUS_CHANGED = "com.frostphyr.notiphy.action.STATUS_CHANGED";
+
+    public static final String EXTRA_ENTRIES = "com.frostphyr.notiphy.extra.ENTRIES";
+    public static final String EXTRA_OLD_ENTRY = "com.frostphyr.notiphy.extra.OLD_ENTRY";
+    public static final String EXTRA_NEW_ENTRY = "com.frostphyr.notiphy.extra.NEW_ENTRY";
+    public static final String EXTRA_WIFI_ONLY = "com.frostphyr.notiphy.extra.WIFI_ONLY";
+    public static final String EXTRA_MESSAGE = "com.frostphyr.notiphy.extra.MESSAGE";
+    public static final String EXTRA_STATUS_ORDINAL = "com.frostphyr.notiphy.extra.STATUS_ORDINAL";
 
     private static final int OPERATION_ADD = 0;
     private static final int OPERATION_REMOVE = 1;
 
     private Set<Entry> entries = new HashSet<>();
-    private List<Listener> listeners = new ArrayList<>();
 
     private Status status = Status.DISCONNECTED;
 
@@ -47,18 +64,50 @@ public class NotiphyWebSocket {
     private boolean reconnectScheduled;
     private boolean wifiOnly;
 
-    public NotiphyWebSocket(Context context, OkHttpClient client) {
-        this.client = client;
-
-        init(context);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent.getAction() != null) {
+            switch (intent.getAction()) {
+                case ACTION_ENTRY_ADD:
+                    List<Entry> newEntries = intent.getParcelableArrayListExtra(EXTRA_ENTRIES);
+                    performOperation(newEntries, OPERATION_ADD);
+                    break;
+                case ACTION_ENTRY_REMOVE:
+                    List<Entry> oldEntries = intent.getParcelableArrayListExtra(EXTRA_ENTRIES);
+                    performOperation(oldEntries, OPERATION_REMOVE);
+                    break;
+                case ACTION_ENTRY_REPLACE:
+                    Entry oldEntry = intent.getParcelableExtra(EXTRA_OLD_ENTRY);
+                    Entry newEntry = intent.getParcelableExtra(EXTRA_NEW_ENTRY);
+                    replaceEntry(oldEntry, newEntry);
+                    break;
+                case ACTION_WIFI_ONLY:
+                    boolean wifiOnly = intent.getBooleanExtra(EXTRA_WIFI_ONLY, false);
+                    if (this.wifiOnly != wifiOnly) {
+                        this.wifiOnly = wifiOnly;
+                        checkConnection();
+                    }
+                    break;
+                case ACTION_GET_STATUS:
+                    broadcastStatus();
+                    break;
+            }
+        }
+        return START_NOT_STICKY;
     }
 
-    private void init(Context context) {
-        mainHandler = new Handler(context.getMainLooper());
-        connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        reconnectDelay = context.getResources().getInteger(R.integer.reconnect_delay);
+    @Override
+    public void onCreate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForeground(NotificationDispatcher.ID_FOREGROUND, NotificationDispatcher.createForegroundNotification(this));
+        }
 
-        NetworkMonitor.addListener(context, new NetworkListener() {
+        mainHandler = new Handler(getMainLooper());
+        client = new OkHttpClient();
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        reconnectDelay = getResources().getInteger(R.integer.reconnect_delay);
+
+        NetworkMonitor.addListener(this, new NetworkListener() {
 
             @Override
             public void networkChanged() {
@@ -68,53 +117,29 @@ public class NotiphyWebSocket {
         });
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public long getReconnectDelay() {
-        return reconnectDelay;
-    }
-
-    public boolean addListener(Listener listener) {
-        return listeners.add(listener);
-    }
-
-    public boolean removeListener(Listener listener) {
-        return listeners.remove(listener);
-    }
-
-    public void setWifiOnly(boolean wifiOnly) {
-        if (this.wifiOnly != wifiOnly) {
-            this.wifiOnly = wifiOnly;
-
-            checkConnection();
+    @Override
+    public void onDestroy() {
+        if (webSocket != null) {
+            disconnect();
         }
     }
 
-    public void entriesAdded(Collection<Entry> newEntries) {
-        entries.addAll(newEntries);
-        int[] operations = new int[newEntries.size()];
-        for (int i = 0; i < operations.length; i++) {
-            operations[i] = OPERATION_ADD;
-        }
-
-        entriesModified(newEntries.toArray(new Entry[0]), operations);
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
-    public void entryAdded(Entry entry) {
-        if (entries.add(entry)) {
-            entriesModified(new Entry[]{entry}, new int[]{OPERATION_ADD});
-        }
-    }
-
-    public void entryRemoved(Entry entry) {
-        if (entries.remove(entry)) {
-            entriesModified(new Entry[]{entry}, new int[]{OPERATION_REMOVE});
+    private void performOperation(List<Entry> entries, int operation) {
+        if (operation == OPERATION_ADD ? this.entries.addAll(entries) : this.entries.removeAll(entries)) {
+            int[] operations = new int[entries.size()];
+            for (int i = 0; i < operations.length; i++) {
+                operations[i] = operation;
+            }
+            entriesModified(entries.toArray(new Entry[0]), operations);
         }
     }
 
-    public void entryReplaced(Entry oldEntry, Entry newEntry) {
+    private void replaceEntry(Entry oldEntry, Entry newEntry) {
         if (entries.remove(oldEntry) || entries.add(newEntry)) {
             entriesModified(new Entry[]{oldEntry, newEntry}, new int[]{OPERATION_REMOVE, OPERATION_ADD});
         }
@@ -147,7 +172,6 @@ public class NotiphyWebSocket {
             Request request = new Request.Builder()
                     .url("ws://10.0.0.196:8080/NotiphyServer/server")
                     .build();
-
             webSocket = client.newWebSocket(request, webSocketListener);
             sendEntryOperations(encodeEntries(entries, OPERATION_ADD));
         } else if ((entries.size() == 0 || !connected) && webSocket != null) {
@@ -183,9 +207,7 @@ public class NotiphyWebSocket {
 
         if (!wifiOnly) {
             NetworkInfo mobileInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            if (mobileInfo != null && mobileInfo.isConnectedOrConnecting()) {
-                return true;
-            }
+            return mobileInfo != null && mobileInfo.isConnectedOrConnecting();
         }
         return false;
     }
@@ -243,7 +265,8 @@ public class NotiphyWebSocket {
             public void run() {
                 try {
                     JSONObject obj = new JSONObject(messageJson);
-                    onMessage(EntryType.valueOf(obj.getString("type")).getMessageDecoder().decode(obj));
+                    sendBroadcast(new Intent(ACTION_MESSAGE_RECEIVED)
+                            .putExtra(EXTRA_MESSAGE, EntryType.valueOf(obj.getString("type")).getMessageDecoder().decode(obj)));
                 } catch (JSONException | IllegalArgumentException e) {
                 }
             }
@@ -254,17 +277,13 @@ public class NotiphyWebSocket {
     private void setStatus(Status status) {
         if (this.status != status) {
             this.status = status;
-
-            for (Listener l : listeners) {
-                l.onStatusChange(this, status);
-            }
+            broadcastStatus();
         }
     }
 
-    private void onMessage(Message message) {
-        for (Listener l : listeners) {
-            l.onMessage(this, message);
-        }
+    private void broadcastStatus() {
+        sendBroadcast(new Intent(ACTION_STATUS_CHANGED)
+                .putExtra(EXTRA_STATUS_ORDINAL, status.ordinal()));
     }
 
     private WebSocketListener webSocketListener = new WebSocketListener() {
@@ -323,14 +342,6 @@ public class NotiphyWebSocket {
         CONNECTED,
         DISCONNECTED,
         FAILURE
-
-    }
-
-    public interface Listener {
-
-        void onStatusChange(NotiphyWebSocket socket, Status status);
-
-        void onMessage(NotiphyWebSocket socket, Message message);
 
     }
 

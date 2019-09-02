@@ -1,7 +1,13 @@
 package com.frostphyr.notiphy;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
 
 import com.frostphyr.notiphy.io.EntryWriteTask;
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
@@ -21,28 +27,15 @@ public class NotiphyApplication extends Application {
     private List<Entry> entries = new ArrayList<>();
     private OkHttpClient httpClient = new OkHttpClient();
     private NotificationDispatcher notificationDispatcher;
-    private NotiphyWebSocket webSocket;
     private Object[] settings;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        registerReceiver(messageReceivedBroadcastReceiver, new IntentFilter(NotiphyWebSocket.ACTION_MESSAGE_RECEIVED));
+        ContextCompat.startForegroundService(this, new Intent(this, NotiphyWebSocket.class));
         notificationDispatcher = new NotificationDispatcher(this);
-        webSocket = new NotiphyWebSocket(this, httpClient);
-        webSocket.addListener(new NotiphyWebSocket.Listener() {
-
-            @Override
-            public void onStatusChange(NotiphyWebSocket socket, NotiphyWebSocket.Status status) {
-
-            }
-
-            @Override
-            public void onMessage(NotiphyWebSocket socket, Message message) {
-                notificationDispatcher.dispatch(message);
-            }
-
-        });
     }
 
     public void saveEntries() {
@@ -67,7 +60,7 @@ public class NotiphyApplication extends Application {
     public void addEntries(List<Entry> newEntries) {
         entries.addAll(newEntries);
 
-        List<Entry> activeEntries = new ArrayList<>(newEntries.size());
+        ArrayList<Entry> activeEntries = new ArrayList<>(newEntries.size());
         for (Entry e : newEntries) {
             if (e.isActive()) {
                 activeEntries.add(e);
@@ -75,7 +68,7 @@ public class NotiphyApplication extends Application {
         }
 
         if (activeEntries.size() > 0) {
-            webSocket.entriesAdded(activeEntries);
+            updateWebSocket(activeEntries, NotiphyWebSocket.ACTION_ENTRY_ADD);
         }
     }
 
@@ -83,7 +76,7 @@ public class NotiphyApplication extends Application {
         if (entries.size() < MAX_ENTRIES) {
             entries.add(entry);
             if (entry.isActive()) {
-                webSocket.entryAdded(entry);
+                updateWebSocket(entry, NotiphyWebSocket.ACTION_ENTRY_ADD);
             }
             saveEntries();
         }
@@ -92,7 +85,7 @@ public class NotiphyApplication extends Application {
     public boolean removeEntry(Entry entry) {
         if (entries.remove(entry)) {
             if (entry.isActive()) {
-                webSocket.entryRemoved(entry);
+                updateWebSocket(entry, NotiphyWebSocket.ACTION_ENTRY_REMOVE);
             }
             saveEntries();
             return true;
@@ -106,17 +99,32 @@ public class NotiphyApplication extends Application {
             entries.remove(index);
             entries.add(index, newEntry);
             if (oldEntry.isActive() && newEntry.isActive()) {
-                webSocket.entryReplaced(oldEntry, newEntry);
+                ContextCompat.startForegroundService(this, new Intent(this, NotiphyWebSocket.class)
+                        .setAction(NotiphyWebSocket.ACTION_ENTRY_REPLACE)
+                        .putExtra(NotiphyWebSocket.EXTRA_OLD_ENTRY, oldEntry)
+                        .putExtra(NotiphyWebSocket.EXTRA_NEW_ENTRY, newEntry));
             } else if (oldEntry.isActive()) {
-                webSocket.entryRemoved(oldEntry);
+                updateWebSocket(oldEntry, NotiphyWebSocket.ACTION_ENTRY_REMOVE);
             } else if (newEntry.isActive()) {
-                webSocket.entryAdded(newEntry);
+                updateWebSocket(newEntry, NotiphyWebSocket.ACTION_ENTRY_ADD);
             }
         } else {
             entries.add(newEntry);
-            webSocket.entryAdded(newEntry);
+            updateWebSocket(newEntry, NotiphyWebSocket.ACTION_ENTRY_ADD);
         }
         saveEntries();
+    }
+
+    private void updateWebSocket(ArrayList<Entry> entries, String action) {
+        ContextCompat.startForegroundService(this, new Intent(this, NotiphyWebSocket.class)
+                .setAction(action)
+                .putExtra(NotiphyWebSocket.EXTRA_ENTRIES, entries));
+    }
+
+    private void updateWebSocket(Entry entry, String action) {
+        ArrayList<Entry> entries = new ArrayList<>(1);
+        entries.add(entry);
+        updateWebSocket(entries, action);
     }
 
     public Object[] getSettings() {
@@ -165,12 +173,17 @@ public class NotiphyApplication extends Application {
         return httpClient;
     }
 
-    public NotiphyWebSocket getWebSocket() {
-        return webSocket;
-    }
-
     private void showErrorMessage(int textResId) {
         Toast.makeText(this, textResId, Toast.LENGTH_LONG).show();
     }
+
+    private BroadcastReceiver messageReceivedBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            notificationDispatcher.dispatch((Message) intent.getParcelableExtra(NotiphyWebSocket.EXTRA_MESSAGE));
+        }
+
+    };
 
 }

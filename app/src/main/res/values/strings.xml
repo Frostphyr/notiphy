@@ -34,6 +34,8 @@
     <string name="list_notification_more_start">+&#160;</string>
     <string name="list_notification_more_end">&#160;more</string>
 
+    <string name="foreground_notification_title">Notiphy is running</string>
+
     <string name="error_message_read_entries">Error reading saved entries</string>
     <string name="error_message_write_entries">Error writing entries to storage</string>
     <string name="error_message_read_settings">Error reading settings</string>

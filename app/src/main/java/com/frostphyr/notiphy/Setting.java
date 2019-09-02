@@ -1,5 +1,11 @@
 package com.frostphyr.notiphy;
 
+import android.content.Intent;
+
+import androidx.core.content.ContextCompat;
+
+import com.frostphyr.notiphy.io.NotiphyWebSocket;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +35,9 @@ public class Setting<T> {
 
             @Override
             public void onChange(NotiphyApplication application, Boolean value) {
-                application.getWebSocket().setWifiOnly(value);
+                ContextCompat.startForegroundService(application, new Intent(application, NotiphyWebSocket.class)
+                        .setAction(NotiphyWebSocket.ACTION_WIFI_ONLY)
+                        .putExtra(NotiphyWebSocket.EXTRA_WIFI_ONLY, value));
             }
 
         });
@@ -62,10 +70,6 @@ public class Setting<T> {
         id = nextId++;
         settingIds.add(this);
         settingNames.put(name, this);
-    }
-
-    public static Setting<?> forName(String name) {
-        return settingNames.get(name);
     }
 
     public static Setting forId(int id) {

@@ -1,8 +1,10 @@
 package com.frostphyr.notiphy;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +25,7 @@ import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.content.ContextCompat;
 
 import com.frostphyr.notiphy.io.NotiphyWebSocket;
 import com.frostphyr.notiphy.reddit.RedditActivity;
@@ -38,7 +41,6 @@ import java.util.Locale;
 public class EntryListActivity extends AppCompatActivity {
 
     private MenuPopupHelper addMenuHelper;
-    private NotiphyWebSocket.Listener webSocketListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,7 @@ public class EntryListActivity extends AppCompatActivity {
         entryList.setAdapter(new EntryRowAdapter());
 
         TooltipCompat.setTooltipText(findViewById(R.id.toolbar_error), getString(R.string.error_message_notiphy_connection,
-                new SimpleDateFormat("s", Locale.getDefault()).format(new Date(((NotiphyApplication) getApplication()).getWebSocket().getReconnectDelay()))));
+                new SimpleDateFormat("s", Locale.getDefault()).format(new Date(getResources().getInteger(R.integer.reconnect_delay)))));
 
         AdView adView = findViewById(R.id.ad_banner);
         adView.loadAd(new AdRequest.Builder().build());
@@ -116,17 +118,16 @@ public class EntryListActivity extends AppCompatActivity {
             addMenuHelper = null;
         }
 
-        ((NotiphyApplication) getApplication()).getWebSocket().removeListener(webSocketListener);
+        unregisterReceiver(statusChangedBroadcastReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        NotiphyWebSocket webSocket = ((NotiphyApplication) getApplication()).getWebSocket();
-        webSocketListener = new ConnectionFailureListener();
-        webSocket.addListener(webSocketListener);
-        updateError(webSocket.getStatus());
+        registerReceiver(statusChangedBroadcastReceiver, new IntentFilter(NotiphyWebSocket.ACTION_STATUS_CHANGED));
+        ContextCompat.startForegroundService(this, new Intent(this, NotiphyWebSocket.class)
+                .setAction(NotiphyWebSocket.ACTION_GET_STATUS));
     }
 
     @SuppressLint("RestrictedApi")
@@ -183,6 +184,15 @@ public class EntryListActivity extends AppCompatActivity {
     private void updateError(NotiphyWebSocket.Status status) {
         findViewById(R.id.toolbar_error).setVisibility(status == NotiphyWebSocket.Status.FAILURE ? View.VISIBLE : View.GONE);
     }
+
+    private BroadcastReceiver statusChangedBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateError(NotiphyWebSocket.Status.values()[intent.getIntExtra(NotiphyWebSocket.EXTRA_STATUS_ORDINAL, 0)]);
+        }
+
+    };
 
     private class EntryRowAdapter extends ArrayAdapter<Entry> {
 
@@ -255,20 +265,6 @@ public class EntryListActivity extends AppCompatActivity {
             TextView titleView;
             TextView descriptionView;
             SwitchCompat activeSwitch;
-
-        }
-
-    }
-
-    private class ConnectionFailureListener implements NotiphyWebSocket.Listener {
-
-        @Override
-        public void onStatusChange(NotiphyWebSocket socket, NotiphyWebSocket.Status status) {
-            updateError(status);
-        }
-
-        @Override
-        public void onMessage(NotiphyWebSocket socket, Message message) {
 
         }
 

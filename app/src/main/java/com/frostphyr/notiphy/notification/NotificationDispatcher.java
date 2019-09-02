@@ -1,5 +1,6 @@
 package com.frostphyr.notiphy.notification;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -22,12 +22,16 @@ import com.frostphyr.notiphy.R;
 public class NotificationDispatcher {
 
     public static final String ACTION_DISPOSE = "com.frostphyr.notiphy.action.DISPOSE";
-    public static final String EXTRA_ID = "com.frostphyr.notiphy.action.ID";
+    public static final String EXTRA_ID = "com.frostphyr.notiphy.extra.ID";
+
+    public static final int ID_START = 2;
+    public static final int ID_FOREGROUND = 1;
 
     private static final String CHANNEL_ID_PREFIX = "com.frostphyr.notiphy.channel.";
-    private static final String CHANNEL_ID_LIST = CHANNEL_ID_PREFIX + "LIST";
+    private static final String CHANNEL_NAME_LIST = "List";
+    private static final String CHANNEL_NAME_FOREGROUND = "Running";
 
-    private static int id;
+    private static int id = ID_START;
 
     private NotificationViews activeViews;
     private NotificationManagerCompat manager;
@@ -41,11 +45,19 @@ public class NotificationDispatcher {
         init();
     }
 
+    public static Notification createForegroundNotification(Context context) {
+        return new NotificationCompat.Builder(context, createChannelId(CHANNEL_NAME_FOREGROUND))
+                .setSmallIcon(R.drawable.ic_notification_logo)
+                .setShowWhen(false)
+                .setContentTitle(context.getString(R.string.foreground_notification_title))
+                .build();
+    }
+
     public static void dispatch(final Context context, NotificationViews views) {
-        if (views.getId() == id || id == 0) {
-            String channelId = views instanceof MessageNotificationViews ?
+        if (views.getId() == id || id == ID_START) {
+            String channelName = views instanceof MessageNotificationViews ?
                     CHANNEL_ID_PREFIX + ((MessageNotificationViews) views).getMessage().getType().getName() :
-                    CHANNEL_ID_LIST;
+                    CHANNEL_NAME_LIST;
             views.setOnUpdateListener(new NotificationViews.OnUpdateListener() {
 
                 @Override
@@ -54,7 +66,7 @@ public class NotificationDispatcher {
                 }
 
             });
-            NotificationManagerCompat.from(context).notify(views.getId(), new NotificationCompat.Builder(context, channelId)
+            NotificationManagerCompat.from(context).notify(views.getId(), new NotificationCompat.Builder(context, createChannelId(channelName))
                     .setOnlyAlertOnce(true)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.ic_notification_logo)
@@ -78,10 +90,10 @@ public class NotificationDispatcher {
     public void dispatch(Message message) {
         if (nsfwContent != NsfwContent.BLOCK || !message.isNsfw()) {
             if (activeViews == null) {
-                activeViews = new MessageNotificationViews(context, nsfwContent, showMedia, ++id, message, 0);
+                activeViews = new MessageNotificationViews(context, nsfwContent, showMedia, getNextId(), message, 0);
             } else if (activeViews instanceof MessageNotificationViews) {
                 manager.cancel(id);
-                activeViews = new ListNotificationViews(context, nsfwContent, showMedia, ++id,
+                activeViews = new ListNotificationViews(context, nsfwContent, showMedia, getNextId(),
                         ((MessageNotificationViews) activeViews).getMessage(), message);
             } else if (activeViews instanceof ListNotificationViews) {
                 ((ListNotificationViews) activeViews).add(message);
@@ -107,9 +119,10 @@ public class NotificationDispatcher {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
             for (EntryType t : EntryType.values()) {
-                createChannel(notificationManager, CHANNEL_ID_PREFIX + t.getName());
+                createChannel(notificationManager, t.getName());
             }
-            createChannel(notificationManager, CHANNEL_ID_LIST);
+            createChannel(notificationManager, CHANNEL_NAME_LIST);
+            createChannel(notificationManager, CHANNEL_NAME_FOREGROUND);
         }
     }
 
@@ -117,10 +130,23 @@ public class NotificationDispatcher {
         activeViews = null;
     }
 
-    private void createChannel(NotificationManager notificationManager, String name) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(new NotificationChannel(name, name, NotificationManager.IMPORTANCE_DEFAULT));
+    private static int getNextId() {
+        int nextId = ++id;
+        if (nextId < 0) {
+            id = ID_START;
         }
+        return nextId;
+    }
+
+    private static void createChannel(NotificationManager notificationManager, String name) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(
+                    new NotificationChannel(createChannelId(name), name, NotificationManager.IMPORTANCE_DEFAULT));
+        }
+    }
+
+    private static String createChannelId(String name) {
+        return CHANNEL_ID_PREFIX + name.toUpperCase();
     }
 
     private BroadcastReceiver disposeBroadcastReceiver = new BroadcastReceiver() {
