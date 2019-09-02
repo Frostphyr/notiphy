@@ -20,6 +20,8 @@
 
     <color name="spinner_tint">#FFFFFF</color>
 
+    <color name="scrollbar">#EEEEEE</color>
+
     <color name="accent">#b9e8ea</color>
     
     <color name="show_nsfw_button">#FF0000</color>

@@ -9,6 +9,7 @@
         <item name="android:textAppearanceSmallPopupMenu">@style/NotiphyTheme.Text</item>
         <item name="android:textViewStyle">@style/NotiphyTheme.Text</item>
         <item name="editTextStyle">@style/NotiphyTheme.EditText</item>
+        <item name="android:scrollbarThumbVertical">@color/scrollbar</item>
     </style>
 
     <style name="NotiphyTheme.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
