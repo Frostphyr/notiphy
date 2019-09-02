@@ -10,7 +10,7 @@ public abstract class FileIOTask<Params, Result> extends AsyncTaskHelper<Params,
 
     private Context context;
 
-    public FileIOTask(Context context, Callback callback) {
+    public FileIOTask(Context context, Callback<Result> callback) {
         super(callback);
 
         this.context = context;
