@@ -15,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:spinnerMode="dialog"
-        android:prompt="@string/media_spinner_title"
         android:theme="@style/NotiphyTheme.Spinner"/>
 
 </LinearLayout>

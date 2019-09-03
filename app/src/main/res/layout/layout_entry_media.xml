@@ -8,6 +8,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/default_margin"
         android:orientation="vertical"
-        app:title="Media"/>
+        app:title="@string/media_title"/>
 
 </merge>

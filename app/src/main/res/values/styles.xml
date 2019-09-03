@@ -59,10 +59,6 @@
         <item name="android:textColor">@color/light_text_secondary</item>
     </style>
 
-    <style name="NotiphyTheme.Spinner.DropdownItem" parent="Widget.AppCompat.TextView.SpinnerItem">
-        <item name="android:textColor">@color/action_bar_text</item>
-    </style>
-
     <style name="NotiphyTheme.Button" parent="Widget.AppCompat.Button.Colored">
         <item name="android:textColor">@color/show_nsfw_button</item>
         <item name="android:background">@drawable/bg_show_nsfw_button</item>
