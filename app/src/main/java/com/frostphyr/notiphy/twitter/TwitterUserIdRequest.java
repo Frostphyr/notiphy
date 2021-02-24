@@ -15,8 +15,8 @@ public class TwitterUserIdRequest {
 
     private JsonHttpRequest request;
 
-    public TwitterUserIdRequest(OkHttpClient client, String username, final Callback callback) {
-        request = new JsonHttpRequest(client, "http://frostphyr.com/scripts/lookup_twitter_user_id.php", new JsonHttpRequest.Callback() {
+    public TwitterUserIdRequest(OkHttpClient client, String url, String username, final Callback callback) {
+        request = new JsonHttpRequest(client, url, new JsonHttpRequest.Callback() {
 
             @Override
             public void onResult(JSONObject obj) {

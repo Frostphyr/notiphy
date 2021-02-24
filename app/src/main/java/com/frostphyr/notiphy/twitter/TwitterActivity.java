@@ -64,7 +64,8 @@ public class TwitterActivity extends EntryActivity {
     }
 
     private void fetchUserId(final EditText usernameView, final View loadingView, final String username) {
-        idRequest = new TwitterUserIdRequest(((NotiphyApplication) getApplication()).getHttpClient(), username, new TwitterUserIdRequest.Callback() {
+        idRequest = new TwitterUserIdRequest(((NotiphyApplication) getApplication()).getHttpClient(),
+                getString(R.string.twitter_user_id_lookup_url), username, new TwitterUserIdRequest.Callback() {
 
             @Override
             public void onResult(final String userId) {

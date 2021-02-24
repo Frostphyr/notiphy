@@ -15,12 +15,12 @@ import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.R;
 import com.frostphyr.notiphy.notification.NotificationDispatcher;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -47,11 +47,7 @@ public class NotiphyWebSocket extends Service {
     public static final String EXTRA_MESSAGE = "com.frostphyr.notiphy.extra.MESSAGE";
     public static final String EXTRA_STATUS_ORDINAL = "com.frostphyr.notiphy.extra.STATUS_ORDINAL";
 
-    private static final int OPERATION_ADD = 0;
-    private static final int OPERATION_REMOVE = 1;
-
     private Set<Entry> entries = new HashSet<>();
-
     private Status status = Status.DISCONNECTED;
 
     private Handler mainHandler;
@@ -61,7 +57,6 @@ public class NotiphyWebSocket extends Service {
 
     private long reconnectStart;
     private long reconnectDelay;
-    private boolean reconnectScheduled;
     private boolean wifiOnly;
 
     @Override
@@ -70,11 +65,11 @@ public class NotiphyWebSocket extends Service {
             switch (intent.getAction()) {
                 case ACTION_ENTRY_ADD:
                     List<Entry> newEntries = intent.getParcelableArrayListExtra(EXTRA_ENTRIES);
-                    performOperation(newEntries, OPERATION_ADD);
+                    modifyAll(newEntries, true);
                     break;
                 case ACTION_ENTRY_REMOVE:
                     List<Entry> oldEntries = intent.getParcelableArrayListExtra(EXTRA_ENTRIES);
-                    performOperation(oldEntries, OPERATION_REMOVE);
+                    modifyAll(oldEntries, false);
                     break;
                 case ACTION_ENTRY_REPLACE:
                     Entry oldEntry = intent.getParcelableExtra(EXTRA_OLD_ENTRY);
@@ -129,31 +124,38 @@ public class NotiphyWebSocket extends Service {
         return null;
     }
 
-    private void performOperation(List<Entry> entries, int operation) {
-        if (operation == OPERATION_ADD ? this.entries.addAll(entries) : this.entries.removeAll(entries)) {
-            int[] operations = new int[entries.size()];
-            for (int i = 0; i < operations.length; i++) {
-                operations[i] = operation;
+    private void modifyAll(List<Entry> modifiedEntries, boolean add) {
+        for (Iterator<Entry> it = modifiedEntries.iterator(); it.hasNext(); ) {
+            if (!(add ? entries.add(it.next()) : entries.remove(it.next()))) {
+                it.remove();
             }
-            entriesModified(entries.toArray(new Entry[0]), operations);
+        }
+        if (modifiedEntries.size() > 0) {
+            entriesModified(new EntryOperation(add ? modifiedEntries : null, add ? null : modifiedEntries));
         }
     }
 
     private void replaceEntry(Entry oldEntry, Entry newEntry) {
-        if (entries.remove(oldEntry) || entries.add(newEntry)) {
-            entriesModified(new Entry[]{oldEntry, newEntry}, new int[]{OPERATION_REMOVE, OPERATION_ADD});
+        if (!entries.remove(oldEntry)) {
+            oldEntry = null;
+        }
+        if (!entries.add(newEntry)) {
+            newEntry = null;
+        }
+
+        if (oldEntry != null || newEntry != null) {
+            entriesModified(new EntryOperation(createList(newEntry), createList(oldEntry)));
         }
     }
 
-    private void entriesModified(Entry[] entries, int[] operations) {
+    private List<Entry> createList(Entry entry) {
+        return Collections.singletonList(entry);
+    }
+
+    private void entriesModified(EntryOperation operation) {
         if (webSocket != null) {
             if (this.entries.size() > 0) {
-                JSONObject[] objects = new JSONObject[entries.length];
-                for (int i = 0; i < objects.length; i++) {
-                    objects[i] = encodeEntry(entries[i], operations[i]);
-                }
-
-                sendEntryOperations(objects);
+                webSocket.send(EntryOperationEncoder.encode(operation).toString());
             } else {
                 disconnect();
             }
@@ -166,17 +168,19 @@ public class NotiphyWebSocket extends Service {
         }
     }
 
-    private void checkConnection() {
+    private boolean checkConnection() {
         boolean connected = isConnected();
         if (connected && webSocket == null && entries.size() > 0) {
             Request request = new Request.Builder()
-                    .url("ws://10.0.0.196:8080/NotiphyServer/server")
+                    .url(getString(R.string.server_url))
                     .build();
             webSocket = client.newWebSocket(request, webSocketListener);
-            sendEntryOperations(encodeEntries(entries, OPERATION_ADD));
+            webSocket.send(EntryOperationEncoder.encode(new EntryOperation(entries, null)).toString());
+            return true;
         } else if ((entries.size() == 0 || !connected) && webSocket != null) {
             disconnect();
         }
+        return false;
     }
 
     private void disconnect() {
@@ -186,13 +190,11 @@ public class NotiphyWebSocket extends Service {
 
     private void postDelayedReconnection() {
         webSocket = null;
-        reconnectScheduled = true;
         reconnectStart = SystemClock.elapsedRealtime();
         mainHandler.postDelayed(new Runnable() {
 
             @Override
             public void run() {
-                reconnectScheduled = false;
                 checkConnection();
             }
 
@@ -210,52 +212,6 @@ public class NotiphyWebSocket extends Service {
             return mobileInfo != null && mobileInfo.isConnectedOrConnecting();
         }
         return false;
-    }
-
-    private void sendEntryOperations(JSONObject... operations) {
-        if (operations.length > 0) {
-            JSONArray array = new JSONArray();
-            for (JSONObject o : operations) {
-                array.put(o);
-            }
-            webSocket.send(array.toString());
-        }
-    }
-
-    private JSONObject encodeEntries(Collection<Entry> entries, int operation) {
-        JSONArray entriesArray = new JSONArray();
-        for (Entry e : entries) {
-            try {
-                entriesArray.put(encodeEntry(e.getType().getEntryTransportEncoder(), e));
-            } catch (JSONException ex) {
-            }
-        }
-        return encodeEntries(entriesArray, operation);
-    }
-
-    private JSONObject encodeEntry(Entry entry, int operation) {
-        JSONArray array = new JSONArray();
-        try {
-            array.put(encodeEntry(entry.getType().getEntryTransportEncoder(), entry));
-        } catch (JSONException e) {
-        }
-        return encodeEntries(array, operation);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends Entry> JSONObject encodeEntry(JSONEncoder<T> encoder, Entry entry) throws JSONException {
-        return encoder.encode((T) entry);
-    }
-
-    private JSONObject encodeEntries(JSONArray entries, int operation) {
-        try {
-            JSONObject obj = new JSONObject();
-            obj.put("op", operation);
-            obj.put("entries", entries);
-            return obj;
-        } catch (JSONException e) {
-            return null;
-        }
     }
 
     private void processMessage(final String messageJson) {
@@ -294,6 +250,7 @@ public class NotiphyWebSocket extends Service {
 
                 @Override
                 public void run() {
+                    reconnectStart = 0;
                     setStatus(Status.CONNECTED);
                 }
 
@@ -326,8 +283,14 @@ public class NotiphyWebSocket extends Service {
                 @Override
                 public void run() {
                     NotiphyWebSocket.this.webSocket = null;
-                    setStatus(Status.FAILURE);
-                    if (!(reconnectScheduled && SystemClock.elapsedRealtime() - reconnectStart < reconnectDelay)) {
+                    if (reconnectStart == 0) {
+                        reconnectStart = -1;
+                        if (!checkConnection()) {
+                            setStatus(Status.FAILURE);
+                            postDelayedReconnection();
+                        }
+                    } else if (reconnectStart == -1 || SystemClock.elapsedRealtime() - reconnectStart >= reconnectDelay) {
+                        setStatus(Status.FAILURE);
                         postDelayedReconnection();
                     }
                 }
