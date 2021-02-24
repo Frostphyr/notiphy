@@ -9,7 +9,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.util.Log;
 
+import com.frostphyr.notiphy.BuildConfig;
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.R;
@@ -144,12 +146,8 @@ public class NotiphyWebSocket extends Service {
         }
 
         if (oldEntry != null || newEntry != null) {
-            entriesModified(new EntryOperation(createList(newEntry), createList(oldEntry)));
+            entriesModified(new EntryOperation(Collections.singletonList(newEntry), Collections.singletonList(oldEntry)));
         }
-    }
-
-    private List<Entry> createList(Entry entry) {
-        return Collections.singletonList(entry);
     }
 
     private void entriesModified(EntryOperation operation) {
@@ -214,20 +212,45 @@ public class NotiphyWebSocket extends Service {
         return false;
     }
 
-    private void processMessage(final String messageJson) {
-        mainHandler.post(new Runnable() {
+    private void onConnect() {
+        reconnectStart = 0;
+        setStatus(Status.CONNECTED);
+    }
 
-            @Override
-            public void run() {
-                try {
-                    JSONObject obj = new JSONObject(messageJson);
-                    sendBroadcast(new Intent(ACTION_MESSAGE_RECEIVED)
-                            .putExtra(EXTRA_MESSAGE, EntryType.valueOf(obj.getString("type")).getMessageDecoder().decode(obj)));
-                } catch (JSONException | IllegalArgumentException e) {
-                }
+    private void onDisconnect() {
+        webSocket = null;
+        setStatus(Status.DISCONNECTED);
+        checkConnection();
+    }
+
+    private void onFailure(Throwable t) {
+        webSocket = null;
+        if (reconnectStart == 0) {
+            reconnectStart = -1;
+            if (!checkConnection()) {
+                setStatus(Status.FAILURE);
+                postDelayedReconnection();
             }
+        } else if (reconnectStart == -1 || SystemClock.elapsedRealtime() - reconnectStart >= reconnectDelay) {
+            setStatus(Status.FAILURE);
+            postDelayedReconnection();
+        }
 
-        });
+        if (BuildConfig.DEBUG) {
+            Log.d(getClass().getSimpleName() + "#onFailure", Log.getStackTraceString(t));
+        }
+    }
+
+    private void processMessage(final String messageJson) {
+        try {
+            JSONObject obj = new JSONObject(messageJson);
+            sendBroadcast(new Intent(ACTION_MESSAGE_RECEIVED)
+                    .putExtra(EXTRA_MESSAGE, EntryType.valueOf(obj.getString("type")).getMessageDecoder().decode(obj)));
+        } catch (JSONException | IllegalArgumentException e) {
+            if (BuildConfig.DEBUG) {
+                Log.d(getClass().getSimpleName() + "#processMessage", Log.getStackTraceString(e));
+            }
+        }
     }
 
     private void setStatus(Status status) {
@@ -250,16 +273,22 @@ public class NotiphyWebSocket extends Service {
 
                 @Override
                 public void run() {
-                    reconnectStart = 0;
-                    setStatus(Status.CONNECTED);
+                    onConnect();
                 }
 
             });
         }
 
         @Override
-        public void onMessage(WebSocket webSocket, String message) {
-            processMessage(message);
+        public void onMessage(WebSocket webSocket, final String message) {
+            mainHandler.post(new Runnable() {
+
+                 @Override
+                 public void run() {
+                     processMessage(message);
+                 }
+
+             });
         }
 
         @Override
@@ -268,31 +297,19 @@ public class NotiphyWebSocket extends Service {
 
                 @Override
                 public void run() {
-                    NotiphyWebSocket.this.webSocket = null;
-                    setStatus(Status.DISCONNECTED);
-                    checkConnection();
+                    onDisconnect();
                 }
 
             });
         }
 
         @Override
-        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+        public void onFailure(WebSocket webSocket, final Throwable t, Response response) {
             mainHandler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    NotiphyWebSocket.this.webSocket = null;
-                    if (reconnectStart == 0) {
-                        reconnectStart = -1;
-                        if (!checkConnection()) {
-                            setStatus(Status.FAILURE);
-                            postDelayedReconnection();
-                        }
-                    } else if (reconnectStart == -1 || SystemClock.elapsedRealtime() - reconnectStart >= reconnectDelay) {
-                        setStatus(Status.FAILURE);
-                        postDelayedReconnection();
-                    }
+                    NotiphyWebSocket.this.onFailure(t);
                 }
 
             });
