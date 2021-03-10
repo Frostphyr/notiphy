@@ -86,36 +86,35 @@ public abstract class EntryActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                setResult(RESULT_CANCELED);
-                finish();
-                return true;
-            case R.id.action_save:
-                save();
-                return true;
-            case R.id.action_delete:
-                new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
-                        .setMessage(R.string.delete_entry_conformation)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+        if (item.getItemId() == android.R.id.home) {
+            setResult(RESULT_CANCELED);
+            finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_save) {
+            save();
+            return true;
+        } else if (item.getItemId() == R.id.action_delete) {
+            new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
+                    .setMessage(R.string.delete_entry_conformation)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                finish(null);
-                            }
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            finish(null);
+                        }
 
-                        })
-                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
 
-                        })
-                        .show();
-                return true;
+                    })
+                    .show();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

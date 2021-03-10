@@ -67,15 +67,14 @@ public class EntryListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_add:
-                showAddPopupMenu(item);
-                return true;
-            case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.action_add) {
+            showAddPopupMenu(item);
+            return true;
+        } else if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -146,13 +145,10 @@ public class EntryListActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.action_add_twitter:
-                            startActivityForResult(new Intent(EntryListActivity.this, TwitterActivity.class), EntryActivity.REQUEST_CODE_NEW);
-                            break;
-                        case R.id.action_add_reddit:
-                            startActivityForResult(new Intent(EntryListActivity.this, RedditActivity.class), EntryActivity.REQUEST_CODE_NEW);
-                            break;
+                    if (item.getItemId() == R.id.action_add_twitter) {
+                        startActivityForResult(new Intent(EntryListActivity.this, TwitterActivity.class), EntryActivity.REQUEST_CODE_NEW);
+                    } else if (item.getItemId() == R.id.action_add_reddit) {
+                        startActivityForResult(new Intent(EntryListActivity.this, RedditActivity.class), EntryActivity.REQUEST_CODE_NEW);
                     }
                     return false;
                 }
