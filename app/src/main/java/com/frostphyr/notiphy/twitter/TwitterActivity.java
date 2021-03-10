@@ -52,15 +52,22 @@ public class TwitterActivity extends EntryActivity {
 
     @Override
     protected void save() {
+        TwitterEntry oldTwitterEntry = (TwitterEntry) oldEntry;
         EditText usernameView = findViewById(R.id.twitter_username);
         String username = usernameView.getText().toString().trim();
         if (username.length() == 0) {
             usernameView.setError("Please enter a username");
+        } else if (oldTwitterEntry != null && username.equals(oldTwitterEntry.getUsername())) {
+            finish(username, oldTwitterEntry.getId());
         } else {
             View loadingView = findViewById(R.id.twitter_loading);
             loadingView.setVisibility(View.VISIBLE);
             fetchUserId(usernameView, loadingView, username);
         }
+    }
+
+    private void finish(String username, String userId) {
+        finish(new TwitterEntry(userId, username, getMediaType(), getPhrases(), oldEntry == null || oldEntry.isActive()));
     }
 
     private void fetchUserId(final EditText usernameView, final View loadingView, final String username) {
@@ -73,7 +80,7 @@ public class TwitterActivity extends EntryActivity {
 
                     @Override
                     public void run() {
-                        finish(new TwitterEntry(userId, username, getMediaType(), getPhrases(), oldEntry == null || oldEntry.isActive()));
+                        finish(username, userId);
                     }
 
                 });
