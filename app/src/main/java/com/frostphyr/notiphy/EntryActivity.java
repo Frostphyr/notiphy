@@ -121,14 +121,18 @@ public abstract class EntryActivity extends AppCompatActivity {
     }
 
     protected void finish(Entry entry) {
-        Intent intent = new Intent();
-        if (entry != null) {
-            intent.putExtra(EXTRA_ENTRY, entry);
+        if (entry != null && entry.equals(oldEntry)) {
+            setResult(RESULT_CANCELED);
+        } else {
+            Intent intent = new Intent();
+            if (entry != null) {
+                intent.putExtra(EXTRA_ENTRY, entry);
+            }
+            if (oldEntry != null) {
+                intent.putExtra(EXTRA_OLD_ENTRY, oldEntry);
+            }
+            setResult(RESULT_OK, intent);
         }
-        if (oldEntry != null) {
-            intent.putExtra(EXTRA_OLD_ENTRY, oldEntry);
-        }
-        setResult(RESULT_OK, intent);
         finish();
     }
 
