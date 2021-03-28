@@ -6,6 +6,8 @@
     <color name="action_bar_background">#111111</color>
     <color name="action_bar_text">#FFFFFF</color>
 
+    <color name="dialog_background">#333333</color>
+
     <color name="media_background">#000000</color>
 
     <color name="divider">#808080</color>

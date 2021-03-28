@@ -65,7 +65,7 @@
     </style>
     
     <style name="NotiphyTheme.AlertDialog" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:background">@color/action_bar_background</item>
+        <item name="android:background">@color/dialog_background</item>
         <item name="android:textColor">@color/action_bar_text</item>
     </style>
 
