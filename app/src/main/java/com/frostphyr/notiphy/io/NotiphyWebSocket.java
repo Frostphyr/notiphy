@@ -116,6 +116,7 @@ public class NotiphyWebSocket extends Service {
 
     @Override
     public void onDestroy() {
+        setStatus(Status.DESTROYED);
         if (webSocket != null) {
             disconnect();
         }
@@ -167,16 +168,18 @@ public class NotiphyWebSocket extends Service {
     }
 
     private boolean checkConnection() {
-        boolean connected = isConnected();
-        if (connected && webSocket == null && entries.size() > 0) {
-            Request request = new Request.Builder()
-                    .url(getString(R.string.server_url))
-                    .build();
-            webSocket = client.newWebSocket(request, webSocketListener);
-            webSocket.send(EntryOperationEncoder.encode(new EntryOperation(entries, null)).toString());
-            return true;
-        } else if ((entries.size() == 0 || !connected) && webSocket != null) {
-            disconnect();
+        if (status != Status.DESTROYED) {
+            boolean connected = isConnected();
+            if (connected && webSocket == null && entries.size() > 0) {
+                Request request = new Request.Builder()
+                        .url(getString(R.string.server_url))
+                        .build();
+                webSocket = client.newWebSocket(request, webSocketListener);
+                webSocket.send(EntryOperationEncoder.encode(new EntryOperation(entries, null)).toString());
+                return true;
+            } else if ((entries.size() == 0 || !connected) && webSocket != null) {
+                disconnect();
+            }
         }
         return false;
     }
@@ -254,7 +257,7 @@ public class NotiphyWebSocket extends Service {
     }
 
     private void setStatus(Status status) {
-        if (this.status != status) {
+        if (this.status != status && this.status != Status.DESTROYED) {
             this.status = status;
             broadcastStatus();
         }
@@ -321,7 +324,8 @@ public class NotiphyWebSocket extends Service {
 
         CONNECTED,
         DISCONNECTED,
-        FAILURE
+        FAILURE,
+        DESTROYED
 
     }
 
