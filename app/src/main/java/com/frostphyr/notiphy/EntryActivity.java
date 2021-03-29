@@ -3,6 +3,7 @@ package com.frostphyr.notiphy;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.text.SpannableStringBuilder;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,6 +38,8 @@ public abstract class EntryActivity extends AppCompatActivity {
     protected Entry oldEntry;
     private Set<TextView> phraseViews = new LinkedHashSet<>();
 
+    protected abstract EntryType getType();
+
     protected abstract void save();
 
     protected void init() {
@@ -49,11 +52,6 @@ public abstract class EntryActivity extends AppCompatActivity {
 
         AdView adView = findViewById(R.id.ad_banner);
         adView.loadAd(new AdRequest.Builder().build());
-
-        TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
-        if (mediaSpinner != null) {
-            mediaSpinner.setAdapter(new BasicSpinnerIconAdapter<>(this, MediaType.values()));
-        }
 
         TextView phrase1View = findViewById(R.id.phrase_1);
         if ((phrase1View) != null) {
@@ -90,30 +88,13 @@ public abstract class EntryActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
             return true;
+        } else if (item.getItemId() == R.id.action_help) {
+            showHelpDialog();
         } else if (item.getItemId() == R.id.action_save) {
             save();
             return true;
         } else if (item.getItemId() == R.id.action_delete) {
-            new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
-                    .setMessage(R.string.delete_entry_conformation)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            finish(null);
-                        }
-
-                    })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-
-                    })
-                    .show();
+            showDeleteConfirmation();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -133,11 +114,6 @@ public abstract class EntryActivity extends AppCompatActivity {
             setResult(RESULT_OK, intent);
         }
         finish();
-    }
-
-    protected MediaType getMediaType() {
-        TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
-        return mediaSpinner != null ? (MediaType) mediaSpinner.getSelectedItem() : null;
     }
 
     protected String[] getPhrases() {
@@ -182,11 +158,6 @@ public abstract class EntryActivity extends AppCompatActivity {
         }
     }
 
-    protected void setMediaType(MediaType mediaType) {
-        TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
-        mediaSpinner.setSelectedItem(mediaType.ordinal());
-    }
-
     protected void setPhrases(String[] phrases) {
         if (phrases.length >= 1) {
             EditText phrase1View = findViewById(R.id.phrase_1);
@@ -196,6 +167,41 @@ public abstract class EntryActivity extends AppCompatActivity {
                 addNewPhrase(phrases[i]);
             }
         }
+    }
+
+    private void showHelpDialog() {
+        new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
+                .setTitle(R.string.help_title)
+                .setMessage(new SpannableStringBuilder()
+                        .append(getText(getType().getHelpMessageRedId()))
+                        .append("\n")
+                        .append(getText(R.string.help_message_all)))
+                .setPositiveButton(R.string.ok, null)
+                .create()
+                .show();
+    }
+
+    private void showDeleteConfirmation() {
+        new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
+                .setMessage(R.string.delete_entry_conformation)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish(null);
+                    }
+
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+
+                })
+                .show();
     }
 
 }

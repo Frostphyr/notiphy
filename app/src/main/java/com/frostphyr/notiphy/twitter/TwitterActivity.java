@@ -6,10 +6,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.frostphyr.notiphy.BasicSpinnerIconAdapter;
 import com.frostphyr.notiphy.CharRangeInputFilter;
 import com.frostphyr.notiphy.EntryActivity;
+import com.frostphyr.notiphy.EntryType;
+import com.frostphyr.notiphy.MediaType;
 import com.frostphyr.notiphy.NotiphyApplication;
 import com.frostphyr.notiphy.R;
+import com.frostphyr.notiphy.TitledSpinner;
 
 public class TwitterActivity extends EntryActivity {
 
@@ -24,6 +28,11 @@ public class TwitterActivity extends EntryActivity {
     }
 
     @Override
+    protected EntryType getType() {
+        return EntryType.TWITTER;
+    }
+
+    @Override
     protected void init() {
         super.init();
 
@@ -32,6 +41,11 @@ public class TwitterActivity extends EntryActivity {
                 new InputFilter.LengthFilter(15),
                 new CharRangeInputFilter(TwitterEntry.USERNAME_CHAR_RANGES)
         });
+
+        TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
+        if (mediaSpinner != null) {
+            mediaSpinner.setAdapter(new BasicSpinnerIconAdapter<>(this, MediaType.values()));
+        }
 
         TwitterEntry oldEntry = (TwitterEntry) super.oldEntry;
         if (oldEntry != null) {
@@ -64,6 +78,16 @@ public class TwitterActivity extends EntryActivity {
             loadingView.setVisibility(View.VISIBLE);
             fetchUserId(usernameView, loadingView, username);
         }
+    }
+
+    protected MediaType getMediaType() {
+        TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
+        return mediaSpinner != null ? (MediaType) mediaSpinner.getSelectedItem() : null;
+    }
+
+    protected void setMediaType(MediaType mediaType) {
+        TitledSpinner mediaSpinner = findViewById(R.id.media_spinner);
+        mediaSpinner.setSelectedItem(mediaType.ordinal());
     }
 
     private void finish(String username, String userId) {

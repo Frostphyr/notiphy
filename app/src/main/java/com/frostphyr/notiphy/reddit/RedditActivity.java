@@ -9,6 +9,7 @@ import com.frostphyr.notiphy.BasicSpinnerAdapter;
 import com.frostphyr.notiphy.BasicSpinnerIconAdapter;
 import com.frostphyr.notiphy.CharRangeInputFilter;
 import com.frostphyr.notiphy.EntryActivity;
+import com.frostphyr.notiphy.EntryType;
 import com.frostphyr.notiphy.IllegalInputException;
 import com.frostphyr.notiphy.R;
 import com.frostphyr.notiphy.TitledSpinner;
@@ -46,6 +47,11 @@ public class RedditActivity extends EntryActivity {
             postTypeSpinner.setSelectedItem(entry.getPostType().ordinal());
             setPhrases(entry.getPhrases());
         }
+    }
+
+    @Override
+    protected EntryType getType() {
+        return EntryType.REDDIT;
     }
 
     @Override
