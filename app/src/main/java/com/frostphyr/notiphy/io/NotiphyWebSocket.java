@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -100,7 +101,9 @@ public class NotiphyWebSocket extends Service {
         }
 
         mainHandler = new Handler(getMainLooper());
-        client = new OkHttpClient();
+        client = new OkHttpClient.Builder()
+                .pingInterval(1, TimeUnit.MINUTES)
+                .build();
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         reconnectDelay = getResources().getInteger(R.integer.reconnect_delay);
 
