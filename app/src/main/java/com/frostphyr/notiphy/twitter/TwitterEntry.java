@@ -5,36 +5,36 @@ import android.os.Parcelable;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
-import com.frostphyr.notiphy.IllegalInputException;
+import com.frostphyr.notiphy.IconResource;
 import com.frostphyr.notiphy.MediaType;
-import com.frostphyr.notiphy.R;
-import com.frostphyr.notiphy.TextUtils;
+import com.google.firebase.firestore.Exclude;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class TwitterEntry extends Entry {
 
-    public static final char[][] USERNAME_CHAR_RANGES = {
-            {'a', 'z'},
-            {'A', 'Z'},
-            {'0', '9'},
-            {'_'}
-    };
-
-    private String id;
+    private String userId;
     private String username;
     private MediaType mediaType;
 
-    public TwitterEntry(String id, String username, MediaType mediaType, String[] phrases, boolean active) {
+    public TwitterEntry(String userId, String username, MediaType mediaType,
+                        List<String> phrases, boolean active) {
         super(phrases, active);
 
-        this.id = validateId(id);
-        this.username = validateUsername(username);
-        this.mediaType = validateMediaType(mediaType);
+        this.userId = userId;
+        this.username = username;
+        this.mediaType = mediaType;
     }
 
-    public String getId() {
-        return id;
+    @SuppressWarnings("unused")
+    public TwitterEntry() {
+        super();
+    }
+
+    public String getUserId() {
+        return userId;
     }
 
     public String getUsername() {
@@ -50,23 +50,21 @@ public class TwitterEntry extends Entry {
         return EntryType.TWITTER;
     }
 
+    @Exclude
     @Override
     public String getTitle() {
         return username;
     }
 
+    @Exclude
     @Override
-    public String getDescription() {
-        return TextUtils.concat(getPhrases(), ", ");
+    public IconResource getDescriptionIconResource() {
+        return mediaType.getIconResource();
     }
 
     @Override
-    public int getDescriptionIconResId() {
-        return mediaType.getIconResourceId();
-    }
-    @Override
     public TwitterEntry withActive(boolean active) {
-        return active == isActive() ? this : new TwitterEntry(id, username, mediaType, getPhrases(), active);
+        return active == isActive() ? this : new TwitterEntry(userId, username, mediaType, getPhrases(), active);
     }
 
     @Override
@@ -76,10 +74,10 @@ public class TwitterEntry extends Entry {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
+        dest.writeString(userId);
         dest.writeString(username);
         dest.writeInt(mediaType.ordinal());
-        dest.writeStringArray(getPhrases());
+        dest.writeList(getPhrases());
         dest.writeInt(isActive() ? 1 : 0);
     }
 
@@ -87,10 +85,9 @@ public class TwitterEntry extends Entry {
     public boolean equals(Object o) {
         if (o instanceof TwitterEntry) {
             TwitterEntry e = (TwitterEntry) o;
-            return e.id.equals(id)
-                    && e.username.equalsIgnoreCase(username)
+            return e.username.equalsIgnoreCase(username)
                     && e.mediaType.equals(mediaType)
-                    && Arrays.equals(e.getPhrases(), getPhrases())
+                    && e.getPhrases().equals(getPhrases())
                     && e.isActive() == isActive();
         }
         return false;
@@ -98,40 +95,20 @@ public class TwitterEntry extends Entry {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[] {id, username, mediaType, Arrays.hashCode(getPhrases()), isActive()});
-    }
-
-    private static String validateId(String id) {
-        if (id == null) {
-            throw new IllegalInputException(R.string.error_message_twitter_id);
-        }
-        return id;
-    }
-
-    private static String validateUsername(String username) {
-        if (username.length() <= 0 || username.length() > 15 || !TextUtils.inRanges(USERNAME_CHAR_RANGES, username)) {
-            throw new IllegalInputException(R.string.error_message_twitter_username);
-        }
-        return username;
-    }
-
-    private static MediaType validateMediaType(MediaType mediaType) {
-        if (mediaType == null) {
-            throw new IllegalInputException(R.string.error_message_twitter_media_type);
-        }
-        return mediaType;
+        return Arrays.hashCode(new Object[] {userId, mediaType.ordinal(), getPhrases(), isActive()});
     }
 
     public static final Parcelable.Creator<Entry> CREATOR = new Parcelable.Creator<Entry>() {
 
         @Override
         public Entry createFromParcel(Parcel in) {
-            String id = in.readString();
+            String userId = in.readString();
             String username = in.readString();
             MediaType mediaType = MediaType.values()[in.readInt()];
-            String[] phrases = in.createStringArray();
+            List<String> phrases = new ArrayList<>();
+            in.readList(phrases, null);
             boolean active = in.readInt() != 0;
-            return new TwitterEntry(id, username, mediaType, phrases, active);
+            return new TwitterEntry(userId, username, mediaType, phrases, active);
         }
 
         @Override

@@ -1,110 +1,99 @@
 package com.frostphyr.notiphy;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.TooltipCompat;
-import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.frostphyr.notiphy.io.NotiphyWebSocket;
-import com.frostphyr.notiphy.reddit.RedditActivity;
-import com.frostphyr.notiphy.twitter.TwitterActivity;
-import com.google.android.gms.ads.AdRequest;
+import com.frostphyr.notiphy.io.Database;
+import com.frostphyr.notiphy.settings.SettingsActivity;
 import com.google.android.gms.ads.AdView;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.messaging.FirebaseMessaging;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
+import java.util.List;
 
 public class EntryListActivity extends AppCompatActivity {
+    
+    private static final int MAX_ENTRIES = 25;
 
+    private List<DatabaseEntry> entries;
     private MenuPopupHelper addMenuHelper;
+    private String uid;
+
+    private final ActivityResultLauncher<EntryType> newEntryLauncher =
+            registerForActivityResult(new EntryActivity.NewContract(), entry -> {
+                if (entry != null) {
+                    addEntry(entry);
+                }
+            });
+
+    private final ActivityResultLauncher<DatabaseEntry> editEntryLauncher =
+            registerForActivityResult(new EntryActivity.EditContract(), bundle -> {
+                if (bundle != null) {
+                    DatabaseEntry oldEntry = bundle.getParcelable(EntryActivity.EXTRA_EDIT_ENTRY);
+                    DatabaseEntry newEntry = bundle.getParcelable(EntryActivity.EXTRA_ENTRY);
+                    if (newEntry != null) {
+                        replaceEntry(oldEntry, newEntry);
+                    } else {
+                        removeEntry(oldEntry);
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry_list);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-
-        ListView entryList = findViewById(R.id.entry_list);
-        entryList.setAdapter(new EntryRowAdapter());
-
-        TooltipCompat.setTooltipText(findViewById(R.id.toolbar_error), getString(R.string.error_message_notiphy_connection,
-                new SimpleDateFormat("s", Locale.getDefault()).format(new Date(getResources().getInteger(R.integer.reconnect_delay)))));
 
         AdView adView = findViewById(R.id.ad_banner);
-        adView.loadAd(new AdRequest.Builder().build());
-    }
+        adView.loadAd(AndroidUtils.generateAdRequest());
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.entry_list_toolbar_menu, menu);
-        return true;
-    }
+        RecyclerView entryList = findViewById(R.id.entry_list);
+        entryList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_add) {
-            showAddPopupMenu(item);
-            return true;
-        } else if (item.getItemId() == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
-        if (resultCode == RESULT_OK) {
-            Entry entry = resultIntent.getParcelableExtra(EntryActivity.EXTRA_ENTRY);
-            NotiphyApplication application = (NotiphyApplication) getApplication();
-            ListView entryList = findViewById(R.id.entry_list);
-            ArrayAdapter<Entry> adapter = ((ArrayAdapter<Entry>) entryList.getAdapter());
-
-            switch (requestCode) {
-                case EntryActivity.REQUEST_CODE_EDIT:
-                    Entry oldEntry = resultIntent.getParcelableExtra(EntryActivity.EXTRA_OLD_ENTRY);
-                    if (entry == null) {
-                        if (application.removeEntry(oldEntry)) {
-                            adapter.remove(oldEntry);
-                        }
-                    } else {
-                        replaceEntry(oldEntry, entry);
-                    }
-                    break;
-                case EntryActivity.REQUEST_CODE_NEW:
-                    application.addEntry(entry);
-                    adapter.add(entry);
-                    break;
+        MaterialToolbar toolbar = findViewById(R.id.entry_list_toolbar);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_refresh) {
+                refresh();
+                return true;
+            } else if (item.getItemId() == R.id.action_add) {
+                showAddPopupMenu(item);
+                return true;
+            } else if (item.getItemId() == R.id.action_settings) {
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
             }
-            adapter.notifyDataSetChanged();
-        }
+            return false;
+        });
+
+        validateUser();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        validateUser();
     }
 
     @SuppressLint("RestrictedApi")
@@ -116,111 +105,234 @@ public class EntryListActivity extends AppCompatActivity {
             addMenuHelper.dismiss();
             addMenuHelper = null;
         }
-
-        unregisterReceiver(statusChangedBroadcastReceiver);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    private void asyncStart() {
+        findViewById(R.id.entry_list_content).setVisibility(View.GONE);
+        findViewById(R.id.entry_list_progress).setVisibility(View.VISIBLE);
+    }
 
-        registerReceiver(statusChangedBroadcastReceiver, new IntentFilter(NotiphyWebSocket.ACTION_STATUS_CHANGED));
-        ContextCompat.startForegroundService(this, new Intent(this, NotiphyWebSocket.class)
-                .setAction(NotiphyWebSocket.ACTION_GET_STATUS));
+    private void asyncStop() {
+        findViewById(R.id.entry_list_progress).setVisibility(View.GONE);
+        findViewById(R.id.entry_list_content).setVisibility(View.VISIBLE);
+    }
+
+    private void validateUser() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            if (uid == null || !user.getUid().equals(uid)) {
+                uid = user.getUid();
+                fetchEntries();
+            } else {
+                asyncStop();
+            }
+        } else {
+            reauthenticate();
+        }
+    }
+
+    private void reauthenticate() {
+        startActivity(new Intent(this, AuthActivity.class)
+                .putExtra(AuthActivity.EXTRA_RETURN_TO_CALLER, true));
+    }
+
+    public void fetchEntries() {
+        asyncStart();
+        Database.getEntries(result -> {
+            if (result.getData() != null) {
+                entries = result.getData();
+            } else if (result.getException() instanceof UserNotSignedInException) {
+                reauthenticate();
+            } else {
+                entries = new ArrayList<>();
+                AndroidUtils.handleError(this, result.getException(), R.string.error_message_fetching_entries);
+            }
+            RecyclerView entryList = findViewById(R.id.entry_list);
+            entryList.setAdapter(new EntryListAdapter());
+            asyncStop();
+        });
+    }
+
+    public void refresh() {
+        asyncStart();
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(tokenResult -> {
+            if (tokenResult.isSuccessful()) {
+                Database.setToken(tokenResult.getResult(), dbResult -> {
+                    if (dbResult.getException() != null) {
+                        AndroidUtils.handleError(EntryListActivity.this,
+                                dbResult.getException(), R.string.error_message_updating_token);
+                    }
+                    fetchEntries();
+                });
+            } else {
+                AndroidUtils.handleError(EntryListActivity.this,
+                        tokenResult.getException(), R.string.error_message_updating_token);
+                fetchEntries();
+            }
+        });
     }
 
     @SuppressLint("RestrictedApi")
     private void showAddPopupMenu(MenuItem item) {
-        NotiphyApplication application = (NotiphyApplication) getApplication();
-        if (application.getEntries().size() >= NotiphyApplication.MAX_ENTRIES) {
-            new AlertDialog.Builder(this, R.style.NotiphyTheme_AlertDialog)
-                    .setTitle(R.string.max_entries_title)
-                    .setMessage(getResources().getString(R.string.max_entries_message, Integer.toString(NotiphyApplication.MAX_ENTRIES)))
-                    .setPositiveButton(R.string.ok, null)
-                    .create()
-                    .show();
+        if (getActiveEntryCount() >= MAX_ENTRIES) {
+            Toast.makeText(this,
+                    getString(R.string.message_max_entries_arg, Integer.toString(MAX_ENTRIES)),
+                    Toast.LENGTH_LONG).show();
         } else {
             MenuBuilder menuBuilder = new MenuBuilder(this);
             menuBuilder.setCallback(new MenuBuilder.Callback() {
 
                 @Override
-                public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+                public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
                     if (item.getItemId() == R.id.action_add_twitter) {
-                        startActivityForResult(new Intent(EntryListActivity.this, TwitterActivity.class), EntryActivity.REQUEST_CODE_NEW);
+                        newEntryLauncher.launch(EntryType.TWITTER);
                     } else if (item.getItemId() == R.id.action_add_reddit) {
-                        startActivityForResult(new Intent(EntryListActivity.this, RedditActivity.class), EntryActivity.REQUEST_CODE_NEW);
+                        newEntryLauncher.launch(EntryType.REDDIT);
                     }
                     return false;
                 }
 
                 @Override
-                public void onMenuModeChange(MenuBuilder menu) {
+                public void onMenuModeChange(@NonNull MenuBuilder menu) {
                 }
 
             });
 
-            new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_popup_menu, menuBuilder);
+            new MenuInflater(this).inflate(R.menu.entry_list_toolbar_add_popup, menuBuilder);
             addMenuHelper = new MenuPopupHelper(this, menuBuilder, findViewById(item.getItemId()));
             addMenuHelper.setForceShowIcon(true);
             addMenuHelper.show();
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void replaceEntry(Entry oldEntry, Entry newEntry) {
-        ArrayAdapter<Entry> adapter = ((ArrayAdapter<Entry>) ((ListView) findViewById(R.id.entry_list)).getAdapter());
-        int position = adapter.getPosition(oldEntry);
-        if (position != -1) {
-            adapter.remove(oldEntry);
-            ((NotiphyApplication) getApplication()).replaceEntry(oldEntry, newEntry);
-            adapter.insert(newEntry, position);
-        }
+    private void outOfSync() {
+        Toast.makeText(this, R.string.error_message_out_of_sync, Toast.LENGTH_LONG).show();
+        fetchEntries();
     }
 
-    private void updateError(NotiphyWebSocket.Status status) {
-        findViewById(R.id.toolbar_error).setVisibility(status == NotiphyWebSocket.Status.FAILURE ? View.VISIBLE : View.GONE);
-    }
-
-    private BroadcastReceiver statusChangedBroadcastReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateError(NotiphyWebSocket.Status.values()[intent.getIntExtra(NotiphyWebSocket.EXTRA_STATUS_ORDINAL, 0)]);
-        }
-
-    };
-
-    private class EntryRowAdapter extends ArrayAdapter<Entry> {
-
-        private LayoutInflater inflater;
-
-        public EntryRowAdapter() {
-            super(EntryListActivity.this, -1, new ArrayList<>(((NotiphyApplication) getApplication()).getEntries()));
-
-            inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            final Entry entry = getItem(position);
-            ViewHolder holder;
-            if (convertView == null) {
-                convertView = inflater.inflate(R.layout.layout_entry_row, parent, false);
-                holder = new ViewHolder();
-                holder.iconView = convertView.findViewById(R.id.entry_row_icon);
-                holder.descriptionIconView = convertView.findViewById(R.id.entry_row_description_icon);
-                holder.titleView = convertView.findViewById(R.id.entry_row_title);
-                holder.descriptionView = convertView.findViewById(R.id.entry_row_description);
-                holder.activeSwitch = convertView.findViewById(R.id.entry_row_active_switch);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
+    private void addEntry(DatabaseEntry entry) {
+        int count = getActiveEntryCount();
+        if (count < MAX_ENTRIES) {
+            entries.add(entry);
+            ((RecyclerView) findViewById(R.id.entry_list)).getAdapter().notifyItemInserted(entries.size() - 1);
+            if (entry.getEntry().isActive() && count == MAX_ENTRIES - 1) {
+                setActiveSwitchesEnabled(false);
             }
+        }
+    }
 
-            holder.iconView.setImageResource(entry.getType().getIconResourceId());
-            if (entry.getDescriptionIconResId() != -1) {
+    private boolean removeEntry(DatabaseEntry entry) {
+        int index = entries.indexOf(entry);
+        if (index != -1) {
+            entries.remove(index);
+            ((RecyclerView) findViewById(R.id.entry_list)).getAdapter().notifyItemRemoved(index);
+            if (entry.getEntry().isActive() && getActiveEntryCount() == MAX_ENTRIES - 1) {
+                setActiveSwitchesEnabled(true);
+            }
+            return true;
+        } else {
+            outOfSync();
+            return false;
+        }
+    }
+
+    private boolean replaceEntry(DatabaseEntry oldEntry, DatabaseEntry newEntry) {
+        int index = entries.indexOf(oldEntry);
+        if (index != -1) {
+            entries.set(index, newEntry);
+            ((RecyclerView) findViewById(R.id.entry_list)).getAdapter().notifyItemChanged(index);
+            if (oldEntry.getEntry().isActive() != newEntry.getEntry().isActive()) {
+                int activeEntryCount = getActiveEntryCount();
+                if (oldEntry.getEntry().isActive() && activeEntryCount == MAX_ENTRIES - 1) {
+                    setActiveSwitchesEnabled(true);
+                } else if (newEntry.getEntry().isActive() && activeEntryCount == MAX_ENTRIES) {
+                    setActiveSwitchesEnabled(false);
+                }
+            }
+            return true;
+        } else {
+            outOfSync();
+            return false;
+        }
+    }
+
+    private void setEntryActive(DatabaseEntry entry, boolean active) {
+        if (!entry.getEntry().isActive() && active && getActiveEntryCount() >= MAX_ENTRIES) {
+            Toast.makeText(this,
+                    getString(R.string.message_max_entries_arg, Integer.toString(MAX_ENTRIES)),
+                    Toast.LENGTH_LONG).show();
+        } else {
+            asyncStart();
+            Database.replaceEntry(entry, entry.getEntry().withActive(active), result -> {
+                if (result.getData() != null) {
+                    if (replaceEntry(entry, result.getData())) {
+                        asyncStop();
+                    }
+                } else if (result.getException() instanceof UserNotSignedInException) {
+                    reauthenticate();
+                } else {
+                    AndroidUtils.handleError(this, result.getException(), R.string.error_message_updating_entry);
+                }
+            });
+        }
+    }
+
+    private int getActiveEntryCount() {
+        int count = 0;
+        for (DatabaseEntry e : entries) {
+            if (e.getEntry().isActive()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private void setActiveSwitchesEnabled(boolean enabled) {
+        RecyclerView entryList = findViewById(R.id.entry_list);
+        for (int i = 0; i < entryList.getChildCount(); i++) {
+            EntryListAdapter.EntryHolder holder = (EntryListAdapter.EntryHolder) entryList.findViewHolderForAdapterPosition(i);
+            if (holder != null) {
+                if (!holder.activeSwitch.isChecked()) {
+                    setActiveSwitchEnabled(holder.activeSwitch, holder.activeSwitchLayout, enabled);
+                }
+            }
+        }
+    }
+
+    private void setActiveSwitchEnabled(SwitchCompat activeSwitch, View activeSwitchLayout, boolean enabled) {
+        activeSwitch.setEnabled(enabled);
+        if (enabled) {
+            activeSwitch.setClickable(true);
+            activeSwitchLayout.setClickable(false);
+            activeSwitchLayout.setOnClickListener(null);
+        } else {
+            activeSwitch.setClickable(false);
+            activeSwitchLayout.setClickable(true);
+            activeSwitchLayout.setOnClickListener(view -> Toast.makeText(this,
+                    getString(R.string.message_max_entries_arg, Integer.toString(MAX_ENTRIES)),
+                    Toast.LENGTH_LONG).show());
+        }
+    }
+
+    private class EntryListAdapter extends RecyclerView.Adapter<EntryListAdapter.EntryHolder> {
+
+        @NonNull
+        @Override
+        public EntryHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new EntryHolder(getLayoutInflater().inflate(R.layout.layout_entry_row, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull EntryHolder holder, int position) {
+            DatabaseEntry dbEntry = entries.get(position);
+            Entry entry = dbEntry.getEntry();
+
+            holder.logoView.setImageResource(entry.getType().getIconResource().getDrawableResId());
+            holder.logoView.setContentDescription(getString(entry.getType().getIconResource().getStringResId()));
+            if (entry.getDescriptionIconResource().getDrawableResId() != 0) {
                 holder.descriptionIconView.setVisibility(View.VISIBLE);
-                holder.descriptionIconView.setImageResource(entry.getDescriptionIconResId());
+                holder.descriptionIconView.setImageResource(entry.getDescriptionIconResource().getDrawableResId());
+                holder.descriptionIconView.setContentDescription(getString(entry.getDescriptionIconResource().getStringResId()));
             } else {
                 holder.descriptionIconView.setVisibility(View.GONE);
             }
@@ -232,35 +344,41 @@ public class EntryListActivity extends AppCompatActivity {
             } else {
                 holder.descriptionView.setVisibility(View.GONE);
             }
+            setActiveSwitchEnabled(holder.activeSwitch, holder.activeSwitchLayout,
+                    entry.isActive() || getActiveEntryCount() < MAX_ENTRIES);
+            holder.activeSwitch.setOnCheckedChangeListener(null);
             holder.activeSwitch.setChecked(entry.isActive());
-            holder.activeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    replaceEntry(entry, entry.withActive(isChecked));
-                }
-
-            });
-            convertView.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(EntryListActivity.this, entry.getType().getActivityClass());
-                    intent.putExtra(EntryActivity.EXTRA_ENTRY, entry);
-                    startActivityForResult(intent, EntryActivity.REQUEST_CODE_EDIT);
-                }
-
-            });
-            return convertView;
+            holder.activeSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    setEntryActive(dbEntry, isChecked));
+            holder.layout.setOnClickListener(view -> editEntryLauncher.launch(dbEntry));
         }
 
-        private class ViewHolder {
+        @Override
+        public int getItemCount() {
+            return entries.size();
+        }
 
-            ImageView iconView;
+        private class EntryHolder extends RecyclerView.ViewHolder {
+
+            View layout;
+            ImageView logoView;
             ImageView descriptionIconView;
             TextView titleView;
             TextView descriptionView;
+            View activeSwitchLayout;
             SwitchCompat activeSwitch;
+
+            public EntryHolder(@NonNull View itemView) {
+                super(itemView);
+
+                layout = itemView.findViewById(R.id.entry_row_layout);
+                logoView = itemView.findViewById(R.id.entry_row_logo);
+                descriptionIconView = itemView.findViewById(R.id.entry_row_description_icon);
+                titleView = itemView.findViewById(R.id.entry_row_title);
+                descriptionView = itemView.findViewById(R.id.entry_row_description);
+                activeSwitchLayout = itemView.findViewById(R.id.entry_row_active_switch_layout);
+                activeSwitch = itemView.findViewById(R.id.entry_row_active_switch);
+            }
 
         }
 

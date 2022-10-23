@@ -1,18 +1,53 @@
 package com.frostphyr.notiphy.reddit;
 
-public enum RedditEntryType {
+import com.frostphyr.notiphy.IconResource;
+import com.frostphyr.notiphy.R;
+import com.frostphyr.notiphy.SpinnerItem;
 
-    USER("u/"),
-    SUBREDDIT("r/");
+public enum RedditEntryType implements SpinnerItem {
 
+    USER(new IconResource(0, R.string.user), "u/", 20, new char[][] {
+            {'a', 'z'},
+            {'A', 'Z'},
+            {'0', '9'},
+            {'-'},
+            {'_'}
+    }),
+
+    SUBREDDIT(new IconResource(0, R.string.subreddit), "r/", 21, new char[][] {
+            {'a', 'z'},
+            {'A', 'Z'},
+            {'0', '9'},
+            {'_'}
+    });
+
+    private final IconResource iconResource;
     private final String prefix;
+    private final int charLimit;
+    private final char[][] charRanges;
 
-    private RedditEntryType(String prefix) {
+    RedditEntryType(IconResource iconResource, String prefix, int charLimit, char[][] charRanges) {
+        this.iconResource = iconResource;
         this.prefix = prefix;
+        this.charLimit = charLimit;
+        this.charRanges = charRanges;
+    }
+
+    @Override
+    public IconResource getIconResource() {
+        return iconResource;
     }
 
     public String getPrefix() {
         return prefix;
+    }
+
+    public int getCharLimit() {
+        return charLimit;
+    }
+
+    public char[][] getCharRanges() {
+        return charRanges;
     }
 
 }

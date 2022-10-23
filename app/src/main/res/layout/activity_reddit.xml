@@ -1,66 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/layout_toolbar"/>
-
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/entry_content"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/entry_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:menu="@menu/entry_toolbar"
+                app:title="@string/reddit"
+                app:navigationIcon="@drawable/ic_back"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="@dimen/spacing_normal">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/reddit_type_spinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_margin="@dimen/spacing_small"
+                        android:backgroundTint="@color/gray"/>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/reddit_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_margin="@dimen/spacing_small">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_normal"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_small"
+                    android:text="@string/post_type"/>
+
+                <Spinner
+                    android:id="@+id/reddit_post_type_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_small"
+                    android:backgroundTint="@color/gray"/>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_normal"/>
+
+                <include layout="@layout/layout_entry_phrases"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ad_banner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/ad_unit_id"/>
 
-            <Spinner
-                android:id="@+id/reddit_type_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/default_margin"
-                android:spinnerMode="dialog"
-                android:theme="@style/NotiphyTheme.Spinner"/>
+    </LinearLayout>
 
-            <EditText
-                android:id="@+id/reddit_value"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/default_margin"
-                android:layout_marginRight="@dimen/default_margin"
-                android:layout_marginBottom="@dimen/default_margin"
-                android:padding="@dimen/edit_text_padding"
-                android:inputType="text"/>
-
-            <View
-                style="@style/NotiphyTheme.Divider"/>
-
-            <com.frostphyr.notiphy.TitledSpinner
-                android:id="@+id/reddit_post_type_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/default_margin"
-                app:title="@string/post_type"/>
-
-            <View
-                style="@style/NotiphyTheme.Divider"/>
-
-            <include layout="@layout/layout_entry_phrases"/>
-
-        </LinearLayout>
-
-    </ScrollView>
-
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/ad_banner"
-        android:layout_width="match_parent"
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/entry_progress"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/default_margin"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/ad_unit_id"/>
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:visibility="gone"/>
 
-</LinearLayout>
+</FrameLayout>

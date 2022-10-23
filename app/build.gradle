@@ -1,28 +1,58 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion 28
+
+    buildToolsVersion '30.0.3'
+    compileSdkVersion 32
+
     defaultConfig {
         applicationId "com.frostphyr.notiphy"
-        minSdkVersion 15
-        targetSdkVersion 28
+        minSdkVersion 21
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
-        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.frostphyr.notiphy'
+
 }
 
 dependencies {
+    def room_version = "2.4.3"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-guava:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.core:core:1.0.1'
-    implementation 'com.google.android.gms:play-services-ads:17.2.1'
-    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
-    testImplementation 'junit:junit:4.12'
+    implementation platform('com.google.firebase:firebase-bom:29.0.3')
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-functions'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
+    implementation 'com.facebook.android:facebook-login:12.0.0'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
+    implementation 'androidx.core:core:1.8.0'
+    implementation 'androidx.work:work-runtime:2.7.1'
+    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'com.google.android.gms:play-services-ads:21.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.2.0'
+    implementation 'com.google.code.gson:gson:2.8.9'
 }

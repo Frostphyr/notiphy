@@ -2,22 +2,23 @@ package com.frostphyr.notiphy.reddit;
 
 import com.frostphyr.notiphy.IconResource;
 import com.frostphyr.notiphy.R;
+import com.frostphyr.notiphy.SpinnerItem;
 
-public enum RedditPostType implements IconResource {
+public enum RedditPostType implements SpinnerItem {
 
-    ANY(-1),
-    TEXT(R.drawable.ic_text),
-    LINK(R.drawable.ic_link);
+    ANY(new IconResource(0, R.string.any)),
+    TEXT(new IconResource(R.drawable.ic_text, R.string.text)),
+    LINK(new IconResource(R.drawable.ic_link, R.string.link));
 
-    private int iconResId;
+    private final IconResource iconResource;
 
-    private RedditPostType(int iconResId) {
-        this.iconResId = iconResId;
+    RedditPostType(IconResource iconResource) {
+        this.iconResource = iconResource;
     }
 
     @Override
-    public int getIconResourceId() {
-        return iconResId;
+    public IconResource getIconResource() {
+        return iconResource;
     }
 
 }

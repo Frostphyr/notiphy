@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "81742607371",
+    "project_id": "notiphy-14b53",
+    "storage_bucket": "notiphy-14b53.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81742607371:android:d03aebfb933f1496ff030e",
+        "android_client_info": {
+          "package_name": "com.frostphyr.notiphy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "81742607371-e0m5uv432uplel0e1r6r1tlc3r7db5ka.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.frostphyr.notiphy",
+            "certificate_hash": "4c2d7c25d30a0ea391f04ef28263f69c5231b5c5"
+          }
+        },
+        {
+          "client_id": "81742607371-vuuig09029qv51r05p1hfgmqofsrqbmv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLTHFQr3Zsyty-28mz0rodA53D44pZj5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "81742607371-vuuig09029qv51r05p1hfgmqofsrqbmv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

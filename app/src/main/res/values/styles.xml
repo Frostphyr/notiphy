@@ -1,72 +1,51 @@
 <resources>
 
-    <style name="NotiphyTheme" parent="Theme.AppCompat.Light">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/background</item>
-        <item name="popupMenuStyle">@style/NotiphyTheme.ActionBar.PopupMenu</item>
-        <item name="android:textAppearanceLargePopupMenu">@style/NotiphyTheme.Text</item>
-        <item name="android:textAppearanceSmallPopupMenu">@style/NotiphyTheme.Text</item>
-        <item name="android:textViewStyle">@style/NotiphyTheme.Text</item>
-        <item name="editTextStyle">@style/NotiphyTheme.EditText</item>
-        <item name="android:scrollbarThumbVertical">@color/scrollbar</item>
-    </style>
-
-    <style name="NotiphyTheme.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/action_bar_background</item>
-        <item name="titleTextColor">@color/action_bar_text</item>
-
-    </style>
-
-    <style name="NotiphyTheme.ActionBar.PopupMenu" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:popupBackground">@color/action_bar_background</item>
-    </style>
-
-    <style name="NotiphyTheme.Divider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/divider_height</item>
-        <item name="android:background">@color/divider</item>
-    </style>
-
-    <style name="NotiphyTheme.Text" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/light_text</item>
+    <style name="NotiphyTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/cyan</item>
+        <item name="colorSecondary">@color/cyan</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSurface">@color/gray</item>
+        <item name="colorOnSurface">@color/gray</item>
+        <item name="popupMenuBackground">@color/black</item>
+        <item name="android:colorBackground">@color/light_black</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:listDivider">@drawable/divider</item>
+        <item name="toolbarStyle">@style/NotiphyTheme.Toolbar</item>
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
+        <item name="materialAlertDialogTheme">@style/NotiphyTheme.AlertDialog</item>
     </style>
 
-    <style name="NotiphyTheme.TextSecondary" parent="NotiphyTheme.Text">
-        <item name="android:textColor">@color/light_text_secondary</item>
+    <style name="NotiphyTheme.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="android:background">@color/black</item>
+        <item name="titleTextColor">@color/white</item>
     </style>
 
-    <style name="NotiphyTheme.EditText" parent="Widget.AppCompat.EditText">
-        <item name="android:textCursorDrawable">@drawable/drawable_text_cursor</item>
-        <item name="android:textColor">@color/edit_text</item>
-        <item name="android:background">@color/edit_text_background</item>
-        <item name="android:textSize">@dimen/text_size</item>
+    <style name="NotiphyTheme.SecondaryText" parent="NotiphyTheme">
+        <item name="android:textColor">@color/gray</item>
     </style>
 
-    <style name="NotiphyTheme.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
-        <item name="colorControlActivated">@color/accent</item>
-        <item name="colorSwitchThumbNormal">@color/disabled</item>
-        <item name="android:colorForeground">@color/disabled</item>
+    <style name="NotiphyTheme.AlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="colorSurface">@color/light_black</item>
+        <item name="buttonBarPositiveButtonStyle">@style/NotiphyTheme.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NotiphyTheme.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/NotiphyTheme.DialogButton</item>
     </style>
 
-    <style name="NotiphyTheme.Spinner" parent="Widget.AppCompat.Spinner">
-        <item name="backgroundTint">@color/spinner_tint</item>
-        <item name="android:background">@color/action_bar_background</item>
+    <style name="NotiphyTheme.DialogButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="NotiphyTheme.Spinner.ItemText" parent="Widget.AppCompat.TextView.SpinnerItem">
-        <item name="android:textColor">@color/light_text_secondary</item>
-    </style>
-
-    <style name="NotiphyTheme.Button" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:textColor">@color/show_nsfw_button</item>
-        <item name="android:background">@drawable/bg_show_nsfw_button</item>
-    </style>
-    
-    <style name="NotiphyTheme.AlertDialog" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:background">@color/dialog_background</item>
-        <item name="android:textColor">@color/action_bar_text</item>
+    <style name="NotiphyTheme.FirebaseUI" parent="FirebaseUI">
+        <item name="colorPrimary">@color/cyan</item>
+        <item name="colorAccent">@color/cyan</item>
+        <item name="android:colorBackground">@color/cyan</item>
+        <item name="android:windowBackground">@color/light_black</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="toolbarStyle">@style/NotiphyTheme.Toolbar</item>
     </style>
 
 </resources>

@@ -1,89 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/entry_content"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <include layout="@layout/layout_toolbar"/>
-
-            <ScrollView
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/entry_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                app:menu="@menu/entry_toolbar"
+                app:title="@string/twitter"
+                app:navigationIcon="@drawable/ic_back"/>
 
-                <LinearLayout
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="@dimen/spacing_normal">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/twitter_username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_margin="@dimen/spacing_small"
+                    android:hint="@string/username">
 
-                        <EditText
-                            android:id="@+id/twitter_username"
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_margin="@dimen/default_margin"
-                            android:padding="@dimen/edit_text_padding"
-                            android:hint="@string/username_hint"
-                            android:layout_weight="1"
-                            android:inputType="text"/>
-
-                    <View
-                        style="@style/NotiphyTheme.Divider"/>
-
-                    <com.frostphyr.notiphy.TitledSpinner
-                        android:id="@+id/media_spinner"
+                    <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/default_margin"
-                        android:orientation="vertical"
-                        app:title="@string/media_title"/>
+                        android:inputType="text"/>
 
-                    <View
-                        style="@style/NotiphyTheme.Divider"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-                    <include layout="@layout/layout_entry_phrases"/>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_normal"/>
 
-                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_small"
+                    android:text="@string/media"/>
 
-            </ScrollView>
+                <Spinner
+                    android:id="@+id/media_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_small"
+                    android:backgroundTint="@color/gray"/>
 
-        </LinearLayout>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/spacing_normal"/>
 
-        <LinearLayout
-            android:id="@+id/twitter_loading"
+                <include layout="@layout/layout_entry_phrases"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ad_banner"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:clickable="true"
-            android:focusable="true"
-            android:visibility="gone">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/ad_unit_id"/>
 
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:indeterminate="true"/>
+    </LinearLayout>
 
-        </LinearLayout>
-
-    </FrameLayout>
-
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/ad_banner"
-        android:layout_width="match_parent"
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/entry_progress"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/default_margin"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/ad_unit_id"/>
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:visibility="gone"/>
 
-</LinearLayout>
+</FrameLayout>

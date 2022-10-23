@@ -1,28 +1,41 @@
 package com.frostphyr.notiphy;
 
 import android.os.Parcelable;
+import android.text.TextUtils;
+
+import com.google.firebase.firestore.Exclude;
+
+import java.util.List;
 
 public abstract class Entry implements Parcelable {
 
-    private String[] phrases;
+    private List<String> phrases;
     private boolean active;
+    private long timestamp;
 
-    protected Entry(String[] phrases, boolean active) {
-        this.phrases = validatePhrases(phrases);
+    public Entry(List<String> phrases, boolean active) {
+        this.phrases = phrases;
         this.active = active;
+        timestamp = System.currentTimeMillis();
+    }
+
+    public Entry() {
+    }
+
+    @Exclude
+    public String getDescription() {
+        return TextUtils.join(", ", getPhrases());
     }
 
     public abstract EntryType getType();
 
     public abstract String getTitle();
 
-    public abstract String getDescription();
-
-    public abstract int getDescriptionIconResId();
+    public abstract IconResource getDescriptionIconResource();
 
     public abstract Entry withActive(boolean active);
 
-    public String[] getPhrases() {
+    public List<String> getPhrases() {
         return phrases;
     }
 
@@ -30,13 +43,8 @@ public abstract class Entry implements Parcelable {
         return active;
     }
 
-    private static String[] validatePhrases(String[] phrases) {
-        if (phrases == null) {
-            return new String[0];
-        } else if (phrases.length > EntryActivity.MAX_PHRASES) {
-            throw new IllegalInputException(R.string.error_message_entry_phrases);
-        }
-        return phrases;
+    public long getTimestamp() {
+        return timestamp;
     }
 
 }

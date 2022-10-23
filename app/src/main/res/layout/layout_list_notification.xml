@@ -1,31 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/list_notification_layout"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-    <LinearLayout
-        android:id="@+id/list_notification_nsfw_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:clickable="false"
-        android:visibility="gone">
+        android:orientation="vertical"/>
 
-        <Button
-            android:id="@+id/list_notification_show_nsfw"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/default_margin"
-            android:paddingRight="@dimen/default_margin"
-            android:text="@string/show_nsfw"
-            style="@style/NotiphyTheme.Button"/>
+    <TextView
+        android:id="@+id/list_notification_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.Compat.Notification.Info"/>
 
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

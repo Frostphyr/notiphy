@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -7,14 +8,29 @@
     <ImageView
         android:id="@+id/list_notification_item_icon"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/notification_icon_size"
-        android:layout_gravity="center"/>
+        android:layout_height="@dimen/icon_size_notification"
+        android:layout_marginEnd="@dimen/spacing_small"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        tools:ignore="ContentDescription"/>
+
+    <ImageView
+        android:id="@+id/list_notification_item_media_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/icon_size_notification"
+        android:layout_marginEnd="@dimen/spacing_small"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        tools:ignore="ContentDescription"/>
 
     <TextView
         android:id="@+id/list_notification_item_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_gravity="center"
         android:ellipsize="end"
         android:singleLine="true"
         style="@style/TextAppearance.Compat.Notification.Title"/>

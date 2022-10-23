@@ -4,24 +4,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical"
-    android:paddingTop="@dimen/default_margin"
     android:orientation="horizontal">
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/phrase"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="@dimen/edit_text_padding"
-        android:hint="@string/phrase_hint"
-        android:maxLength="50"
-        android:layout_weight="1"/>
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:layout_margin="@dimen/spacing_small"
+        android:hint="@string/phrase">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLength="50"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
         android:id="@+id/remove_phrase"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/default_margin"
-        android:background="?attr/selectableItemBackground"
+        android:layout_height="@dimen/icon_size_normal"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="@dimen/spacing_small"
+        android:contentDescription="@string/remove_phrase"
+        android:background="?android:attr/selectableItemBackground"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_close"/>
 
 </LinearLayout>

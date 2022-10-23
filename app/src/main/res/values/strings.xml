@@ -1,87 +1,91 @@
 <resources>
     <string name="app_name">Notiphy</string>
-
-    <string name="loading">Loading %1s</string>
-    <string name="finished">Finished</string>
-    <string name="settings">settings</string>
-    <string name="entries">entries</string>
-    <string name="ads">ads</string>
-
-    <string name="add_title">Add</string>
-    <string name="help_title">Help</string>
-    <string name="save_title">Save</string>
-    <string name="delete_title">Delete</string>
-    <string name="twitter_title">Twitter</string>
-    <string name="reddit_title">Reddit</string>
-    <string name="settings_title">Settings</string>
-    <string name="media_title">Media</string>
-    <string name="media_label">Media: %1s</string>
-    <string name="username_hint">Username</string>
-    <string name="phrase_hint">Phrase</string>
-    <string name="report_error">Report error</string>
-    <string name="close">Close</string>
+    <string name="refresh">Refresh</string>
+    <string name="add">Add</string>
+    <string name="help">Help</string>
+    <string name="description">Description</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="options">Options</string>
+    <string name="twitter">Twitter</string>
+    <string name="reddit">Reddit</string>
+    <string name="settings">Settings</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_out">Sign out</string>
+    <string name="delete_account">Delete account</string>
+    <string name="support">Support</string>
+    <string name="terms_of_service">Terms of service</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="media">Media</string>
+    <string name="username">Username</string>
+    <string name="phrase">Phrase</string>
+    <string name="phrases">Phrases</string>
+    <string name="new_phrase">New phrase</string>
+    <string name="remove_phrase">Remove phrase</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="ok">Ok</string>
-    <string name="at">\@</string>
-    <string name="show_nsfw">Show NSFW</string>
-    <string name="post_type">Post Type</string>
-
-    <string name="max_entries_title">Max Entries</string>
-    <string name="max_entries_message">You may only have a maximum of %1s entries.</string>
-
-    <string name="delete_entry_conformation">Are you sure you would like to delete this entry?</string>
-
-    <string name="list_notification_more_start">+&#160;</string>
-    <string name="list_notification_more_end">&#160;more</string>
-
-    <string name="foreground_notification_title">Notiphy is running</string>
-
-    <string name="error_message_read_entries">Error reading saved entries</string>
-    <string name="error_message_write_entries">Error writing entries to storage</string>
-    <string name="error_message_read_settings">Error reading settings</string>
-    <string name="error_message_write_settings">Error saving settings</string>
-    <string name="error_message_initializing_ads">Error initializing ads</string>
-    <string name="error_message_notiphy_connection">Error connecting to Notiphy server. Retrying in %1s seconds.</string>
-    <string name="error_message_twitter_connection">Error connecting with Notiphy server, please try again later.</string>
-    <string name="error_message_fetch_user_id">Error fetching user ID, please try again later.</string>
-    <string name="error_message_user_not_found">User not found</string>
-    <string name="error_message_user_suspended">User is suspended</string>
-
-    <string name="error_message_entry_phrases">Cannot have more than 10 phrases</string>
-
-    <string name="error_message_twitter_id">Must have a valid ID</string>
-    <string name="error_message_twitter_username">Username must be between 1 and 15 characters and only contain letters, numbers, and underscores</string>
-    <string name="error_message_twitter_media_type">Media type must be either OPTIONAL, ANY, NONE, IMAGE, or VIDEO</string>
-
-    <string name="error_message_reddit_type">Must be either user or subreddit</string>
-    <string name="error_message_reddit_value">Must have either a user or subreddit</string>
-    <string name="error_message_reddit_user">User must be between 3 and 20 characters and only contain letters, numbers, dashes, and underscores</string>
-    <string name="error_message_reddit_subreddit">Subreddit must be between 3 and 21 characters and only contain letters, numbers, and underscores</string>
-    <string name="error_message_reddit_post_type">Post type must be either ANY, TEXT, or, LINK</string>
-
-    <string name="help_message_all"><b>Phrases</b>: The phrases to be notified for. The phrases are case insensitive and it will need to contain every phrase.</string>
-    <string name="help_message_twitter"><b>Username</b>: The Twitter username not including the \'@\'\n\n
-        <b>Media</b>: The type of media to be notified for.\n
-        &#8226; <b>OPTIONAL</b>: Contains any type of media or no media\n
-        &#8226; <b>ANY</b>: Contains any type of media\n
-        &#8226; <b>NONE</b>: Doesn\'t contain any media\n
-        &#8226; <b>IMAGE</b>: Contains an image\n
-        &#8226; <b>VIDEO</b>: Contains a video\n
-        </string>
-    <string name="help_message_reddit"><b>USER/SUBREDDIT</b>: The name of the user or subreddit to be notified for.\n\n
-        <b>Post Type</b>: The type of post to be notified for.\n
-        &#8226; <b>ANY</b>: Either a text or link post\n
-        &#8226; <b>TEXT</b>: Only text posts\n
-        &#8226; <b>LINK</b>: Only link posts\n
-    </string>
-    
-    <string name="expand_more">Expand more</string>
-    <string name="expand_less">Expand less</string>
+    <string name="ok">OK</string>
+    <string name="crash_reporting">Crash reporting</string>
+    <string name="show_media">Show media</string>
+    <string name="mature_content">Mature content</string>
+    <string name="post_type">Post type</string>
+    <string name="user">User</string>
+    <string name="subreddit">Subreddit</string>
+    <string name="expand">Expand</string>
+    <string name="collapse">Collapse</string>
+    <string name="optional">Optional</string>
+    <string name="none">None</string>
     <string name="image">Image</string>
     <string name="video">Video</string>
-    <string name="play">Play</string>
+    <string name="album">Album</string>
     <string name="error">Error</string>
-    <string name="previous_media">Previous media</string>
-    <string name="next_media">Next media</string>
+    <string name="any">Any</string>
+    <string name="text">Text</string>
+    <string name="link">Link</string>
+    <string name="show">Show</string>
+    <string name="hide">Hide</string>
+    <string name="block">Block</string>
+    <string name="all">All</string>
+    <string name="notifications">Notifications</string>
+    <string name="message_hidden">Message hidden</string>
+    <string name="toggle_visibility">Toggle visibility</string>
+    <string name="maximum_reached">Maximum reached</string>
+
+    <string name="agreement_crash_reporting">Would you like to help us and send anonymous crash reports? You can change this at any time in settings.\n\nIt uses Firebase Crashlytics (<a href="https://firebase.google.com/terms/crashlytics">Terms of Service</a> &amp; <a href="https://policies.google.com/privacy">Privacy Policy</a>)</string>
+
+    <string name="confirmation_delete_entry">Are you sure you would like to delete this entry?</string>
+    <string name="confirmation_logout">Are you sure you would like to logout?</string>
+    <string name="confirmation_delete_account">Are you sure you would like to delete your account? This will also delete everything associated with the account.</string>
+    
+    <string name="list_notification_more_arg">+ %1s more</string>
+
+    <string name="message_max_entries_arg">You may only have a maximum of %1s active entries.</string>
+
+    <string name="error_message_updating_token">Error updating token, you may encounter problems receiving messages. If you do, please refresh to update your token.</string>
+    <string name="error_message_fetching_entries">Error fetching entries, please try again later. If the issue persists, please contact support.</string>
+    <string name="error_message_delete_account">Error deleting account, please try again later. If the issue persists, please contact support.</string>
+    <string name="error_message_signed_out">You have been signed out, please sign back in to continue.</string>
+    <string name="error_message_sign_in">Error signing in, please try again later. If the issue persists, please contact support.</string>
+    <string name="error_message_sign_out">Error signing out, please try again later. If the issue persists, please contact support.</string>
+    <string name="error_message_out_of_sync">Entries out of sync, syncing now</string>
+    <string name="error_message_creating_entry">Error creating entry, please try again later. If the issue persists, please contact support.</string>
+    <string name="error_message_updating_entry">Error updating entry, please try again later. If the issue persists, please contact support.</string>
+    <string name="error_message_user_not_found">User not found</string>
+    <string name="error_message_user_suspended">User is suspended</string>
+    <string name="error_message_reddit_blocked_subreddit">The subreddits <b>all</b>, <b>popular</b>, and <b>frontpage</b> may not be used</string>
+    <string name="error_message_not_found_arg">%1s not found</string>
+    <string name="error_message_opening_url">Unable to open URL</string>
+
+    <string name="description_crash_reporting">Sends anonymous crash reports using Firebase Crashlytics (<a href="https://firebase.google.com/terms/crashlytics">Terms of Service</a> &amp; <a href="https://policies.google.com/privacy">Privacy Policy</a>)</string>
+    <string name="description_show_media">Downloads and shows media in notifications and in app</string>
+    <string name="description_mature_content">How to handle content marked as mature by the respective platform.\n\n
+        &#8226; <b>SHOW</b>: Show all mature content as normal\n
+        &#8226; <b>HIDE</b>: Hide mature content and gives a toggle to view\n
+        &#8226; <b>BLOCK</b>: Block all mature content
+    </string>
+    <string name="description_phrases">The phrases that the post must contain. They are case insensitive and the post will need to contain every phrase.</string>
+
+    <string name="url_support">https://frostphyr.com/contact/?project=notiphy</string>
+    <string name="url_terms">https://frostphyr.com/notiphy/terms</string>
+    <string name="url_privacy">https://frostphyr.com/notiphy/privacy</string>
 </resources>

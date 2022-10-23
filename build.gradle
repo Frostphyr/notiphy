@@ -4,17 +4,20 @@ buildscript {
     
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
+        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.google.gms:google-services:4.3.13'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.1'
+        classpath 'com.android.support:multidex:1.0.3'
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 

@@ -1,28 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".SettingsActivity">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <include layout="@layout/layout_toolbar"/>
-
-    <ListView
-        android:id="@+id/settings_list"
+    <LinearLayout
+        android:id="@+id/settings_content"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="@color/divider"
-        android:dividerHeight="@dimen/divider_height"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/ad_banner"
-        android:layout_width="match_parent"
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/settings_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:menu="@menu/settings_toolbar"
+                app:title="@string/settings"
+                app:navigationIcon="@drawable/ic_back"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ListView
+            android:id="@+id/settings_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="@dimen/spacing_normal"
+            android:divider="@color/gray"
+            android:dividerHeight="@dimen/divider_height"/>
+
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ad_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/ad_unit_id"/>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/settings_progress"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/default_margin"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/ad_unit_id"/>
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
-</LinearLayout>
+</FrameLayout>
+

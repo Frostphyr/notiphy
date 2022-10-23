@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/default_margin"
-    android:paddingBottom="@dimen/default_margin"
     android:orientation="horizontal"
-    style="@style/Widget.AppCompat.TextView.SpinnerItem">
+    android:padding="@dimen/spacing_normal"
+    android:background="@color/dark_gray">
+
+    <ImageView
+        android:id="@+id/spinner_item_image"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/icon_size_small"
+        android:layout_marginEnd="@dimen/spacing_small"
+        android:layout_gravity="center_vertical"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        tools:ignore="ContentDescription"/>
 
     <TextView
-        android:id="@+id/spinner_dropdown_item_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:id="@+id/spinner_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:maxLines="1"/>
 
 </LinearLayout>

@@ -5,53 +5,35 @@ import android.os.Parcelable;
 
 import com.frostphyr.notiphy.Entry;
 import com.frostphyr.notiphy.EntryType;
-import com.frostphyr.notiphy.IllegalInputException;
-import com.frostphyr.notiphy.R;
-import com.frostphyr.notiphy.TextUtils;
+import com.frostphyr.notiphy.IconResource;
+import com.google.firebase.firestore.Exclude;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class RedditEntry extends Entry {
 
-    public static final char[][] USER_CHAR_RANGES = {
-            {'a', 'z'},
-            {'A', 'Z'},
-            {'0', '9'},
-            {'-'},
-            {'_'}
-    };
-
-    public static final char[][] SUBREDDIT_CHAR_RANGES = {
-            {'a', 'z'},
-            {'A', 'Z'},
-            {'0', '9'},
-            {'_'}
-    };
-
-    public static final char[][] VALUE_CHAR_RANGES = {
-            {'a', 'z'},
-            {'A', 'Z'},
-            {'0', '9'},
-            {'-'},
-            {'_'}
-    };
-
-    private RedditEntryType type;
+    private RedditEntryType entryType;
     private String value;
-
     private RedditPostType postType;
 
     public RedditEntry(RedditEntryType type, String value, RedditPostType postType,
-                          String[] phrases, boolean active) {
+                       List<String> phrases, boolean active) {
         super(phrases, active);
 
-        this.type = validateType(type);
-        this.value = validateValue(value);
-        this.postType = validatePostType(postType);
+        this.entryType = type;
+        this.value = value;
+        this.postType = postType;
+    }
+
+    @SuppressWarnings("unused")
+    public RedditEntry() {
+        super();
     }
 
     public RedditEntryType getEntryType() {
-        return type;
+        return entryType;
     }
 
     public String getValue() {
@@ -67,24 +49,21 @@ public class RedditEntry extends Entry {
         return EntryType.REDDIT;
     }
 
+    @Exclude
     @Override
     public String getTitle() {
-        return type.getPrefix() + value;
+        return entryType.getPrefix() + value;
     }
 
+    @Exclude
     @Override
-    public String getDescription() {
-        return TextUtils.concat(getPhrases(), ", ");
-    }
-
-    @Override
-    public int getDescriptionIconResId() {
-        return postType.getIconResourceId();
+    public IconResource getDescriptionIconResource() {
+        return postType.getIconResource();
     }
 
     @Override
     public Entry withActive(boolean active) {
-        return active == isActive() ? this : new RedditEntry(type, value, postType, getPhrases(), active);
+        return active == isActive() ? this : new RedditEntry(entryType, value, postType, getPhrases(), active);
     }
 
     @Override
@@ -94,10 +73,10 @@ public class RedditEntry extends Entry {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(type.ordinal());
+        dest.writeInt(entryType.ordinal());
         dest.writeString(value);
         dest.writeInt(postType.ordinal());
-        dest.writeStringArray(getPhrases());
+        dest.writeList(getPhrases());
         dest.writeInt(isActive() ? 1 : 0);
     }
 
@@ -105,10 +84,10 @@ public class RedditEntry extends Entry {
     public boolean equals(Object o) {
         if (o instanceof RedditEntry) {
             RedditEntry e = (RedditEntry) o;
-            return e.type == type
+            return e.entryType == entryType
                     && e.value.equals(value)
                     && e.postType == postType
-                    && Arrays.equals(e.getPhrases(), getPhrases())
+                    && e.getPhrases().equals(getPhrases())
                     && e.isActive() == isActive();
         }
         return false;
@@ -116,32 +95,7 @@ public class RedditEntry extends Entry {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[] {type, value, postType, Arrays.hashCode(getPhrases()), isActive()});
-    }
-
-    private RedditEntryType validateType(RedditEntryType type) {
-        if (type == null) {
-            throw new IllegalInputException(R.string.error_message_reddit_type);
-        }
-        return type;
-    }
-
-    private String validateValue(String value) {
-        if (value == null) {
-            throw new IllegalInputException(R.string.error_message_reddit_value);
-        } if (type == RedditEntryType.USER && (value.length() < 3 || value.length() > 20 || !TextUtils.inRanges(USER_CHAR_RANGES, value))) {
-            throw new IllegalInputException(R.string.error_message_reddit_user);
-        } else if (type == RedditEntryType.SUBREDDIT && (value.length() < 3 || value.length() > 21 || !TextUtils.inRanges(SUBREDDIT_CHAR_RANGES, value))) {
-            throw new IllegalInputException(R.string.error_message_reddit_subreddit);
-        }
-        return value;
-    }
-
-    private RedditPostType validatePostType(RedditPostType postType) {
-        if (postType == null) {
-            throw new IllegalInputException(R.string.error_message_reddit_post_type);
-        }
-        return postType;
+        return Arrays.hashCode(new Object[] {entryType.ordinal(), value, postType.ordinal(), getPhrases(), isActive()});
     }
 
     public static final Parcelable.Creator<Entry> CREATOR = new Parcelable.Creator<Entry>() {
@@ -151,7 +105,8 @@ public class RedditEntry extends Entry {
             RedditEntryType type = RedditEntryType.values()[in.readInt()];
             String value = in.readString();
             RedditPostType postType = RedditPostType.values()[in.readInt()];
-            String[] phrases = in.createStringArray();
+            List<String> phrases = new ArrayList<>();
+            in.readList(phrases, null);
             boolean active = in.readInt() != 0;
             return new RedditEntry(type, value, postType, phrases, active);
         }

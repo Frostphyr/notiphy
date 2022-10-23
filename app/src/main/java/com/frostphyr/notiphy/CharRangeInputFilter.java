@@ -7,7 +7,7 @@ import android.text.TextUtils;
 
 public class CharRangeInputFilter implements InputFilter {
 
-    private char[][] ranges;
+    private final char[][] ranges;
 
     public CharRangeInputFilter(char[][] ranges) {
         this.ranges = ranges;
@@ -19,7 +19,7 @@ public class CharRangeInputFilter implements InputFilter {
         StringBuilder builder = new StringBuilder(end - start);
         for (int i = start; i < end; i++) {
             char c = source.charAt(i);
-            if (com.frostphyr.notiphy.TextUtils.inRanges(ranges, c)) {
+            if (inRanges(ranges, c)) {
                 builder.append(c);
             } else {
                 modified = true;
@@ -36,6 +36,21 @@ public class CharRangeInputFilter implements InputFilter {
             }
         }
         return null;
+    }
+
+    public static boolean inRanges(char[][] ranges, char c) {
+        for (char[] range : ranges) {
+            if (range.length == 1) {
+                if (c == range[0]) {
+                    return true;
+                }
+            } else if (range.length == 2) {
+                if (c >= range[0] && c <= range[1]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
