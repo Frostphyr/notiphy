@@ -19,10 +19,10 @@ public abstract class MessageDao {
                 .build().messageDao();
     }
 
-    @Query("SELECT * FROM message")
+    @Query("SELECT * FROM message ORDER BY timestamp ASC")
     public abstract List<Message> getAll();
 
-    @Query("SELECT * FROM message WHERE url IN (:urls)")
+    @Query("SELECT * FROM message WHERE url IN (:urls) ORDER BY timestamp ASC")
     public abstract List<Message> getAll(List<String> urls);
 
     @Insert
